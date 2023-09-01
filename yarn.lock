@@ -1961,9 +1961,7 @@
   "resolved" "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz"
   "version" "1.2.1"
 
-"prettier@^23.0.2":
-  "integrity" "sha512-o2YR9qtniXvwEZlOKbveKfDQVyqxbEIWn48Z8m3ZJjBjcCmUy3xZGIv+7AkaeuaTr6yPXJjwv07ZWlsWbEy1rQ=="
-  "resolved" "https://registry.npmjs.org/prettier/-/prettier-3.0.2.tgz"
+"prettier@^3.0.2":
   "version" "3.0.2"
 
 "punycode@^2.1.0":

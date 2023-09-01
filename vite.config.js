@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
 export default defineConfig({
-  base: "refis-app",
+  base: "/",
   plugins: [vue()],
   resolve: {
     alias: {
@@ -12,6 +12,5 @@ export default defineConfig({
   },
   server: {
     open: true,
-    port: 8080
   },
 })
