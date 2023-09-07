@@ -8,6 +8,13 @@ export default defineConfig(() => {
     return {
         base: '/refis-app/',
         plugins: [vue()],
+        server: {
+            host: true,
+            port: 3000,
+            watch: {
+                usePolling: true
+            }
+        },
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url))
