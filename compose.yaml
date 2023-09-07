@@ -4,6 +4,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/src/app
+      - .:/app
     environment:
       - NODE_ENV=development
