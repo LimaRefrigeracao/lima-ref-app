@@ -1,6 +1,6 @@
 {
-    "homepage": "https://desenvx.github.io/refis-app",
-    "name": "refis-app",
+    "homepage": "https://desenvx.github.io/lima-ref",
+    "name": "lima-ref",
     "version": "1.0.0",
     "scripts": {
         "dev": "vite",
