@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig(() => {
     return {
-        base: '/lima-ref/',
+        base: '/',
         plugins: [vue()],
         server: {
             host: true,
