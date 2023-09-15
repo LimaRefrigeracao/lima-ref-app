@@ -13,7 +13,6 @@ const statusPaymentMapping = ref({
     1: 'Pendente',
     2: 'Pago'
 });
-
 const statusServiceOptions = ref(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
 const statusServiceMapping = ref({
     0: 'Visitar',
@@ -89,7 +88,6 @@ const getStatusServiceClass = (status) => {
 };
 const initFilters = () => {
     filters.value = {
-        global: { value: '' },
         order_of_service: { value: null },
         product: { value: null },
         client: { value: null },
@@ -200,6 +198,17 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
+                    <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center"
+                        style="min-width: 8rem">
+                        <template #body="{ data }">
+                            <i class="pi"
+                                :class="{ 'text-green-500 pi-check-circle': data.adress, 'text-pink-500 pi-times-circle': !data.adress }"></i>
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <TriStateCheckbox v-model="filterModel.value" />
+                        </template>
+                    </Column>
+
                     <Column bodyClass="text-center" field="created_at" header="D. Entrada" :showFilterMatchModes="false" dataType="date">
                         <template #body="{ data }">
                             {{ formatData(data.created_at) }}
@@ -253,6 +262,17 @@ onBeforeMount(() => {
                                     <Badge :value="getStatusPaymentLabel(slotProps.option)" :severity="getStatusPaymentClass(slotProps.option)" />
                                 </template>
                             </Dropdown>
+                        </template>
+                    </Column>
+
+                    <Column field="odservation" header="Obs." dataType="boolean" bodyClass="text-center"
+                        style="min-width: 8rem">
+                        <template #body="{ data }">
+                            <i class="pi"
+                                :class="{ 'text-yellow-500 pi-exclamation-triangle': data.odservation, 'text-green-500 pi-circle': !data.odservation }"></i>
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <TriStateCheckbox v-model="filterModel.value" />
                         </template>
                     </Column>
 
