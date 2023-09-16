@@ -1,171 +1,283 @@
 <script setup>
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
-import CustomerService from '@/service/CustomerService';
-import ProductService from '@/service/ProductService';
+import Axios from '@/service/Axios';
 import { ref, onBeforeMount } from 'vue';
 
-const customer1 = ref(null);
-const customer2 = ref(null);
-const customer3 = ref(null);
-const filters1 = ref(null);
-const loading1 = ref(null);
-const loading2 = ref(null);
-const idFrozen = ref(false);
-const products = ref(null);
-const expandedRows = ref([]);
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
-const representatives = ref([
-    { name: 'Amy Elsner', image: 'amyelsner.png' },
-    { name: 'Anna Fali', image: 'annafali.png' },
-    { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-    { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-    { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-    { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-    { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-    { name: 'Onyama Limba', image: 'onyamalimba.png' },
-    { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-    { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-
-const customerService = new CustomerService();
-const productService = new ProductService();
-
-onBeforeMount(() => {
-    productService.getProductsWithOrdersSmall().then((data) => (products.value = data));
-    customerService.getCustomersLarge().then((data) => {
-        customer1.value = data;
-        loading1.value = false;
-        customer1.value.forEach((customer) => (customer.date = new Date(customer.date)));
-    });
-    customerService.getCustomersLarge().then((data) => (customer2.value = data));
-    customerService.getCustomersMedium().then((data) => (customer3.value = data));
-    loading2.value = false;
-
-    initFilters1();
+/* Datas */
+const dataGetService = ref([]);
+const filters = ref(null);
+const loading = ref(null);
+const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Air Fryer', 'Forno Elétrico', 'Tanquinho', 'Expositor', 'Outros']);
+const statusPaymentOptions = ref(['0', '1', '2']);
+const statusPaymentMapping = ref({
+    0: 'Aberto',
+    1: 'Pendente',
+    2: 'Pago'
+});
+const statusServiceOptions = ref(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
+const statusServiceMapping = ref({
+    0: 'Visitar',
+    1: 'Buscar',
+    2: 'Na Fila',
+    3: 'Mexendo',
+    4: 'Orçamentado',
+    5: 'Autorizado',
+    6: 'Testando',
+    7: 'Pronto',
+    8: 'Entregar',
+    9: 'Devolver',
+    10: 'Concluído'
 });
 
-const initFilters1 = () => {
-    filters1.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        representative: { value: null, matchMode: FilterMatchMode.IN },
-        date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-        balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        activity: { value: [0, 50], matchMode: FilterMatchMode.BETWEEN },
-        verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+/* Requests */
+const getServices = async () => {
+    try {
+        const response = await Axios.get('/services');
+        dataGetService.value = response.data;
+        initFilters();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+/* Tools */
+const getStatusServiceLabel = (status) => {
+    return statusServiceMapping.value[status] || status;
+};
+const getStatusPaymentLabel = (status) => {
+    return statusPaymentMapping.value[status] || status;
+};
+const getStatusPaymentClass = (status) => {
+    switch (status) {
+        case '0':
+            return 'primary';
+        case '1':
+            return 'warning';
+        case '2':
+            return 'success';
+        default:
+            return '';
+    }
+};
+const getStatusServiceClass = (status) => {
+    switch (status) {
+        case '0':
+            return 'primary';
+        case '1':
+            return 'warning';
+        case '2':
+            return 'success';
+        case '3':
+            return 'primary';
+        case '4':
+            return 'warning';
+        case '5':
+            return 'success';
+        case '6':
+            return 'primary';
+        case '7':
+            return 'warning';
+        case '8':
+            return 'success';
+        case '9':
+            return 'primary';
+        case '10':
+            return 'warning';
+        default:
+            return '';
+    }
+};
+const initFilters = () => {
+    filters.value = {
+        order_of_service: { value: null },
+        product: { value: null },
+        client: { value: null },
+        telephone: { value: null },
+        adress: { value: null },
+        status: { value: null },
+        payment_status: { value: null },
+        warehouse_status: { value: null },
+        observation: { value: null },
+        created_at: { value: null },
+        updated_at: { value: null }
     };
 };
-
-const clearFilter1 = () => {
-    initFilters1();
+const clearFilter = () => {
+    initFilters();
 };
-const expandAll = () => {
-    expandedRows.value = products.value.filter((p) => p.id);
-};
-const collapseAll = () => {
-    expandedRows.value = null;
-};
-const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-};
-
-const formatDate = (value) => {
-    return value.toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-};
-const calculateCustomerTotal = (name) => {
-    let total = 0;
-    if (customer3.value) {
-        for (let customer of customer3.value) {
-            if (customer.representative.name === name) {
-                total++;
-            }
-        }
+const formatData = (dataString) => {
+    const partes = dataString.split('-');
+    if (partes.length !== 3) {
+        return 'Data inválida';
     }
-
-    return total;
+    const ano = partes[0].substring(2);
+    const mes = partes[1];
+    const dia = partes[2];
+    return `${dia}/${mes}/${ano}`;
 };
+
+onBeforeMount(() => {
+    getServices();
+});
 </script>
+
 <template>
     <div class="grid">
         <div class="col-12">
             <div class="card">
                 <h5>Serviços</h5>
-                <DataTable :value="customer1" :paginator="true" class="p-datatable-gridlines" :rows="10" dataKey="id"
-                    :rowHover="true" v-model:filters="filters1" filterDisplay="menu" :loading="loading1" :filters="filters1"
+                <DataTable
+                    :value="dataGetService"
+                    :paginator="true"
+                    class="p-datatable-gridlines"
+                    :rows="10"
+                    dataKey="id"
+                    :rowHover="true"
+                    v-model:filters="filters"
+                    filterDisplay="menu"
+                    :loading="loading"
+                    :filters="filters"
                     responsiveLayout="scroll"
-                    :globalFilterFields="['name', 'country.name', 'representative.name', 'balance', 'status']">
+                    :globalFilterFields="['order_fo_service', 'product', 'client', 'telephone', 'created_at', 'updated_at', 'status', 'payment_status']"
+                    :filterLocale="filterLocale"
+                >
                     <template #header>
                         <div class="flex justify-content-between flex-column sm:flex-row">
-                            <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-outlined mb-2"
-                                @click="clearFilter1()" />
-                            <span class="p-input-icon-left mb-2">
-                                <i class="pi pi-search" />
-                                <InputText v-model="filters1['global'].value" placeholder="Keyword Search"
-                                    style="width: 100%" />
-                            </span>
+                            <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-outlined mb-2" @click="clearFilter()" />
                         </div>
                     </template>
-                    <template #empty> No customers found. </template>
+
+                    <template #empty> Not found data </template>
                     <template #loading> Loading customers data. Please wait. </template>
-                    <Column field="product" header="Produto" style="min-width: 12rem">
+
+                    <Column bodyClass="text-center" field="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric">
+                        <template #body="{ data }">
+                            {{ data.order_of_service }}
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
+                        </template>
+                    </Column>
+
+                    <Column bodyClass="text-center" field="product" header="Produto" :showFilterMatchModes="false">
+                        <template #body="{ data }">
+                            {{ data.product }}
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <Dropdown v-model="filterModel.value" :options="productsTypes" placeholder="Todos" class="p-column-filter" :showClear="true">
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value">
+                                        <Badge :value="slotProps.value" severity="primary" />
+                                    </div>
+                                    <span v-else>{{ slotProps.placeholder }}</span>
+                                </template>
+                                <template #option="slotProps">
+                                    <span>{{ slotProps.option }}</span>
+                                </template>
+                            </Dropdown>
+                        </template>
+                    </Column>
+
+                    <Column bodyClass="text-center" field="client" header="Cliente" :showFilterMatchModes="false" dataType="text">
                         <template #body="{ data }">
                             {{ data.client }}
                         </template>
                         <template #filter="{ filterModel }">
-                            <InputText type="text" v-model="filterModel.value" class="p-column-filter"
-                                placeholder="Search by client" />
+                            <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Nome" />
                         </template>
                     </Column>
-                    <Column header="Country" filterField="country.name" style="min-width: 12rem">
+
+                    <Column bodyClass="text-center" field="telephone" header="Telefone" :showFilterMatchModes="false" dataType="text">
                         <template #body="{ data }">
-                            <img src="/demo/images/flag/flag_placeholder.png" :alt="data.country.name"
-                                :class="'flag flag-' + data.country.code" width="30" />
-                            <span style="margin-left: 0.5em; vertical-align: middle" class="image-text">{{ data.country.name
-                            }}</span>
+                            {{ data.telephone }}
+                            <a :href="`https://wa.me/${data.telephone}`" target="_blank"
+                                ><Badge value="8" severity="success" style="padding: 2px 3px"><i class="pi pi-whatsapp"></i></Badge
+                            ></a>
                         </template>
                         <template #filter="{ filterModel }">
-                            <InputText type="text" v-model="filterModel.value" class="p-column-filter"
-                                placeholder="Search by country" />
-                        </template>
-                        <template #filterclear="{ filterCallback }">
-                            <Button type="button" icon="pi pi-times" @click="filterCallback()"
-                                class="p-button-secondary"></Button>
-                        </template>
-                        <template #filterapply="{ filterCallback }">
-                            <Button type="button" icon="pi pi-check" @click="filterCallback()"
-                                class="p-button-success"></Button>
+                            <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="" />
                         </template>
                     </Column>
-                    <Column header="Agent" filterField="representative" :showFilterMatchModes="false"
-                        :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+
+                    <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center"
+                        style="min-width: 8rem">
                         <template #body="{ data }">
-                            <img :alt="data.representative.name" :src="'demo/images/avatar/' + data.representative.image"
-                                width="32" style="vertical-align: middle" />
-                            <span style="margin-left: 0.5em; vertical-align: middle" class="image-text">{{
-                                data.representative.name }}</span>
+                            <i class="pi"
+                                :class="{ 'text-green-500 pi-check-circle': data.adress, 'text-pink-500 pi-times-circle': !data.adress }"></i>
                         </template>
                         <template #filter="{ filterModel }">
-                            <div class="mb-3 text-bold">Agent Picker</div>
-                            <MultiSelect v-model="filterModel.value" :options="representatives" optionLabel="name"
-                                placeholder="Any" class="p-column-filter">
-                                <template #option="slotProps">
-                                    <div class="p-multiselect-representative-option">
-                                        <img :alt="slotProps.option.name"
-                                            :src="'demo/images/avatar/' + slotProps.option.image" width="32"
-                                            style="vertical-align: middle" />
-                                        <span style="margin-left: 0.5em; vertical-align: middle" class="image-text">{{
-                                            slotProps.option.name }}</span>
+                            <TriStateCheckbox v-model="filterModel.value" />
+                        </template>
+                    </Column>
+
+                    <Column bodyClass="text-center" field="created_at" header="D. Entrada" :showFilterMatchModes="false" dataType="date">
+                        <template #body="{ data }">
+                            {{ formatData(data.created_at) }}
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <InputText type="date" v-model="filterModel.value" class="p-column-filter" placeholder="" />
+                        </template>
+                    </Column>
+
+                    <Column bodyClass="text-center" field="updated_at" header="D. Atualização" :showFilterMatchModes="false" dataType="date">
+                        <template #body="{ data }">
+                            {{ data.updated_at }}
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <InputText type="date" v-model="filterModel.value" class="p-column-filter" placeholder="" />
+                        </template>
+                    </Column>
+
+                    <Column bodyClass="text-center" field="status" header="Status de Serviço" :showFilterMatchModes="false">
+                        <template #body="{ data }">
+                            <Badge :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" />
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <Dropdown v-model="filterModel.value" :options="statusServiceOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value">
+                                        <Badge :value="getStatusServiceLabel(slotProps.value)" :severity="getStatusServiceClass(slotProps.value)" />
                                     </div>
+                                    <span v-else>{{ slotProps.placeholder }}</span>
                                 </template>
-                            </MultiSelect>
+                                <template #option="slotProps">
+                                    <Badge :value="getStatusServiceLabel(slotProps.option)" :severity="getStatusServiceClass(slotProps.option)" />
+                                </template>
+                            </Dropdown>
                         </template>
                     </Column>
+
+                    <Column bodyClass="text-center" field="payment_status" header="Status de Pagamento" :showFilterMatchModes="false">
+                        <template #body="{ data }">
+                            <Badge :value="getStatusPaymentLabel(data.payment_status)" :severity="getStatusPaymentClass(data.payment_status)" />
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <Dropdown v-model="filterModel.value" :options="statusPaymentOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value">
+                                        <Badge :value="getStatusPaymentLabel(slotProps.value)" :severity="getStatusPaymentClass(slotProps.value)" />
+                                    </div>
+                                    <span v-else>{{ slotProps.placeholder }}</span>
+                                </template>
+                                <template #option="slotProps">
+                                    <Badge :value="getStatusPaymentLabel(slotProps.option)" :severity="getStatusPaymentClass(slotProps.option)" />
+                                </template>
+                            </Dropdown>
+                        </template>
+                    </Column>
+
+                    <Column field="odservation" header="Obs." dataType="boolean" bodyClass="text-center"
+                        style="min-width: 8rem">
+                        <template #body="{ data }">
+                            <i class="pi"
+                                :class="{ 'text-yellow-500 pi-exclamation-triangle': data.odservation, 'text-green-500 pi-circle': !data.odservation }"></i>
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <TriStateCheckbox v-model="filterModel.value" />
+                        </template>
+                    </Column>
+
+                    <!-- 
+                    
                     <Column header="Date" filterField="date" dataType="date" style="min-width: 10rem">
                         <template #body="{ data }">
                             {{ formatDate(data.date) }}
@@ -221,7 +333,7 @@ const calculateCustomerTotal = (name) => {
                         <template #filter="{ filterModel }">
                             <TriStateCheckbox v-model="filterModel.value" />
                         </template>
-                    </Column>
+                    </Column> -->
                 </DataTable>
             </div>
         </div>

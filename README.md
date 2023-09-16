@@ -1,4 +1,4 @@
-# Refis App
+# App Lima Refrigeração
 
 ## Install dependency
 
@@ -18,8 +18,8 @@ npm run dev
 npm run lint
 ```
 
-### Deploy
+### Stating
 
 ```sh
-npm run deploy
+npm run stating
 ```
