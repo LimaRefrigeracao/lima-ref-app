@@ -1,14 +1,13 @@
 {
     "homepage": "https://desenvx.github.io/lima-ref",
-    "name": "lima-ref",
-    "version": "1.0.0",
+    "name": "lima-ref-app",
+    "version": "0.0.1",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --ignore-path .gitignore",
-        "predeploy": "npm run build",
-        "deploy": "npm run predeploy && gh-pages -d dist"
+        "stating": "npm run build && gh-pages -d dist"
     },
     "dependencies": {
         "axios": "^1.5.0",
