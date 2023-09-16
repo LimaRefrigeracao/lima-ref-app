@@ -1,4 +1,4 @@
-# Refis App
+# App Lima Refrigeração
 
 ## Install dependency
 
