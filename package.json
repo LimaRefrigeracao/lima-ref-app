@@ -2,6 +2,10 @@
     "homepage": "https://desenvx.github.io/lima-ref",
     "name": "lima-ref-app",
     "version": "0.0.1",
+    "main": "main.js",
+    "engines": {
+        "node": "16.17.0"
+    },
     "scripts": {
         "dev": "vite",
         "build": "vite build",
