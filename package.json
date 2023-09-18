@@ -1,15 +1,10 @@
 {
     "homepage": "https://desenvx.github.io/lima-ref",
-<<<<<<< Updated upstream
-    "name": "lima-ref",
-    "version": "1.0.0",
-=======
     "name": "lima-ref-app",
     "version": "0.0.1",
     "engines": {
         "node": "16.17.0"
     },
->>>>>>> Stashed changes
     "scripts": {
         "dev": "vite",
         "build": "vite build",
