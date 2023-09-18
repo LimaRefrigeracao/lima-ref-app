@@ -5,10 +5,10 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "start": "node dist/server.js",
+        "test": "npm run build && gh-pages -d dist",
         "preview": "vite preview",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --ignore-path .gitignore",
-        "stating": "npm run build && gh-pages -d dist"
+        "deploy": "serve -s dist"
     },
     "dependencies": {
         "axios": "^1.5.0",
