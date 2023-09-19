@@ -49,7 +49,7 @@ const getStatusPaymentLabel = (status) => {
 const getStatusPaymentClass = (status) => {
     switch (status) {
         case '0':
-            return 'primary';
+            return 'info';
         case '1':
             return 'warning';
         case '2':
@@ -58,30 +58,31 @@ const getStatusPaymentClass = (status) => {
             return '';
     }
 };
+
 const getStatusServiceClass = (status) => {
     switch (status) {
         case '0':
-            return 'primary';
+            return 'info';
         case '1':
-            return 'warning';
+            return 'info';
         case '2':
-            return 'success';
+            return 'info';
         case '3':
-            return 'primary';
+            return 'warning';
         case '4':
             return 'warning';
         case '5':
-            return 'success';
-        case '6':
-            return 'primary';
-        case '7':
             return 'warning';
+        case '6':
+            return 'warning';
+        case '7':
+            return 'success';
         case '8':
             return 'success';
         case '9':
-            return 'primary';
+            return 'success';
         case '10':
-            return 'warning';
+            return 'success';
         default:
             return '';
     }
@@ -125,6 +126,25 @@ onBeforeMount(() => {
         <div class="col-12">
             <div class="card">
                 <h5>Serviços</h5>
+                <Toast />
+                <Toolbar class="mb-4">
+                    <template v-slot:start>
+                        <div class="my-2">
+                            <Button label="New" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
+                            <Button label="Delete" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                        </div>
+                    </template>
+
+                    <template v-slot:end>
+                        <div class="flex justify-content-between flex-column sm:flex-row">
+                            <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-outlined mb-2" @click="clearFilter()" />
+                            <span class="p-input-icon-left mb-2">
+                                <i class="pi pi-search" />
+                                <InputText  placeholder="Keyword Search" style="width: 100%" />
+                            </span>
+                        </div>
+                    </template>
+                </Toolbar>
                 <DataTable
                     :value="dataGetService"
                     :paginator="true"
@@ -140,12 +160,6 @@ onBeforeMount(() => {
                     :globalFilterFields="['order_fo_service', 'product', 'client', 'telephone', 'created_at', 'updated_at', 'status', 'payment_status']"
                     :filterLocale="filterLocale"
                 >
-                    <template #header>
-                        <div class="flex justify-content-between flex-column sm:flex-row">
-                            <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-outlined mb-2" @click="clearFilter()" />
-                        </div>
-                    </template>
-
                     <template #empty> Not found data </template>
                     <template #loading> Loading customers data. Please wait. </template>
 
@@ -198,11 +212,9 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center"
-                        style="min-width: 8rem">
+                    <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center" style="min-width: 8rem">
                         <template #body="{ data }">
-                            <i class="pi"
-                                :class="{ 'text-green-500 pi-check-circle': data.adress, 'text-pink-500 pi-times-circle': !data.adress }"></i>
+                            <i class="pi" :class="{ 'text-green-500 pi-check-circle': data.adress, 'text-pink-500 pi-times-circle': !data.adress }"></i>
                         </template>
                         <template #filter="{ filterModel }">
                             <TriStateCheckbox v-model="filterModel.value" />
@@ -229,18 +241,18 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" field="status" header="Status de Serviço" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <Badge :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" />
+                            <Tag :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statusServiceOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
-                                        <Badge :value="getStatusServiceLabel(slotProps.value)" :severity="getStatusServiceClass(slotProps.value)" />
+                                        <Tag :value="getStatusServiceLabel(slotProps.value)" :severity="getStatusServiceClass(slotProps.value)" />
                                     </div>
                                     <span v-else>{{ slotProps.placeholder }}</span>
                                 </template>
                                 <template #option="slotProps">
-                                    <Badge :value="getStatusServiceLabel(slotProps.option)" :severity="getStatusServiceClass(slotProps.option)" />
+                                    <Tag :value="getStatusServiceLabel(slotProps.option)" :severity="getStatusServiceClass(slotProps.option)" />
                                 </template>
                             </Dropdown>
                         </template>
@@ -248,31 +260,36 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" field="payment_status" header="Status de Pagamento" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <Badge :value="getStatusPaymentLabel(data.payment_status)" :severity="getStatusPaymentClass(data.payment_status)" />
+                            <Tag :value="getStatusPaymentLabel(data.payment_status)" :severity="getStatusPaymentClass(data.payment_status)" />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statusPaymentOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
-                                        <Badge :value="getStatusPaymentLabel(slotProps.value)" :severity="getStatusPaymentClass(slotProps.value)" />
+                                        <Tag :value="getStatusPaymentLabel(slotProps.value)" :severity="getStatusPaymentClass(slotProps.value)" />
                                     </div>
                                     <span v-else>{{ slotProps.placeholder }}</span>
                                 </template>
                                 <template #option="slotProps">
-                                    <Badge :value="getStatusPaymentLabel(slotProps.option)" :severity="getStatusPaymentClass(slotProps.option)" />
+                                    <Tag :value="getStatusPaymentLabel(slotProps.option)" :severity="getStatusPaymentClass(slotProps.option)" />
                                 </template>
                             </Dropdown>
                         </template>
                     </Column>
 
-                    <Column field="odservation" header="Obs." dataType="boolean" bodyClass="text-center"
-                        style="min-width: 8rem">
+                    <Column field="odservation" header="Obs." dataType="boolean" bodyClass="text-center" style="min-width: 8rem">
                         <template #body="{ data }">
-                            <i class="pi"
-                                :class="{ 'text-yellow-500 pi-exclamation-triangle': data.odservation, 'text-green-500 pi-circle': !data.odservation }"></i>
+                            <i class="pi" :class="{ 'text-yellow-500 pi-circle-fill': data.odservation, 'text-green-500 pi-circle': !data.odservation }"></i>
                         </template>
                         <template #filter="{ filterModel }">
                             <TriStateCheckbox v-model="filterModel.value" />
+                        </template>
+                    </Column>
+
+                    <Column headerStyle="min-width:10rem;">
+                        <template #body="slotProps">
+                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
                     </Column>
 
