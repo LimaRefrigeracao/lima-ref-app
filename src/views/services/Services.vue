@@ -22,9 +22,6 @@ const statusTypes = ref([
     { code: 10, name: 'Devolver' },
     { code: 11, name: 'Concluído' }
 ]);
-const displayModalAdd = ref(false);
-const positionModalAdd = ref(false);
-const dataPostService = ref({});
 
 const dataGetService = ref([]);
 const filters = ref(null);
@@ -50,27 +47,6 @@ const statusServiceMapping = ref({
     10: 'Devolver',
     11: 'Concluído'
 });
-
-const displayModalEditInfo = ref(false);
-const positionModalEditInfo = ref(false);
-const dataEditInfoClient = ref({});
-
-const displayModalEditPaymentStatus = ref(false);
-const positionModalEditPaymentStatus = ref(false);
-const dataEditPaymentStatus = ref({
-    id: null,
-    payment_status: null,
-    label: ''
-});
-
-const displayModalEditStatus = ref(false);
-const positionModalEditStatus = ref(false);
-const dataEditStatus = ref({
-    id: null,
-    status: null,
-    label: ''
-});
-
 /* ----- */
 
 /* Requests */
@@ -78,7 +54,7 @@ const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.error(response.data);
+        console.log(response.data);
         initFilters();
     } catch (error) {
         console.error(error);
@@ -198,6 +174,39 @@ const confirmUpdateWarehouse = (event, idService) => {
 /* ----- */
 
 /* Dinamics */
+const displayModalViewObservation = ref(false);
+const positionModalViewObservation = ref(false);
+const dataViewObservation = ref({
+    id: null,
+    observation: ''
+});
+const openModalViewObservation = (position, data) => {
+    displayModalViewObservation.value = true;
+    positionModalViewObservation.value = position;
+    dataViewObservation.value.id = data.id;
+    dataViewObservation.value.observation = data.observation;
+};
+
+const displayModalViewAdress = ref(false);
+const positionModalViewAdress = ref(false);
+const dataViewAdress = ref({
+    id: null,
+    adress: ''
+});
+const openModalViewAdress = (position, data) => {
+    displayModalViewAdress.value = true;
+    positionModalViewAdress.value = position;
+    dataViewAdress.value.id = data.id;
+    dataViewAdress.value.adress = data.adress;
+};
+
+const displayModalEditPaymentStatus = ref(false);
+const positionModalEditPaymentStatus = ref(false);
+const dataEditPaymentStatus = ref({
+    id: null,
+    payment_status: null,
+    label: ''
+});
 const openModalEditPaymentStatus = (position, data) => {
     displayModalEditPaymentStatus.value = true;
     positionModalEditPaymentStatus.value = position;
@@ -206,6 +215,13 @@ const openModalEditPaymentStatus = (position, data) => {
     dataEditPaymentStatus.value.payment_status = data.payment_status;
 };
 
+const displayModalEditStatus = ref(false);
+const positionModalEditStatus = ref(false);
+const dataEditStatus = ref({
+    id: null,
+    status: null,
+    label: ''
+});
 const openModalEditStatus = (position, data) => {
     displayModalEditStatus.value = true;
     positionModalEditStatus.value = position;
@@ -213,6 +229,10 @@ const openModalEditStatus = (position, data) => {
     dataEditStatus.value.id = data.id;
     dataEditStatus.value.status = data.status;
 };
+
+const displayModalEditInfo = ref(false);
+const positionModalEditInfo = ref(false);
+const dataEditInfoClient = ref({});
 const openModalEditInfo = (position, data) => {
     displayModalEditInfo.value = true;
     positionModalEditInfo.value = position;
@@ -223,10 +243,15 @@ const openModalEditInfo = (position, data) => {
     dataEditInfoClient.value.adress = data.adress;
     dataEditInfoClient.value.observation = data.observation;
 };
+
+const displayModalAdd = ref(false);
+const positionModalAdd = ref(false);
+const dataPostService = ref({});
 const openModalAdd = (position) => {
     displayModalAdd.value = true;
     positionModalAdd.value = position;
 };
+
 const closeModal = () => {
     if (displayModalEditPaymentStatus.value == true) {
         displayModalEditPaymentStatus.value = false;
@@ -481,9 +506,16 @@ onBeforeMount(() => {
 
                     <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center">
                         <template #body="{ data }">
-                            <a href="">
-                                <i v-if="data.adress" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'"></i>
-                            </a>
+                            <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="positionModalViewAdress" :breakpoints="{ '960px': '75vw' }" :style="{ width: '20vw' }" :modal="true">
+                                <h6 class="line-height-3 m-0">
+                                    {{ data.adress }}
+                                </h6>
+                                <template #footer>
+                                    <Button class="p-button-rounded p-button-info mr-2 mb-2"><i class="pi pi-map-marker mr-2"></i>Abrir no Maps</Button>
+                                </template>
+                            </Dialog>
+                            <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
+
                             <i v-if="!data.adress" class="text-red-500 pi pi-minus"></i>
                         </template>
                         <template #filter="{ filterModel }">
@@ -491,9 +523,29 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
+                    <Column field="observation" header="Obs." dataType="boolean" bodyClass="text-center">
+                        <template #body="{ data }">
+                            <Dialog
+                                v-if="data.id == dataViewObservation.id"
+                                header="Observação"
+                                v-model:visible="displayModalViewObservation"
+                                :position="positionModalViewObservation"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '20vw' }"
+                                :modal="true"
+                            >
+                                <h6 class="line-height-3 m-0">
+                                    {{ dataViewObservation.observation }}
+                                </h6>
+                            </Dialog>
+                            <i v-if="data.observation" @click="openModalViewObservation('top', data)" class="text-green-500 pi pi-tag" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
+                            <i v-if="!data.observation" class="text-yellow-500 pi pi-minus"></i>
+                        </template>
+                    </Column>
+
                     <Column bodyClass="text-center" field="status" header="Status de Serviço" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <Dialog header="Atualizar Status de Serviço" v-model:visible="displayModalEditStatus" :position="positionModalEditStatus" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
+                            <Dialog v-if="data.id == dataEditStatus.id" header="Atualizar Status de Serviço" v-model:visible="displayModalEditStatus" :position="positionModalEditStatus" :breakpoints="{ '960px': '75vw' }" :style="{ width: '15vw' }" :modal="true">
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
@@ -536,11 +588,11 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" field="payment_status" header="Status de Pagamento" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <Dialog header="Atualizar Status de Pagamento" v-model:visible="displayModalEditPaymentStatus" :position="positionModalPaymentStatus" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
+                            <Dialog v-if="data.id == dataEditPaymentStatus.id" header="Atualizar Status de Pagamento" v-model:visible="displayModalEditPaymentStatus" :position="positionModalEditPaymentStatus" :breakpoints="{ '960px': '75vw' }" :style="{ width: '15vw' }" :modal="true">
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
-                                            <Dropdown id="editPaymentStatus" v-model="dataEditPaymentStatus.status" :options="statusPaymentOptions" class="p-column-filter" :showClear="true" optionLabel="label">
+                                            <Dropdown id="editPaymentStatus" v-model="dataEditPaymentStatus.payment_status" :options="statusPaymentOptions" class="p-column-filter" :showClear="true" optionLabel="label">
                                                 <template #value="slotProps">
                                                     <div v-if="slotProps.value">
                                                         <Tag :value="getStatusPaymentLabel(parseInt(slotProps.value))" :severity="getStatusPaymentClass(parseInt(slotProps.value))" />
@@ -583,18 +635,17 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column field="observation" header="Obs." dataType="boolean" bodyClass="text-center">
-                        <template #body="{ data }">
-                            <a href="">
-                                <i v-if="data.observation" class="text-green-500 pi pi-tag" v-tooltip.top="'Visualizar'"></i>
-                            </a>
-                            <i v-if="!data.observation" class="text-yellow-500 pi pi-minus"></i>
-                        </template>
-                    </Column>
-
                     <Column bodyClass="text-center">
                         <template #body="{ data }">
-                            <Dialog header="Editar informações do Cliente" v-model:visible="displayModalEditInfo" :position="positionModalEditInfo" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+                            <Dialog
+                                v-if="data.id == dataEditInfoClient.id"
+                                header="Editar informações do Cliente"
+                                v-model:visible="displayModalEditInfo"
+                                :position="positionModalEditInfo"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '30vw' }"
+                                :modal="true"
+                            >
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-5">
                                         <span class="p-float-label">
