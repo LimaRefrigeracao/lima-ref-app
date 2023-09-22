@@ -4,11 +4,9 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount } from 'vue';
 
-/* Datas */
 const toast = useToast();
 const popup = ref(null);
 const confirmPopup = useConfirm();
-
 const statusTypes = ref([
     { code: 1, name: 'Visitar' },
     { code: 2, name: 'Buscar' },
@@ -22,8 +20,6 @@ const statusTypes = ref([
     { code: 10, name: 'Devolver' },
     { code: 11, name: 'Concluído' }
 ]);
-
-const dataGetService = ref([]);
 const filters = ref(null);
 const loading = ref(null);
 const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Air Fryer', 'Forno Elétrico', 'Tanquinho', 'Expositor', 'Outros']);
@@ -49,14 +45,22 @@ const statusServiceMapping = ref({
     12: 'Devolver',
     13: 'Concluído'
 });
-/* ----- */
-
-/* Requests */
+const dataGetOS = ref([]);
+const getUniqueOS = async (order_of_service) => {
+    try {
+        const response = await Axios.get('/order_of_service/' + order_of_service);
+        dataGetOS.value = response.data[0];
+        console.log(dataGetOS.value);
+        return dataGetOS.value;
+    } catch (error) {
+        console.error(error);
+    }
+};
+const dataGetService = ref([]);
 const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.log(response.data);
         initFilters();
     } catch (error) {
         console.error(error);
@@ -77,7 +81,7 @@ const postService = async () => {
         await getServices();
         closeModal();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao adicionar serviço', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar serviço', life: 5000 });
         console.error(error);
     }
 };
@@ -88,7 +92,7 @@ const deleteService = async (idService) => {
         console.log(response.status);
         await getServices();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
         console.error(error);
     }
 };
@@ -99,7 +103,7 @@ const updateWarehouse = async (id) => {
         console.log(response.status);
         await getServices();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
         console.error(error);
     }
 };
@@ -117,7 +121,7 @@ const updateInfoClient = async () => {
         await getServices();
         closeModal();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao editar as informações do cliente', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao editar as informações do cliente', life: 5000 });
         console.error(error);
     }
 };
@@ -129,11 +133,10 @@ const updateStatus = async () => {
         await getServices();
         closeModal();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao atualizar o status', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status', life: 5000 });
         console.error(error);
     }
 };
-
 const updatePaymentStatus = async () => {
     try {
         const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.status);
@@ -142,13 +145,31 @@ const updatePaymentStatus = async () => {
         await getServices();
         closeModal();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao atualizar o status de pagamento ', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status de pagamento ', life: 5000 });
         console.error(error);
     }
 };
-/* ----- */
 
-/* Confirms */
+const dataPutOrderOfService = ref({});
+const updateEstimateOS = async (data) => {
+    try {
+
+        const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
+            amount: dataPutOrderOfService.value.amount,
+            description: dataPutOrderOfService.value.description,
+            price: dataPutOrderOfService.value.price,
+        });
+        console.log(response.status);
+        openModalOS('top', data);
+        closeModal();
+        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro adicionado com sucesso', life: 5000 });
+        
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro ao orçamento', life: 5000 });
+        console.error(error);
+    }
+};
+
 const confirmDelete = (event, idService) => {
     confirmPopup.require({
         target: event.target,
@@ -173,9 +194,21 @@ const confirmUpdateWarehouse = (event, idService) => {
         }
     });
 };
-/* ----- */
 
-/* Dinamics */
+const displayModalOS = ref(false);
+const positionModalOS = ref(false);
+const dataViewEstimateOS = ref([]);
+const openModalOS = async (position, data) => {
+    const dataOS = await getUniqueOS(data.order_of_service);
+    if (dataOS) {
+        dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
+        displayModalOS.value = true;
+        positionModalOS.value = position;
+    } else {
+        toast.add({ severity: 'info', summary: 'Sem Orçamento', detail: 'Não foi encontrado o orçamento desse serviço.', life: 5000 });
+    }
+};
+
 const displayModalViewObservation = ref(false);
 const positionModalViewObservation = ref(false);
 const dataViewObservation = ref({
@@ -188,7 +221,6 @@ const openModalViewObservation = (position, data) => {
     dataViewObservation.value.id = data.id;
     dataViewObservation.value.observation = data.observation;
 };
-
 const displayModalViewAdress = ref(false);
 const positionModalViewAdress = ref(false);
 const dataViewAdress = ref({
@@ -201,7 +233,6 @@ const openModalViewAdress = (position, data) => {
     dataViewAdress.value.id = data.id;
     dataViewAdress.value.adress = data.adress;
 };
-
 const displayModalEditPaymentStatus = ref(false);
 const positionModalEditPaymentStatus = ref(false);
 const dataEditPaymentStatus = ref({
@@ -216,7 +247,6 @@ const openModalEditPaymentStatus = (position, data) => {
     dataEditPaymentStatus.value.id = data.id;
     dataEditPaymentStatus.value.payment_status = data.payment_status;
 };
-
 const displayModalEditStatus = ref(false);
 const positionModalEditStatus = ref(false);
 const dataEditStatus = ref({
@@ -231,7 +261,6 @@ const openModalEditStatus = (position, data) => {
     dataEditStatus.value.id = data.id;
     dataEditStatus.value.status = data.status;
 };
-
 const displayModalEditInfo = ref(false);
 const positionModalEditInfo = ref(false);
 const dataEditInfoClient = ref({});
@@ -245,7 +274,6 @@ const openModalEditInfo = (position, data) => {
     dataEditInfoClient.value.adress = data.adress;
     dataEditInfoClient.value.observation = data.observation;
 };
-
 const displayModalAdd = ref(false);
 const positionModalAdd = ref(false);
 const dataPostService = ref({});
@@ -253,8 +281,12 @@ const openModalAdd = (position) => {
     displayModalAdd.value = true;
     positionModalAdd.value = position;
 };
-
 const closeModal = () => {
+    if (displayModalOS.value == true) {
+        dataPutOrderOfService.value.amount = null;
+        dataPutOrderOfService.value.description = '';
+        dataPutOrderOfService.value.price = null;
+    }
     if (displayModalEditPaymentStatus.value == true) {
         displayModalEditPaymentStatus.value = false;
         dataEditPaymentStatus.value.id = '';
@@ -362,7 +394,6 @@ const formatData = (dataString) => {
     const dia = partes[2];
     return `${dia}/${mes}/${ano}`;
 };
-/* ----- */
 
 onBeforeMount(() => {
     getServices();
@@ -453,9 +484,68 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric">
                         <template #body="{ data }">
-                            <a href="">
-                                <Chip :label="data.order_of_service" v-tooltip.top="'Visualizar orçamento'" />
-                            </a>
+                            <Dialog v-if="data.order_of_service == dataGetOS.cod_order" header="Orçamento" v-model:visible="displayModalOS" :position="positionModalOS" :breakpoints="{ '960px': '75vw' }" :style="{ width: '40vw' }" :modal="true">
+                                <div class="grid p-fluid mt-1">
+                                    <div class="field col-12 md:col-2">
+                                        <span class="p-float-label">
+                                            <InputNumber id="addQuantOS" v-model="dataPutOrderOfService.amount" />
+                                            <label for="addQuantOS">
+                                                <span style="color: red">*</span>
+                                                Quantidade
+                                            </label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-5">
+                                        <span class="p-float-label">
+                                            <InputText id="addDescriptionOS" v-model="dataPutOrderOfService.description" />
+                                            <label for="addDescriptionOS">
+                                                <span style="color: red">*</span>
+                                                Descrição
+                                            </label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-3">
+                                        <span class="p-float-label">
+                                            <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" />
+                                            <label for="addPriceOS">
+                                                <span style="color: red">*</span>
+                                                Preço
+                                            </label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-2">
+                                        <Button icon="pi pi-plus" @click="updateEstimateOS(data)" />
+                                    </div>
+                                </div>
+                                <DataTable :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="10">
+                                    <Column field="id" header="#" :sortable="true">
+                                        <template #body="{ data }">
+                                            {{ data.id }}
+                                        </template>
+                                    </Column>
+                                    <Column field="amount" header="Quantidade">
+                                        <template #body="{ data }">
+                                            {{ data.amount }}
+                                        </template>
+                                    </Column>
+                                    <Column field="description" header="Descrição">
+                                        <template #body="{ data }">
+                                            {{ data.description }}
+                                        </template>
+                                    </Column>
+                                    <Column field="price" header="Preço">
+                                        <template #body="{ data }">
+                                            {{ data.price }}
+                                        </template>
+                                    </Column>
+                                    <Column headerStyle="width:4rem">
+                                        <template #body>
+                                            <Button icon="pi pi-search" />
+                                        </template>
+                                    </Column>
+                                </DataTable>
+                            </Dialog>
+                            <Chip :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar orçamento'" style="cursor: pointer" />
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
@@ -512,7 +602,7 @@ onBeforeMount(() => {
 
                     <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center">
                         <template #body="{ data }">
-                            <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="positionModalViewAdress" :breakpoints="{ '960px': '75vw' }" :style="{ width: '20vw' }" :modal="true">
+                            <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="positionModalViewAdress" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
                                 <h6 class="line-height-3 m-0">
                                     {{ data.adress }}
                                 </h6>
@@ -537,7 +627,7 @@ onBeforeMount(() => {
                                 v-model:visible="displayModalViewObservation"
                                 :position="positionModalViewObservation"
                                 :breakpoints="{ '960px': '75vw' }"
-                                :style="{ width: '20vw' }"
+                                :style="{ width: '25vw' }"
                                 :modal="true"
                             >
                                 <h6 class="line-height-3 m-0">
