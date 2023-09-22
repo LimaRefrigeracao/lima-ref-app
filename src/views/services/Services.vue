@@ -33,7 +33,7 @@ const statusPaymentMapping = ref({
     2: 'Pendente',
     3: 'Pago'
 });
-const statusServiceOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']);
+const statusServiceOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']);
 const statusServiceMapping = ref({
     1: 'Visitar',
     2: 'Buscar',
@@ -41,11 +41,13 @@ const statusServiceMapping = ref({
     4: 'Mexendo',
     5: 'Orçamentado',
     6: 'Autorizado',
-    7: 'Testando',
-    8: 'Pronto',
-    9: 'Entregar',
-    10: 'Devolver',
-    11: 'Concluído'
+    7: 'Aguardando peças',
+    8: 'Consertando',
+    9: 'Testando',
+    10: 'Pronto',
+    11: 'Entregar',
+    12: 'Devolver',
+    13: 'Concluído'
 });
 /* ----- */
 
@@ -319,12 +321,16 @@ const getStatusServiceClass = (status) => {
         case 7:
             return 'warning';
         case 8:
-            return 'success';
+            return 'warning';
         case 9:
-            return 'success';
+            return 'warning';
         case 10:
             return 'success';
         case 11:
+            return 'success';
+        case 12:
+            return 'success';
+        case 13:
             return 'success';
         default:
             return '';
@@ -545,7 +551,15 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" field="status" header="Status de Serviço" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <Dialog v-if="data.id == dataEditStatus.id" header="Atualizar Status de Serviço" v-model:visible="displayModalEditStatus" :position="positionModalEditStatus" :breakpoints="{ '960px': '75vw' }" :style="{ width: '15vw' }" :modal="true">
+                            <Dialog
+                                v-if="data.id == dataEditStatus.id"
+                                header="Atualizar Status de Serviço"
+                                v-model:visible="displayModalEditStatus"
+                                :position="positionModalEditStatus"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '15vw' }"
+                                :modal="true"
+                            >
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
@@ -588,7 +602,15 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" field="payment_status" header="Status de Pagamento" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <Dialog v-if="data.id == dataEditPaymentStatus.id" header="Atualizar Status de Pagamento" v-model:visible="displayModalEditPaymentStatus" :position="positionModalEditPaymentStatus" :breakpoints="{ '960px': '75vw' }" :style="{ width: '15vw' }" :modal="true">
+                            <Dialog
+                                v-if="data.id == dataEditPaymentStatus.id"
+                                header="Atualizar Status de Pagamento"
+                                v-model:visible="displayModalEditPaymentStatus"
+                                :position="positionModalEditPaymentStatus"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '15vw' }"
+                                :modal="true"
+                            >
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
