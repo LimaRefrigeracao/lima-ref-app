@@ -4,12 +4,18 @@ import AppLayout from '@/layout/AppLayout.vue';
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
+        { path: '/', redirect: '/login' },
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('@/views/auth/Login.vue')
+        },
         {
             path: '/',
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: '/servicos',
                     name: 'services',
                     component: () => import('@/views/services/Services.vue')
                 },
@@ -24,7 +30,7 @@ const router = createRouter({
                     beforeEnter() {
                         window.open('https://www.nfse.gov.br/EmissorNacional/Login', '_blank');
                     }
-                },
+                }
 
                 /* {
                     path: '/',
@@ -160,8 +166,9 @@ const router = createRouter({
                     component: () => import('@/views/utilities/Documentation.vue')
                 } */
             ]
-        },
-        {
+        }
+
+        /* {
             path: '/landing',
             name: 'landing',
             component: () => import('@/views/pages/Landing.vue')
@@ -173,11 +180,6 @@ const router = createRouter({
         },
 
         {
-            path: '/auth/login',
-            name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
-        },
-        {
             path: '/auth/access',
             name: 'accessDenied',
             component: () => import('@/views/pages/auth/Access.vue')
@@ -186,7 +188,7 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
-        }
+        } */
     ]
 });
 
