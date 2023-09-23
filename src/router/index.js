@@ -9,7 +9,7 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/servicos',
+                    path: '/',
                     name: 'services',
                     component: () => import('@/views/services/Services.vue')
                 },
@@ -26,7 +26,7 @@ const router = createRouter({
                     }
                 },
 
-                {
+                /* {
                     path: '/',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
@@ -158,7 +158,7 @@ const router = createRouter({
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/utilities/Documentation.vue')
-                }
+                } */
             ]
         },
         {

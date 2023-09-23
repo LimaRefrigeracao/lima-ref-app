@@ -5,7 +5,7 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        items: [{ label: 'SERVIÇOS', icon: 'pi pi-wrench', to: '/servicos' }]
+        items: [{ label: 'SERVIÇOS', icon: 'pi pi-wrench', to: '/' }]
     },
     {
         items: [{ label: 'DEPÓSITO', icon: 'pi pi-box', to: '/deposito' }]
@@ -14,7 +14,7 @@ const model = ref([
         items: [{ label: 'NOTA FISCAL', icon: 'pi pi-file-import', url: 'https://www.nfse.gov.br/EmissorNacional/Login', target: '_blank'}]
     },
 
-    {
+   /*  {
         label: 'Home',
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
     },
@@ -170,7 +170,7 @@ const model = ref([
                 icon: 'pi pi-fw pi-star'
             }
         ]
-    }
+    } */
 ]);
 </script>
 
@@ -180,11 +180,6 @@ const model = ref([
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
-        <li>
-            <a href="https://www.primefaces.org/primeblocks-vue/#/" target="_blank">
-                <img src="/layout/images/banner-primeblocks.png" alt="Prime Blocks" class="w-full mt-3" />
-            </a>
-        </li>
     </ul>
 </template>
 
