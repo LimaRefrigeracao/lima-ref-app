@@ -1,5 +1,6 @@
 <script setup>
 import Axios from '@/service/Axios';
+import { FilterMatchMode } from 'primevue/api';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount } from 'vue';
@@ -13,6 +14,7 @@ const loading = ref(null);
 const filters = ref(null);
 const initFilters = () => {
     filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         order_of_service: { value: null },
         product: { value: null },
         client: { value: null },
@@ -174,7 +176,7 @@ const validateUpdateStatusPayment = async () => {
 };
 const updatePaymentStatus = async () => {
     try {
-        const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.status);
+        const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status);
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
         console.log(response.status);
         await getServices();
@@ -417,9 +419,12 @@ onBeforeMount(() => {
                             <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd('top')" />
                         </div>
                     </template>
-
                     <template v-slot:end>
                         <div class="flex justify-content-between flex-column sm:flex-row">
+                            <span class="p-input-icon-left mb-2 mr-2">
+                                <i class="pi pi-search" />
+                                <InputText v-model="filters['global'].value" placeholder="" style="width: 100%" />
+                            </span>
                             <Button type="button" icon="pi pi-filter-slash" label="Limpar filtros" class="p-button-outlined mb-2 mr-2" @click="clearFilter()" />
                         </div>
                     </template>
@@ -436,7 +441,7 @@ onBeforeMount(() => {
                     :loading="loading"
                     :filters="filters"
                     responsiveLayout="scroll"
-                    :globalFilterFields="['order_fo_service', 'product', 'client', 'telephone', 'created_at', 'status', 'payment_status']"
+                    :globalFilterFields="['order_of_service', 'product', 'client', 'telephone', 'created_at', 'adress', 'observation']"
                     :filterLocale="filterLocale"
                 >
                     <template #empty> Not found data </template>
@@ -654,6 +659,9 @@ onBeforeMount(() => {
                                             <label for="editStatus"><span style="color: red">*</span>Status</label>
                                         </span>
                                     </div>
+                                    <div class="col-12 md:col-12" style="text-align: center">
+                                        <strong style="font-size: 11px"> Última atualização em {{ formatData(data.updated_at_service) }} </strong>
+                                    </div>
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
@@ -708,6 +716,11 @@ onBeforeMount(() => {
                                             <label for="editPaymentStatus"><span style="color: red">*</span>Status</label>
                                         </span>
                                     </div>
+                                    <div class="col-12 md:col-12" style=" text-align: center">
+                                        <strong style="font-size: 11px;">
+                                            Última atualização em {{ formatData(data.updated_at_payment) }}
+                                        </strong>
+                                     </div>
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />

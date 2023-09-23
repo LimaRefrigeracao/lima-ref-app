@@ -10,8 +10,10 @@ const model = ref([
     {
         items: [{ label: 'DEPÓSITO', icon: 'pi pi-box', to: '/deposito' }]
     },
+    {
+        items: [{ label: 'NOTA FISCAL', icon: 'pi pi-file-import', url: 'https://www.nfse.gov.br/EmissorNacional/Login', target: '_blank'}]
+    },
 
-    
     {
         label: 'Home',
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]

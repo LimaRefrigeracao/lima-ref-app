@@ -18,6 +18,13 @@ const router = createRouter({
                     name: 'warehouse',
                     component: () => import('@/views/warehouse/Warehouse.vue')
                 },
+                {
+                    path: '/nfse',
+                    name: 'nfse',
+                    beforeEnter() {
+                        window.open('https://www.nfse.gov.br/EmissorNacional/Login', '_blank');
+                    }
+                },
 
                 {
                     path: '/',
