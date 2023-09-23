@@ -1,11 +1,10 @@
 <script setup>
 import Axios from '@/service/Axios';
-import { FilterMatchMode } from 'primevue/api';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount } from 'vue';
-import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from './components/messages.js';
-import { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage } from './components/computeds.js';
+import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
+import { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage } from '../components/computeds.js';
 
 const toast = useToast();
 const popup = ref(null);
@@ -14,7 +13,6 @@ const loading = ref(null);
 const filters = ref(null);
 const initFilters = () => {
     filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         order_of_service: { value: null },
         product: { value: null },
         client: { value: null },
@@ -421,10 +419,6 @@ onBeforeMount(() => {
                     </template>
                     <template v-slot:end>
                         <div class="flex justify-content-between flex-column sm:flex-row">
-                            <span class="p-input-icon-left mb-2 mr-2">
-                                <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" placeholder="" style="width: 100%" />
-                            </span>
                             <Button type="button" icon="pi pi-filter-slash" label="Limpar filtros" class="p-button-outlined mb-2 mr-2" @click="clearFilter()" />
                         </div>
                     </template>
@@ -451,7 +445,7 @@ onBeforeMount(() => {
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.order_of_service == dataGetOS.cod_order"
-                                :header="`Orçamento - (OS: ${data.order_of_service})`"
+                                :header="`Orçamento - ( ${data.order_of_service} / ${data.product} / ${data.client} )`"
                                 v-model:visible="displayModalOS"
                                 :position="positionModalOS"
                                 :breakpoints="{ '960px': '75vw' }"
@@ -522,7 +516,7 @@ onBeforeMount(() => {
                                                 <div class="p-inputgroup">
                                                     <span class="p-inputgroup-addon"> VALOR TOTAL </span>
                                                     <span class="p-inputgroup-addon"> R$ </span>
-                                                    <InputText v-model="dataGetOS.cod_order" disabled />
+                                                    <InputText v-model="dataGetOS.value" disabled />
                                                     <span class="p-inputgroup-addon"> .00 </span>
                                                 </div>
                                             </div>
@@ -659,7 +653,7 @@ onBeforeMount(() => {
                                             <label for="editStatus"><span style="color: red">*</span>Status</label>
                                         </span>
                                     </div>
-                                    <div class="col-12 md:col-12" style="text-align: center">
+                                    <div class="col-12 md:col-12" style="text-align: center" v-if="data.updated_at_service">
                                         <strong style="font-size: 11px"> Última atualização em {{ formatData(data.updated_at_service) }} </strong>
                                     </div>
                                 </div>
@@ -716,11 +710,9 @@ onBeforeMount(() => {
                                             <label for="editPaymentStatus"><span style="color: red">*</span>Status</label>
                                         </span>
                                     </div>
-                                    <div class="col-12 md:col-12" style=" text-align: center">
-                                        <strong style="font-size: 11px;">
-                                            Última atualização em {{ formatData(data.updated_at_payment) }}
-                                        </strong>
-                                     </div>
+                                    <div class="col-12 md:col-12" style="text-align: center" v-if="data.updated_at_payment">
+                                        <strong style="font-size: 11px"> Última atualização em {{ formatData(data.updated_at_payment) }} </strong>
+                                    </div>
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
