@@ -75,7 +75,7 @@ const postService = async () => {
         console.error(error);
     }
 };
-const confirmDeleteService = (event, idService) => {
+const confirmDeleteService = (event, data) => {
     confirmPopup.require({
         target: event.target,
         message: 'Deseja realmente excluir este serviço?',
@@ -83,13 +83,13 @@ const confirmDeleteService = (event, idService) => {
         acceptLabel: 'Sim',
         rejectLabel: 'Não',
         accept: () => {
-            deleteService(idService);
+            deleteService(data.id, data.order_of_service);
         }
     });
 };
-const deleteService = async (idService) => {
+const deleteService = async (idService, cod_order) => {
     try {
-        const response = await Axios.delete('/services/' + idService);
+        const response = await Axios.delete('/services/' + idService + '/' + cod_order);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
         console.log(response.status);
         await getServices();
@@ -795,7 +795,7 @@ onBeforeMount(() => {
                             </Dialog>
                             <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
                             <Button ref="popup" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
-                            <Button ref="popup" @click="confirmDeleteService($event, data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
                         </template>
                     </Column>
                 </DataTable>

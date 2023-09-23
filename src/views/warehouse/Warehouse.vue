@@ -3,37 +3,32 @@ import Axios from '@/service/Axios';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount } from 'vue';
+import { messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
+import { productsTypes, statusPaymentOptions, statusServiceOptions, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage } from '../components/computeds.js';
 
-/* Datas */
-const popup = ref(null);
-const dataGetWarehouse = ref([]);
-const filters = ref(null);
-const loading = ref(null);
-const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Air Fryer', 'Forno Elétrico', 'Tanquinho', 'Expositor', 'Outros']);
-const statusPaymentOptions = ref(['0', '1', '2']);
-const statusPaymentMapping = ref({
-    0: 'Aberto',
-    1: 'Pendente',
-    2: 'Pago'
-});
-const statusServiceOptions = ref(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
-const statusServiceMapping = ref({
-    0: 'Visitar',
-    1: 'Buscar',
-    2: 'Na Fila',
-    3: 'Mexendo',
-    4: 'Orçamentado',
-    5: 'Autorizado',
-    6: 'Testando',
-    7: 'Pronto',
-    8: 'Entregar',
-    9: 'Devolver',
-    10: 'Concluído'
-});
 const toast = useToast();
+const popup = ref(null);
 const confirmPopup = useConfirm();
+const loading = ref(null);
+const filters = ref(null);
+const initFilters = () => {
+    filters.value = {
+        order_of_service: { value: null },
+        product: { value: null },
+        client: { value: null },
+        telephone: { value: null },
+        adress: { value: null },
+        status: { value: null },
+        payment_status: { value: null },
+        observation: { value: null },
+        created_at: { value: null }
+    };
+};
+const clearFilter = () => {
+    initFilters();
+};
 
-/* Requests */
+const dataGetWarehouse = ref([]);
 const getWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
@@ -44,17 +39,6 @@ const getWarehouse = async () => {
         console.error(error);
     }
 };
-const deleteService = async (idService) => {
-    try {
-        const response = await Axios.delete('/services/' + idService);
-        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
-        console.log(response.status);
-        await getWarehouse();
-    } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
-        console.error(error);
-    }
-};
 const updateWarehouse = async (id) => {
     try {
         const response = await Axios.put('/services/warehouse/' + id + '/true');
@@ -62,68 +46,9 @@ const updateWarehouse = async (id) => {
         console.log(response.status);
         await getWarehouse();
     } catch (error) {
-        toast.add({ severity: 'danger', summary: 'Erro', detail: 'Erro ao enviar serviço de volta', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço de volta', life: 5000 });
         console.error(error);
     }
-};
-
-const getStatusServiceLabel = (status) => {
-    return statusServiceMapping.value[status] || status;
-};
-const getStatusPaymentLabel = (status) => {
-    return statusPaymentMapping.value[status] || status;
-};
-const getStatusPaymentClass = (status) => {
-    switch (status) {
-        case 0:
-            return 'info';
-        case 1:
-            return 'warning';
-        case 2:
-            return 'success';
-        default:
-            return '';
-    }
-};
-const getStatusServiceClass = (status) => {
-    switch (status) {
-        case 0:
-            return 'info';
-        case 1:
-            return 'info';
-        case 2:
-            return 'info';
-        case 3:
-            return 'warning';
-        case 4:
-            return 'warning';
-        case 5:
-            return 'warning';
-        case 6:
-            return 'warning';
-        case 7:
-            return 'success';
-        case 8:
-            return 'success';
-        case 9:
-            return 'success';
-        case 10:
-            return 'success';
-        default:
-            return '';
-    }
-};
-const confirmDelete = (event, idService) => {
-    confirmPopup.require({
-        target: event.target,
-        message: 'Deseja realmente excluir este serviço?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        accept: () => {
-            deleteService(idService);
-        }
-    });
 };
 const confirmUpdateWarehouse = (event, idService) => {
     confirmPopup.require({
@@ -137,38 +62,259 @@ const confirmUpdateWarehouse = (event, idService) => {
         }
     });
 };
-const initFilters = () => {
-    filters.value = {
-        order_of_service: { value: null },
-        product: { value: null },
-        client: { value: null },
-        telephone: { value: null },
-        adress: { value: null },
-        status: { value: null },
-        payment_status: { value: null },
-        observation: { value: null },
-        created_at: { value: null },
-        created_at_warehouse: { value: null },
-    };
-};
-const clearFilter = () => {
-    initFilters();
-};
-const formatData = (dataString) => {
-    const partes = dataString.split('-');
-    if (partes.length !== 3) {
-        return 'Data inválida';
+const dataGetOS = ref([]);
+const getUniqueOS = async (order_of_service) => {
+    try {
+        const response = await Axios.get('/order_of_service/' + order_of_service);
+        dataGetOS.value = response.data[0];
+        return dataGetOS.value;
+    } catch (error) {
+        console.error(error);
     }
-    const ano = partes[0].substring(2);
-    const mes = partes[1];
-    const dia = partes[2];
-    return `${dia}/${mes}/${ano}`;
+};
+
+const confirmDeleteService = (event, data) => {
+    confirmPopup.require({
+        target: event.target,
+        message: 'Deseja realmente excluir este serviço?',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        accept: () => {
+            deleteService(data.id, data.order_of_service);
+        }
+    });
+};
+const deleteService = async (idService, cod_order) => {
+    try {
+        const response = await Axios.delete('/services/' + idService + '/' + cod_order);
+        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
+        console.log(response.status);
+        await getWarehouse();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
+        console.error(error);
+    }
+};
+
+const validateEditInfoClient = async () => {
+    if (!dataEditInfoClient.value.product || !dataEditInfoClient.value.client || !dataEditInfoClient.value.telephone) {
+        addMessage('editInfoClient', 'error', 'Preencha todos os campos obrigatórios.', true);
+    } else {
+        updateInfoClient();
+    }
+};
+const updateInfoClient = async () => {
+    try {
+        const response = await Axios.put('/services/info/client/' + dataEditInfoClient.value.id, {
+            product: dataEditInfoClient.value.product,
+            client: dataEditInfoClient.value.client,
+            telephone: dataEditInfoClient.value.telephone,
+            adress: dataEditInfoClient.value.adress,
+            observation: dataEditInfoClient.value.observation
+        });
+        toast.add({ severity: 'success', summary: 'Editado', detail: 'As informações do cliente foram editadas', life: 5000 });
+        console.log(response.status);
+        await getWarehouse();
+        closeModal();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao editar as informações do cliente', life: 5000 });
+        console.error(error);
+    }
+};
+const validateUpdateStatusService = async () => {
+    if (!dataEditStatus.value.status) {
+        addMessage('updateStatusService', 'error', 'Campo obrigatório.');
+    } else {
+        updateStatus();
+    }
+};
+const updateStatus = async () => {
+    try {
+        const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status);
+        toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
+        console.log(response.status);
+        await getWarehouse();
+        closeModal();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status', life: 5000 });
+        console.error(error);
+    }
+};
+const validateUpdateStatusPayment = async () => {
+    if (!dataEditPaymentStatus.value.payment_status) {
+        addMessage('updateStatusPayment', 'error', 'Campo obrigatório.');
+    } else {
+        updatePaymentStatus();
+    }
+};
+const updatePaymentStatus = async () => {
+    try {
+        const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status);
+        toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
+        console.log(response.status);
+        await getWarehouse();
+        closeModal();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status de pagamento ', life: 5000 });
+        console.error(error);
+    }
+};
+const dataPutOrderOfService = ref({});
+const validateUpdateEstimateOS = async (data) => {
+    if (!dataPutOrderOfService.value.amount || !dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
+        addMessage('addEstimateOS', 'error', 'Preencha todos os campos obrigatórios.');
+    } else {
+        updateEstimateOS(data);
+    }
+};
+const updateEstimateOS = async (data) => {
+    try {
+        const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
+            amount: dataPutOrderOfService.value.amount,
+            description: dataPutOrderOfService.value.description,
+            price: dataPutOrderOfService.value.price
+        });
+        console.log(response.status);
+        openModalOS('top', data);
+        closeModal();
+        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro de OS', life: 5000 });
+        console.error(error);
+    }
+};
+const deleteEstimateOS = async (cod, data) => {
+    try {
+        const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
+        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
+        console.log(response.status);
+        const dataOpen = { order_of_service: cod };
+        openModalOS('top', dataOpen);
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar registro de OS', life: 5000 });
+        console.error(error);
+    }
+};
+
+const displayModalOS = ref(false);
+const positionModalOS = ref(false);
+const dataViewEstimateOS = ref([]);
+const openModalOS = async (position, data) => {
+    const dataOS = await getUniqueOS(data.order_of_service);
+    if (dataOS) {
+        messageAddEstimateOS.value.length = 0;
+        dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
+        displayModalOS.value = true;
+        positionModalOS.value = position;
+    } else {
+        toast.add({ severity: 'info', summary: 'Sem Orçamento', detail: 'Não foi encontrado o orçamento desse serviço.', life: 5000 });
+    }
+};
+const displayModalViewObservation = ref(false);
+const positionModalViewObservation = ref(false);
+const dataViewObservation = ref({
+    id: null,
+    observation: ''
+});
+const openModalViewObservation = (position, data) => {
+    displayModalViewObservation.value = true;
+    positionModalViewObservation.value = position;
+    dataViewObservation.value.id = data.id;
+    dataViewObservation.value.observation = data.observation;
+};
+const displayModalViewAdress = ref(false);
+const positionModalViewAdress = ref(false);
+const dataViewAdress = ref({
+    id: null,
+    adress: ''
+});
+const openModalViewAdress = (position, data) => {
+    displayModalViewAdress.value = true;
+    positionModalViewAdress.value = position;
+    dataViewAdress.value.id = data.id;
+    dataViewAdress.value.adress = data.adress;
+};
+const displayModalEditPaymentStatus = ref(false);
+const positionModalEditPaymentStatus = ref(false);
+const dataEditPaymentStatus = ref({
+    id: null,
+    payment_status: null,
+    label: ''
+});
+const openModalEditPaymentStatus = (position, data) => {
+    messageUpdateStatusPayment.value.length = 0;
+    displayModalEditPaymentStatus.value = true;
+    positionModalEditPaymentStatus.value = position;
+    dataEditPaymentStatus.value.label = getStatusPaymentLabel(data.payment_status);
+    dataEditPaymentStatus.value.id = data.id;
+    dataEditPaymentStatus.value.payment_status = data.payment_status;
+};
+const displayModalEditStatus = ref(false);
+const positionModalEditStatus = ref(false);
+const dataEditStatus = ref({
+    id: null,
+    status: null,
+    label: ''
+});
+const openModalEditStatus = (position, data) => {
+    messageUpdateStatusService.value.length = 0;
+    displayModalEditStatus.value = true;
+    positionModalEditStatus.value = position;
+    dataEditStatus.value.label = getStatusServiceLabel(data.status);
+    dataEditStatus.value.id = data.id;
+    dataEditStatus.value.status = data.status;
+};
+const displayModalEditInfo = ref(false);
+const positionModalEditInfo = ref(false);
+const dataEditInfoClient = ref({});
+const openModalEditInfo = (position, data) => {
+    messageEditInfoClient.value.length = 0;
+    displayModalEditInfo.value = true;
+    positionModalEditInfo.value = position;
+    dataEditInfoClient.value.id = data.id;
+    dataEditInfoClient.value.product = data.product;
+    dataEditInfoClient.value.client = data.client;
+    dataEditInfoClient.value.telephone = data.telephone;
+    dataEditInfoClient.value.adress = data.adress;
+    dataEditInfoClient.value.observation = data.observation;
+};
+
+const closeModal = () => {
+    if (displayModalOS.value == true) {
+        dataPutOrderOfService.value.amount = null;
+        dataPutOrderOfService.value.description = '';
+        dataPutOrderOfService.value.price = null;
+    }
+    if (displayModalEditPaymentStatus.value == true) {
+        messageUpdateStatusPayment.value.length = 0;
+        displayModalEditPaymentStatus.value = false;
+        dataEditPaymentStatus.value.id = '';
+        dataEditPaymentStatus.value.payment_status = '';
+        dataEditPaymentStatus.value.label = '';
+    }
+    if (displayModalEditStatus.value == true) {
+        messageUpdateStatusService.value.length = 0;
+        displayModalEditStatus.value = false;
+        dataEditStatus.value.id = '';
+        dataEditStatus.value.status = '';
+        dataEditStatus.value.label = '';
+    }
+    if (displayModalEditInfo.value == true) {
+        messageEditInfoClient.value.length = 0;
+        displayModalEditInfo.value = false;
+        dataEditInfoClient.value.id = '';
+        dataEditInfoClient.value.product = '';
+        dataEditInfoClient.value.client = '';
+        dataEditInfoClient.value.telephone = '';
+        dataEditInfoClient.value.adress = '';
+        dataEditInfoClient.value.observation = '';
+    }
 };
 
 onBeforeMount(() => {
     getWarehouse();
 });
-
 </script>
 
 <template>
@@ -197,7 +343,7 @@ onBeforeMount(() => {
                     :loading="loading"
                     :filters="filters"
                     responsiveLayout="scroll"
-                    :globalFilterFields="['order_fo_service', 'created_at_warehouse', 'product', 'client', 'telephone', 'created_at', 'status', 'payment_status']"
+                    :globalFilterFields="['order_of_service', 'product', 'client', 'telephone', 'created_at', 'adress', 'observation']"
                     :filterLocale="filterLocale"
                 >
                     <template #empty> Not found data </template>
@@ -205,9 +351,92 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric">
                         <template #body="{ data }">
-                            <a href="">
-                                <Chip :label="data.order_of_service" v-tooltip.top="'Visualizar orçamento'" />
-                            </a>
+                            <Dialog
+                                v-if="data.order_of_service == dataGetOS.cod_order"
+                                :header="`Orçamento - ( ${data.order_of_service} / ${data.product} / ${data.client} )`"
+                                v-model:visible="displayModalOS"
+                                :position="positionModalOS"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '50vw' }"
+                                :modal="true"
+                            >
+                                <DataTable :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
+                                    <template #header>
+                                        <transition-group tag="div">
+                                            <Message v-for="msg of messageAddEstimateOS" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                        </transition-group>
+                                        <div class="grid p-fluid mt-1">
+                                            <div class="field col-12 md:col-2">
+                                                <span class="p-float-label">
+                                                    <InputNumber id="addQuantOS" v-model="dataPutOrderOfService.amount" />
+                                                    <label for="addQuantOS">
+                                                        <span style="color: red">*</span>
+                                                        Quantidade
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-5">
+                                                <span class="p-float-label">
+                                                    <InputText id="addDescriptionOS" v-model="dataPutOrderOfService.description" />
+                                                    <label for="addDescriptionOS">
+                                                        <span style="color: red">*</span>
+                                                        Descrição
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-3">
+                                                <span class="p-float-label">
+                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" />
+                                                    <label for="addPriceOS">
+                                                        <span style="color: red">*</span>
+                                                        Preço
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-2">
+                                                <Button icon="pi pi-plus" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Adicionar registro ao OS'" />
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <Column field="amount" header="Quantidade">
+                                        <template #body="{ data }">
+                                            {{ data.amount }}
+                                        </template>
+                                    </Column>
+                                    <Column field="description" header="Descrição">
+                                        <template #body="{ data }">
+                                            {{ data.description }}
+                                        </template>
+                                    </Column>
+                                    <Column field="price" header="Preço">
+                                        <template #body="{ data }">
+                                            {{ data.price }}
+                                        </template>
+                                    </Column>
+                                    <Column headerStyle="width:4rem">
+                                        <template #body="{ data }">
+                                            <Button icon="pi pi-trash" class="p-button-danger" @click="deleteEstimateOS(dataGetOS.cod_order, data)" v-tooltip.top="'Excluir registro da OS'" />
+                                        </template>
+                                    </Column>
+                                    <template #footer>
+                                        <div class="grid p-fluid mt-1">
+                                            <div class="col-12 md:col-4">
+                                                <div class="p-inputgroup">
+                                                    <span class="p-inputgroup-addon"> VALOR TOTAL </span>
+                                                    <span class="p-inputgroup-addon"> R$ </span>
+                                                    <InputText v-model="dataGetOS.value" disabled />
+                                                    <span class="p-inputgroup-addon"> .00 </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 md:col-4">
+                                                <Button icon="pi pi-share-alt" class="p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Compartilhar orçamento com o cliente'" />
+                                                <Button icon="pi pi-download" class="p-button-warning" v-tooltip.top="'Gerar Recibo'" />
+                                            </div>
+                                        </div>
+                                    </template>
+                                </DataTable>
+                            </Dialog>
+                            <Chip :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar/Atualizar Orçamento'" style="cursor: pointer" />
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
@@ -273,9 +502,16 @@ onBeforeMount(() => {
 
                     <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center">
                         <template #body="{ data }">
-                            <a href="">
-                                <i v-if="data.adress" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'"></i>
-                            </a>
+                            <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="positionModalViewAdress" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
+                                <h6 class="line-height-3 m-0">
+                                    {{ data.adress }}
+                                </h6>
+                                <template #footer>
+                                    <Button class="p-button-rounded p-button-info mr-2 mb-2"><i class="pi pi-map-marker mr-2"></i>Abrir no Maps</Button>
+                                </template>
+                            </Dialog>
+                            <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
+
                             <i v-if="!data.adress" class="text-red-500 pi pi-minus"></i>
                         </template>
                         <template #filter="{ filterModel }">
@@ -283,11 +519,67 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
+                    <Column field="observation" header="Obs." dataType="boolean" bodyClass="text-center">
+                        <template #body="{ data }">
+                            <Dialog
+                                v-if="data.id == dataViewObservation.id"
+                                header="Observação"
+                                v-model:visible="displayModalViewObservation"
+                                :position="positionModalViewObservation"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '25vw' }"
+                                :modal="true"
+                            >
+                                <h6 class="line-height-3 m-0">
+                                    {{ dataViewObservation.observation }}
+                                </h6>
+                            </Dialog>
+                            <i v-if="data.observation" @click="openModalViewObservation('top', data)" class="text-green-500 pi pi-tag" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
+                            <i v-if="!data.observation" class="text-yellow-500 pi pi-minus"></i>
+                        </template>
+                    </Column>
+
                     <Column bodyClass="text-center" field="status" header="Status de Serviço" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <a href="">
-                                <Tag :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" v-tooltip.top="'Atualizar'" />
-                            </a>
+                            <Dialog
+                                v-if="data.id == dataEditStatus.id"
+                                header="Atualizar Status de Serviço"
+                                v-model:visible="displayModalEditStatus"
+                                :position="positionModalEditStatus"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '15vw' }"
+                                :modal="true"
+                            >
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageUpdateStatusService" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
+                                <div class="grid p-fluid mt-1">
+                                    <div class="field col-12 md:col-12">
+                                        <span class="p-float-label">
+                                            <Dropdown id="editStatus" v-model="dataEditStatus.status" :options="statusServiceOptions" class="p-column-filter" :showClear="true" optionLabel="label">
+                                                <template #value="slotProps">
+                                                    <div v-if="slotProps.value">
+                                                        <Tag :value="getStatusServiceLabel(parseInt(slotProps.value))" :severity="getStatusServiceClass(parseInt(slotProps.value))" />
+                                                    </div>
+                                                </template>
+                                                <template #option="slotProps">
+                                                    <Tag :value="getStatusServiceLabel(parseInt(slotProps.option))" :severity="getStatusServiceClass(parseInt(slotProps.option))" />
+                                                </template>
+                                            </Dropdown>
+
+                                            <label for="editStatus"><span style="color: red">*</span>Status</label>
+                                        </span>
+                                    </div>
+                                    <div class="col-12 md:col-12" style="text-align: center" v-if="data.updated_at_service">
+                                        <strong style="font-size: 11px"> Última atualização em {{ formatData(data.updated_at_service) }} </strong>
+                                    </div>
+                                </div>
+                                <template #footer>
+                                    <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
+                                    <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="validateUpdateStatusService()" />
+                                </template>
+                            </Dialog>
+                            <Tag @click="openModalEditStatus('top', data)" :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" v-tooltip.top="'Atualizar Status'" style="cursor: pointer" />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statusServiceOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
@@ -306,9 +598,51 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" field="payment_status" header="Status de Pagamento" :showFilterMatchModes="false">
                         <template #body="{ data }">
-                            <a href="">
-                                <Tag :value="getStatusPaymentLabel(data.payment_status)" :severity="getStatusPaymentClass(data.payment_status)" v-tooltip.top="'Atualizar'" />
-                            </a>
+                            <Dialog
+                                v-if="data.id == dataEditPaymentStatus.id"
+                                header="Atualizar Status de Pagamento"
+                                v-model:visible="displayModalEditPaymentStatus"
+                                :position="positionModalEditPaymentStatus"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '15vw' }"
+                                :modal="true"
+                            >
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageUpdateStatusPayment" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
+                                <div class="grid p-fluid mt-1">
+                                    <div class="field col-12 md:col-12">
+                                        <span class="p-float-label">
+                                            <Dropdown id="editPaymentStatus" v-model="dataEditPaymentStatus.payment_status" :options="statusPaymentOptions" class="p-column-filter" :showClear="true" optionLabel="label">
+                                                <template #value="slotProps">
+                                                    <div v-if="slotProps.value">
+                                                        <Tag :value="getStatusPaymentLabel(parseInt(slotProps.value))" :severity="getStatusPaymentClass(parseInt(slotProps.value))" />
+                                                    </div>
+                                                </template>
+                                                <template #option="slotProps">
+                                                    <Tag :value="getStatusPaymentLabel(parseInt(slotProps.option))" :severity="getStatusPaymentClass(parseInt(slotProps.option))" />
+                                                </template>
+                                            </Dropdown>
+
+                                            <label for="editPaymentStatus"><span style="color: red">*</span>Status</label>
+                                        </span>
+                                    </div>
+                                    <div class="col-12 md:col-12" style="text-align: center" v-if="data.updated_at_payment">
+                                        <strong style="font-size: 11px"> Última atualização em {{ formatData(data.updated_at_payment) }} </strong>
+                                    </div>
+                                </div>
+                                <template #footer>
+                                    <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
+                                    <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="validateUpdateStatusPayment()" />
+                                </template>
+                            </Dialog>
+                            <Tag
+                                @click="openModalEditPaymentStatus('top', data)"
+                                :value="getStatusPaymentLabel(data.payment_status)"
+                                :severity="getStatusPaymentClass(data.payment_status)"
+                                v-tooltip.top="'Atualizar Status de Pagamento'"
+                                style="cursor: pointer"
+                            />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statusPaymentOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
@@ -325,20 +659,60 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column field="observation" header="Obs." dataType="boolean" bodyClass="text-center">
-                        <template #body="{ data }">
-                            <a href="">
-                                <i v-if="data.observation" class="text-green-500 pi pi-tag" v-tooltip.top="'Visualizar'"></i>
-                            </a>
-                            <i v-if="!data.observation" class="text-yellow-500 pi pi-minus"></i>
-                        </template>
-                    </Column>
-
                     <Column bodyClass="text-center">
                         <template #body="{ data }">
-                            <Button icon="pi pi-user-edit" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
+                            <Dialog
+                                v-if="data.id == dataEditInfoClient.id"
+                                header="Editar informações do Cliente"
+                                v-model:visible="displayModalEditInfo"
+                                :position="positionModalEditInfo"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '30vw' }"
+                                :modal="true"
+                            >
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageEditInfoClient" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
+                                <div class="grid p-fluid mt-1">
+                                    <div class="field col-12 md:col-5">
+                                        <span class="p-float-label">
+                                            <Dropdown id="editProduct" :options="productsTypes" v-model="dataEditInfoClient.product" />
+                                            <label for="editProduct"><span style="color: red">*</span> Produto</label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-7">
+                                        <span class="p-float-label">
+                                            <InputText type="text" id="editClient" v-model="dataEditInfoClient.client" />
+                                            <label for="editClient"><span style="color: red">*</span> Cliente</label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-4">
+                                        <span class="p-float-label">
+                                            <InputText type="text" id="editTelephone" v-model="dataEditInfoClient.telephone" :maxlength="11" />
+                                            <label for="editTelephone"><span style="color: red">*</span> Telefone</label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-8">
+                                        <span class="p-float-label">
+                                            <InputText type="text" id="editAdress" v-model="dataEditInfoClient.adress" />
+                                            <label for="editAdress">Endereço</label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-12">
+                                        <span class="p-float-label">
+                                            <Textarea inputId="editObservation" rows="1" cols="10" v-model="dataEditInfoClient.observation" />
+                                            <label for="editObservation">Observação</label>
+                                        </span>
+                                    </div>
+                                </div>
+                                <template #footer>
+                                    <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
+                                    <Button label="Editar" icon="pi pi-check" class="p-button-warning" @click="validateEditInfoClient()" />
+                                </template>
+                            </Dialog>
+                            <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
                             <Button ref="popup" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
-                            <Button ref="popup" @click="confirmDelete($event, data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
                         </template>
                     </Column>
                 </DataTable>
