@@ -3,54 +3,36 @@ import Axios from '@/service/Axios';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount } from 'vue';
+import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from './components/messages.js';
+import { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage } from './components/computeds.js';
 
 const toast = useToast();
 const popup = ref(null);
 const confirmPopup = useConfirm();
-const statusTypes = ref([
-    { code: 1, name: 'Visitar' },
-    { code: 2, name: 'Buscar' },
-    { code: 3, name: 'Na Fila' },
-    { code: 4, name: 'Mexendo' },
-    { code: 5, name: 'Orçamentado' },
-    { code: 6, name: 'Autorizado' },
-    { code: 7, name: 'Testando' },
-    { code: 8, name: 'Pronto' },
-    { code: 9, name: 'Entregar' },
-    { code: 10, name: 'Devolver' },
-    { code: 11, name: 'Concluído' }
-]);
-const filters = ref(null);
 const loading = ref(null);
-const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Air Fryer', 'Forno Elétrico', 'Tanquinho', 'Expositor', 'Outros']);
-const statusPaymentOptions = ref(['1', '2', '3']);
-const statusPaymentMapping = ref({
-    1: 'Aberto',
-    2: 'Pendente',
-    3: 'Pago'
-});
-const statusServiceOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']);
-const statusServiceMapping = ref({
-    1: 'Visitar',
-    2: 'Buscar',
-    3: 'Na Fila',
-    4: 'Mexendo',
-    5: 'Orçamentado',
-    6: 'Autorizado',
-    7: 'Aguardando peças',
-    8: 'Consertando',
-    9: 'Testando',
-    10: 'Pronto',
-    11: 'Entregar',
-    12: 'Devolver',
-    13: 'Concluído'
-});
+const filters = ref(null);
+const initFilters = () => {
+    filters.value = {
+        order_of_service: { value: null },
+        product: { value: null },
+        client: { value: null },
+        telephone: { value: null },
+        adress: { value: null },
+        status: { value: null },
+        payment_status: { value: null },
+        observation: { value: null },
+        created_at: { value: null }
+    };
+};
+const clearFilter = () => {
+    initFilters();
+};
+
 const dataGetOS = ref([]);
 const getUniqueOS = async (order_of_service) => {
     try {
         const response = await Axios.get('/order_of_service/' + order_of_service);
         dataGetOS.value = response.data[0];
-        console.log(dataGetOS.value);
         return dataGetOS.value;
     } catch (error) {
         console.error(error);
@@ -64,6 +46,14 @@ const getServices = async () => {
         initFilters();
     } catch (error) {
         console.error(error);
+    }
+};
+const dataPostService = ref({});
+const validatePostService = async () => {
+    if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.code) {
+        addMessage('addService', 'error', 'Preencha todos os campos obrigatórios.');
+    } else {
+        postService();
     }
 };
 const postService = async () => {
@@ -85,6 +75,18 @@ const postService = async () => {
         console.error(error);
     }
 };
+const confirmDeleteService = (event, idService) => {
+    confirmPopup.require({
+        target: event.target,
+        message: 'Deseja realmente excluir este serviço?',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        accept: () => {
+            deleteService(idService);
+        }
+    });
+};
 const deleteService = async (idService) => {
     try {
         const response = await Axios.delete('/services/' + idService);
@@ -96,6 +98,18 @@ const deleteService = async (idService) => {
         console.error(error);
     }
 };
+const confirmUpdateWarehouse = (event, idService) => {
+    confirmPopup.require({
+        target: event.target,
+        message: 'Deseja enviar este serviço ao depósito?',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        accept: () => {
+            updateWarehouse(idService);
+        }
+    });
+};
 const updateWarehouse = async (id) => {
     try {
         const response = await Axios.put('/services/warehouse/' + id + '/false');
@@ -105,6 +119,13 @@ const updateWarehouse = async (id) => {
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
         console.error(error);
+    }
+};
+const validateEditInfoClient = async () => {
+    if (!dataEditInfoClient.value.product || !dataEditInfoClient.value.client || !dataEditInfoClient.value.telephone) {
+        addMessage('editInfoClient', 'error', 'Preencha todos os campos obrigatórios.', true);
+    } else {
+        updateInfoClient();
     }
 };
 const updateInfoClient = async () => {
@@ -125,6 +146,13 @@ const updateInfoClient = async () => {
         console.error(error);
     }
 };
+const validateUpdateStatusService = async () => {
+    if (!dataEditStatus.value.status) {
+        addMessage('updateStatusService', 'error', 'Campo obrigatório.');
+    } else {
+        updateStatus();
+    }
+};
 const updateStatus = async () => {
     try {
         const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status);
@@ -135,6 +163,13 @@ const updateStatus = async () => {
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status', life: 5000 });
         console.error(error);
+    }
+};
+const validateUpdateStatusPayment = async () => {
+    if (!dataEditPaymentStatus.value.payment_status) {
+        addMessage('updateStatusPayment', 'error', 'Campo obrigatório.');
+    } else {
+        updatePaymentStatus();
     }
 };
 const updatePaymentStatus = async () => {
@@ -149,50 +184,41 @@ const updatePaymentStatus = async () => {
         console.error(error);
     }
 };
-
 const dataPutOrderOfService = ref({});
+const validateUpdateEstimateOS = async (data) => {
+    if (!dataPutOrderOfService.value.amount || !dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
+        addMessage('addEstimateOS', 'error', 'Preencha todos os campos obrigatórios.');
+    } else {
+        updateEstimateOS(data);
+    }
+};
 const updateEstimateOS = async (data) => {
     try {
-
         const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
             amount: dataPutOrderOfService.value.amount,
             description: dataPutOrderOfService.value.description,
-            price: dataPutOrderOfService.value.price,
+            price: dataPutOrderOfService.value.price
         });
         console.log(response.status);
         openModalOS('top', data);
         closeModal();
-        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro adicionado com sucesso', life: 5000 });
-        
+        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro ao orçamento', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro de OS', life: 5000 });
         console.error(error);
     }
 };
-
-const confirmDelete = (event, idService) => {
-    confirmPopup.require({
-        target: event.target,
-        message: 'Deseja realmente excluir este serviço?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        accept: () => {
-            deleteService(idService);
-        }
-    });
-};
-const confirmUpdateWarehouse = (event, idService) => {
-    confirmPopup.require({
-        target: event.target,
-        message: 'Deseja enviar este serviço ao depósito?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        accept: () => {
-            updateWarehouse(idService);
-        }
-    });
+const deleteEstimateOS = async (cod, data) => {
+    try {
+        const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
+        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
+        console.log(response.status);
+        const dataOpen = { order_of_service: cod };
+        openModalOS('top', dataOpen);
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar registro de OS', life: 5000 });
+        console.error(error);
+    }
 };
 
 const displayModalOS = ref(false);
@@ -201,6 +227,7 @@ const dataViewEstimateOS = ref([]);
 const openModalOS = async (position, data) => {
     const dataOS = await getUniqueOS(data.order_of_service);
     if (dataOS) {
+        messageAddEstimateOS.value.length = 0;
         dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
         displayModalOS.value = true;
         positionModalOS.value = position;
@@ -208,7 +235,6 @@ const openModalOS = async (position, data) => {
         toast.add({ severity: 'info', summary: 'Sem Orçamento', detail: 'Não foi encontrado o orçamento desse serviço.', life: 5000 });
     }
 };
-
 const displayModalViewObservation = ref(false);
 const positionModalViewObservation = ref(false);
 const dataViewObservation = ref({
@@ -241,6 +267,7 @@ const dataEditPaymentStatus = ref({
     label: ''
 });
 const openModalEditPaymentStatus = (position, data) => {
+    messageUpdateStatusPayment.value.length = 0;
     displayModalEditPaymentStatus.value = true;
     positionModalEditPaymentStatus.value = position;
     dataEditPaymentStatus.value.label = getStatusPaymentLabel(data.payment_status);
@@ -255,6 +282,7 @@ const dataEditStatus = ref({
     label: ''
 });
 const openModalEditStatus = (position, data) => {
+    messageUpdateStatusService.value.length = 0;
     displayModalEditStatus.value = true;
     positionModalEditStatus.value = position;
     dataEditStatus.value.label = getStatusServiceLabel(data.status);
@@ -265,6 +293,7 @@ const displayModalEditInfo = ref(false);
 const positionModalEditInfo = ref(false);
 const dataEditInfoClient = ref({});
 const openModalEditInfo = (position, data) => {
+    messageEditInfoClient.value.length = 0;
     displayModalEditInfo.value = true;
     positionModalEditInfo.value = position;
     dataEditInfoClient.value.id = data.id;
@@ -276,8 +305,8 @@ const openModalEditInfo = (position, data) => {
 };
 const displayModalAdd = ref(false);
 const positionModalAdd = ref(false);
-const dataPostService = ref({});
 const openModalAdd = (position) => {
+    messageAddService.value.length = 0;
     displayModalAdd.value = true;
     positionModalAdd.value = position;
 };
@@ -288,18 +317,21 @@ const closeModal = () => {
         dataPutOrderOfService.value.price = null;
     }
     if (displayModalEditPaymentStatus.value == true) {
+        messageUpdateStatusPayment.value.length = 0;
         displayModalEditPaymentStatus.value = false;
         dataEditPaymentStatus.value.id = '';
         dataEditPaymentStatus.value.payment_status = '';
         dataEditPaymentStatus.value.label = '';
     }
     if (displayModalEditStatus.value == true) {
+        messageUpdateStatusService.value.length = 0;
         displayModalEditStatus.value = false;
         dataEditStatus.value.id = '';
         dataEditStatus.value.status = '';
         dataEditStatus.value.label = '';
     }
     if (displayModalEditInfo.value == true) {
+        messageEditInfoClient.value.length = 0;
         displayModalEditInfo.value = false;
         dataEditInfoClient.value.id = '';
         dataEditInfoClient.value.product = '';
@@ -309,6 +341,7 @@ const closeModal = () => {
         dataEditInfoClient.value.observation = '';
     }
     if (displayModalAdd.value == true) {
+        messageAddService.value.length = 0;
         displayModalAdd.value = false;
         dataPostService.value.product = '';
         dataPostService.value.client = '';
@@ -317,82 +350,6 @@ const closeModal = () => {
         dataPostService.value.status = '';
         dataPostService.value.observation = '';
     }
-};
-const getStatusServiceLabel = (status) => {
-    return statusServiceMapping.value[status] || status;
-};
-const getStatusPaymentLabel = (status) => {
-    return statusPaymentMapping.value[status] || status;
-};
-const getStatusPaymentClass = (status) => {
-    switch (status) {
-        case 1:
-            return 'info';
-        case 2:
-            return 'warning';
-        case 3:
-            return 'success';
-        default:
-            return '';
-    }
-};
-const getStatusServiceClass = (status) => {
-    switch (status) {
-        case 1:
-            return 'info';
-        case 2:
-            return 'info';
-        case 3:
-            return 'info';
-        case 4:
-            return 'warning';
-        case 5:
-            return 'warning';
-        case 6:
-            return 'warning';
-        case 7:
-            return 'warning';
-        case 8:
-            return 'warning';
-        case 9:
-            return 'warning';
-        case 10:
-            return 'success';
-        case 11:
-            return 'success';
-        case 12:
-            return 'success';
-        case 13:
-            return 'success';
-        default:
-            return '';
-    }
-};
-const initFilters = () => {
-    filters.value = {
-        order_of_service: { value: null },
-        product: { value: null },
-        client: { value: null },
-        telephone: { value: null },
-        adress: { value: null },
-        status: { value: null },
-        payment_status: { value: null },
-        observation: { value: null },
-        created_at: { value: null }
-    };
-};
-const clearFilter = () => {
-    initFilters();
-};
-const formatData = (dataString) => {
-    const partes = dataString.split('-');
-    if (partes.length !== 3) {
-        return 'Data inválida';
-    }
-    const ano = partes[0].substring(2);
-    const mes = partes[1];
-    const dia = partes[2];
-    return `${dia}/${mes}/${ano}`;
 };
 
 onBeforeMount(() => {
@@ -411,6 +368,9 @@ onBeforeMount(() => {
                     <template v-slot:start>
                         <div class="my-2">
                             <Dialog header="Adicionar Serviço" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageAddService" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
@@ -451,7 +411,7 @@ onBeforeMount(() => {
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                                    <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="postService()" />
+                                    <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="validatePostService()" />
                                 </template>
                             </Dialog>
                             <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd('top')" />
@@ -484,45 +444,53 @@ onBeforeMount(() => {
 
                     <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric">
                         <template #body="{ data }">
-                            <Dialog v-if="data.order_of_service == dataGetOS.cod_order" header="Orçamento" v-model:visible="displayModalOS" :position="positionModalOS" :breakpoints="{ '960px': '75vw' }" :style="{ width: '40vw' }" :modal="true">
-                                <div class="grid p-fluid mt-1">
-                                    <div class="field col-12 md:col-2">
-                                        <span class="p-float-label">
-                                            <InputNumber id="addQuantOS" v-model="dataPutOrderOfService.amount" />
-                                            <label for="addQuantOS">
-                                                <span style="color: red">*</span>
-                                                Quantidade
-                                            </label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-5">
-                                        <span class="p-float-label">
-                                            <InputText id="addDescriptionOS" v-model="dataPutOrderOfService.description" />
-                                            <label for="addDescriptionOS">
-                                                <span style="color: red">*</span>
-                                                Descrição
-                                            </label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-3">
-                                        <span class="p-float-label">
-                                            <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" />
-                                            <label for="addPriceOS">
-                                                <span style="color: red">*</span>
-                                                Preço
-                                            </label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-2">
-                                        <Button icon="pi pi-plus" @click="updateEstimateOS(data)" />
-                                    </div>
-                                </div>
-                                <DataTable :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="10">
-                                    <Column field="id" header="#" :sortable="true">
-                                        <template #body="{ data }">
-                                            {{ data.id }}
-                                        </template>
-                                    </Column>
+                            <Dialog
+                                v-if="data.order_of_service == dataGetOS.cod_order"
+                                :header="`Orçamento - (OS: ${data.order_of_service})`"
+                                v-model:visible="displayModalOS"
+                                :position="positionModalOS"
+                                :breakpoints="{ '960px': '75vw' }"
+                                :style="{ width: '50vw' }"
+                                :modal="true"
+                            >
+                                <DataTable :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
+                                    <template #header>
+                                        <transition-group tag="div">
+                                            <Message v-for="msg of messageAddEstimateOS" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                        </transition-group>
+                                        <div class="grid p-fluid mt-1">
+                                            <div class="field col-12 md:col-2">
+                                                <span class="p-float-label">
+                                                    <InputNumber id="addQuantOS" v-model="dataPutOrderOfService.amount" />
+                                                    <label for="addQuantOS">
+                                                        <span style="color: red">*</span>
+                                                        Quantidade
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-5">
+                                                <span class="p-float-label">
+                                                    <InputText id="addDescriptionOS" v-model="dataPutOrderOfService.description" />
+                                                    <label for="addDescriptionOS">
+                                                        <span style="color: red">*</span>
+                                                        Descrição
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-3">
+                                                <span class="p-float-label">
+                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" />
+                                                    <label for="addPriceOS">
+                                                        <span style="color: red">*</span>
+                                                        Preço
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-2">
+                                                <Button icon="pi pi-plus" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Adicionar registro ao OS'" />
+                                            </div>
+                                        </div>
+                                    </template>
                                     <Column field="amount" header="Quantidade">
                                         <template #body="{ data }">
                                             {{ data.amount }}
@@ -539,13 +507,29 @@ onBeforeMount(() => {
                                         </template>
                                     </Column>
                                     <Column headerStyle="width:4rem">
-                                        <template #body>
-                                            <Button icon="pi pi-search" />
+                                        <template #body="{ data }">
+                                            <Button icon="pi pi-trash" class="p-button-danger" @click="deleteEstimateOS(dataGetOS.cod_order, data)" v-tooltip.top="'Excluir registro da OS'" />
                                         </template>
                                     </Column>
+                                    <template #footer>
+                                        <div class="grid p-fluid mt-1">
+                                            <div class="col-12 md:col-4">
+                                                <div class="p-inputgroup">
+                                                    <span class="p-inputgroup-addon"> VALOR TOTAL </span>
+                                                    <span class="p-inputgroup-addon"> R$ </span>
+                                                    <InputText v-model="dataGetOS.cod_order" disabled />
+                                                    <span class="p-inputgroup-addon"> .00 </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 md:col-4">
+                                                <Button icon="pi pi-share-alt" class="p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Compartilhar orçamento com o cliente'" />
+                                                <Button icon="pi pi-download" class="p-button-warning" v-tooltip.top="'Gerar Recibo'" />
+                                            </div>
+                                        </div>
+                                    </template>
                                 </DataTable>
                             </Dialog>
-                            <Chip :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar orçamento'" style="cursor: pointer" />
+                            <Chip :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar/Atualizar Orçamento'" style="cursor: pointer" />
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
@@ -650,6 +634,9 @@ onBeforeMount(() => {
                                 :style="{ width: '15vw' }"
                                 :modal="true"
                             >
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageUpdateStatusService" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
@@ -670,7 +657,7 @@ onBeforeMount(() => {
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                                    <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="updateStatus()" />
+                                    <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="validateUpdateStatusService()" />
                                 </template>
                             </Dialog>
                             <Tag @click="openModalEditStatus('top', data)" :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" v-tooltip.top="'Atualizar Status'" style="cursor: pointer" />
@@ -701,6 +688,9 @@ onBeforeMount(() => {
                                 :style="{ width: '15vw' }"
                                 :modal="true"
                             >
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageUpdateStatusPayment" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
@@ -721,7 +711,7 @@ onBeforeMount(() => {
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                                    <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="updatePaymentStatus()" />
+                                    <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="validateUpdateStatusPayment()" />
                                 </template>
                             </Dialog>
                             <Tag
@@ -758,6 +748,9 @@ onBeforeMount(() => {
                                 :style="{ width: '30vw' }"
                                 :modal="true"
                             >
+                                <transition-group tag="div">
+                                    <Message v-for="msg of messageEditInfoClient" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                </transition-group>
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-5">
                                         <span class="p-float-label">
@@ -792,12 +785,12 @@ onBeforeMount(() => {
                                 </div>
                                 <template #footer>
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                                    <Button label="Editar" icon="pi pi-check" class="p-button-warning" @click="updateInfoClient()" />
+                                    <Button label="Editar" icon="pi pi-check" class="p-button-warning" @click="validateEditInfoClient()" />
                                 </template>
                             </Dialog>
                             <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
                             <Button ref="popup" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
-                            <Button ref="popup" @click="confirmDelete($event, data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            <Button ref="popup" @click="confirmDeleteService($event, data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
                         </template>
                     </Column>
                 </DataTable>
