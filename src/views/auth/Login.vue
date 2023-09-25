@@ -1,5 +1,5 @@
 <script setup>
-import Axios from '@/service/Axios';
+import axios from 'axios';
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 import { messageLogin, addMessage } from '../components/messages.js';
@@ -28,10 +28,10 @@ const validate = async () => {
 
 const login = async () => {
     try {
-        const response = await Axios.post('/users/login', {
+        const response = await axios.post(import.meta.env.VITE_BASE_URL_API + '/users/login', {
             username: username.value,
             password: password.value,
-            remember: remember.value,
+            remember: remember.value
         });
 
         localStorage.setItem('token', response.data.token);
