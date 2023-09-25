@@ -33,7 +33,7 @@ const getWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
         dataGetWarehouse.value = response.data;
-        console.error(response.data);
+        console.error(response.status);
         initFilters();
     } catch (error) {
         console.error(error);
