@@ -48,6 +48,7 @@ const getServices = async () => {
         console.error(error);
     }
 };
+await getServices();
 const dataPostService = ref({});
 const validatePostService = async () => {
     if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.code) {
@@ -352,9 +353,7 @@ const closeModal = () => {
     }
 };
 
-onBeforeMount(() => {
-    getServices();
-});
+onBeforeMount(() => {});
 </script>
 
 <template>

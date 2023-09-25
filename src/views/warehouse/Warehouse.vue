@@ -33,12 +33,13 @@ const getWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
         dataGetWarehouse.value = response.data;
-        console.error(response.data);
+        console.error(response.status);
         initFilters();
     } catch (error) {
         console.error(error);
     }
 };
+await getWarehouse();
 const updateWarehouse = async (id) => {
     try {
         const response = await Axios.put('/services/warehouse/' + id + '/true');
@@ -312,9 +313,7 @@ const closeModal = () => {
     }
 };
 
-onBeforeMount(() => {
-    getWarehouse();
-});
+onBeforeMount(() => {});
 </script>
 
 <template>
