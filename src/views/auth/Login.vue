@@ -1,4 +1,5 @@
 <script setup>
+import Axios from '@/service/Axios';
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 import { messageLogin, addMessage } from '../components/messages.js';
@@ -21,8 +22,22 @@ const validate = async () => {
     if (!username.value && !password.value) {
         addMessage('login', 'error', 'Preencha todos os campos obrigatórios.');
     } else {
-        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
+        login();
+    }
+};
+
+const login = async () => {
+    try {
+        const response = await Axios.post('/users/login', {
+            username: username.value,
+            password: password.value,
+            remember: remember.value,
+        });
+
+        localStorage.setItem('token', response.data.token);
         router.push('/servicos');
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Informação Inválida', detail: error.response.data.msg, life: 5000 });
     }
 };
 </script>

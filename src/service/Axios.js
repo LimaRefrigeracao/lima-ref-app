@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 export const axiosInstance = () => {
-  return axios.create({
-    baseURL: 'http://localhost:3333/',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+    const token = localStorage.getItem('token');
+    return axios.create({
+        baseURL: 'http://localhost:3333/',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
 };
 
-export default axiosInstance(); 
-
+export default axiosInstance();
