@@ -313,7 +313,7 @@ const closeModal = () => {
 };
 
 onMounted(() => {
-   getWarehouse();
+    getWarehouse();
 });
 </script>
 
