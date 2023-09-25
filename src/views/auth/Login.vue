@@ -21,10 +21,7 @@ const logoUrl = computed(() => {
 });
 
 const validate = async () => {
-    loadingOpen();
-
     if (!username.value && !password.value) {
-        loadingClose();
         addMessage('login', 'error', 'Preencha todos os campos obrigatórios.');
     } else {
         login();
@@ -32,6 +29,7 @@ const validate = async () => {
 };
 
 const login = async () => {
+    loadingOpen();
     try {
         const response = await axios.post(import.meta.env.VITE_BASE_URL_API + '/users/login', {
             username: username.value,
