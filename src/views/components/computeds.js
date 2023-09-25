@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Air Fryer', 'Forno Elétrico', 'Tanquinho', 'Expositor', 'Outros']);
 const statusPaymentOptions = ref(['1', '2', '3']);
 const statusPaymentMapping = ref({
@@ -134,4 +135,17 @@ const sendWhatsAppMessage = (data, dataEstimate) => {
     window.open(whatsappLink, '_blank');
 };
 
-export { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage };
+const loadingOpen = () => {
+    Swal.fire({
+        title: 'Carregando',
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+};
+
+const loadingClose = () => {
+    Swal.close();
+};
+
+export { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage, loadingOpen, loadingClose };

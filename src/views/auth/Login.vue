@@ -1,8 +1,10 @@
 <script setup>
 import axios from 'axios';
+
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 import { messageLogin, addMessage } from '../components/messages.js';
+import { loadingOpen, loadingClose } from '../components/computeds.js';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 const toast = useToast();
@@ -19,7 +21,10 @@ const logoUrl = computed(() => {
 });
 
 const validate = async () => {
+    loadingOpen();
+
     if (!username.value && !password.value) {
+        loadingClose();
         addMessage('login', 'error', 'Preencha todos os campos obrigatórios.');
     } else {
         login();
@@ -33,10 +38,11 @@ const login = async () => {
             password: password.value,
             remember: remember.value
         });
-
+        loadingClose();
         localStorage.setItem('token', response.data.token);
         router.push('/servicos');
     } catch (error) {
+        loadingClose();
         toast.add({ severity: 'error', summary: 'Informação Inválida', detail: error.response.data.msg, life: 5000 });
     }
 };
