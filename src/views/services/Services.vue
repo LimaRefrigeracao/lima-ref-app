@@ -2,7 +2,7 @@
 import Axios from '@/service/Axios';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { ref, onBeforeMount } from 'vue';
+import { ref, onMounted } from 'vue';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage } from '../components/computeds.js';
 
@@ -353,7 +353,9 @@ const closeModal = () => {
     }
 };
 
-onBeforeMount(() => {});
+onMounted(() => {
+   getServices();
+});
 </script>
 
 <template>
