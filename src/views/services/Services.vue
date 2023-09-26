@@ -374,7 +374,7 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <Dropdown id="addProduct" :options="productsTypes" v-model="dataPostService.product" filter :show-clear="true"/>
+                                            <Dropdown id="addProduct" :options="productsTypes" v-model="dataPostService.product" :filter="productsTypes" :show-clear="true"/>
                                             <label for="addProduct"><span style="color: red">*</span> Produto</label>
                                         </span>
                                     </div>
