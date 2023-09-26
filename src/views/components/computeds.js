@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
-const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Air Fryer', 'Forno Elétrico', 'Tanquinho', 'Expositor', 'Bebedouro','Outros']);
+const productsTypes = ref(['Air Fryer', 'Ar-Condicionado', 'Bebedouro', 'Central de Ar', 'Expositor', 'Forno Elétrico', 'Freezer', 'Geladeira', 'Máquina de Lavar', 'Micro-ondas', 'Tanquinho', 'Outros']);
 const statusPaymentOptions = ref(['1', '2', '3']);
 const statusPaymentMapping = ref({
     1: 'Aberto',
@@ -109,10 +109,10 @@ const sendWhatsAppMessage = (data, dataEstimate) => {
     let connection = '';
     let initMessage = '';
     switch (data.product) {
-        case 'Máquina de Lavar' || 'Geladeira' || 'Air Fryer':
+        case 'Máquina de Lavar' || 'Geladeira' || 'Air Fryer' || 'Central de Ar':
             connection = 'da sua';
             break;
-        case 'Freezer' || 'Micro-ondas' || 'Forno Elétrico' || 'Tanquinho' || 'Expositor' || 'Bebedouro':
+        case 'Freezer' || 'Micro-ondas' || 'Forno Elétrico' || 'Tanquinho' || 'Expositor' || 'Bebedouro' || 'Ar-Condicionado':
             connection = 'do seu';
             break;
         case 'Outros':
