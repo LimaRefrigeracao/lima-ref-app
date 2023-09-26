@@ -10,7 +10,6 @@ const toast = useToast();
 const popup = ref(null);
 const confirmPopup = useConfirm();
 const loading = ref(null);
-const filter = ref(null);
 const filters = ref(null);
 const initFilters = () => {
     filters.value = {
