@@ -43,6 +43,7 @@ const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
+        console.log(response.data)
         initFilters();
     } catch (error) {
         console.error(error);
@@ -386,7 +387,7 @@ onBeforeMount(() => {
                                     </div>
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <InputMask id="addTelephone" mask="99999999999" v-model="dataPostService.telephone" />
+                                            <InputText t id="addTelephone" :maxlength="11" :inputStyle="{ 'text-transform': 'none' }" v-model="dataPostService.telephone" />
                                             <label for="addTelephone"><span style="color: red">*</span> Telefone</label>
                                         </span>
                                     </div>
