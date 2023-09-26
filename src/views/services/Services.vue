@@ -10,6 +10,7 @@ const toast = useToast();
 const popup = ref(null);
 const confirmPopup = useConfirm();
 const loading = ref(null);
+const filter = ref(null);
 const filters = ref(null);
 const initFilters = () => {
     filters.value = {
@@ -374,7 +375,7 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <Dropdown id="addProduct" :options="productsTypes" v-model="dataPostService.product" :filter="productsTypes" :show-clear="true"/>
+                                            <Dropdown id="addProduct" :options="productsTypes" v-model="dataPostService.product" />
                                             <label for="addProduct"><span style="color: red">*</span> Produto</label>
                                         </span>
                                     </div>
