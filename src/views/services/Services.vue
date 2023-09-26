@@ -43,7 +43,7 @@ const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.log(response.data)
+        console.log(response.status)
         initFilters();
     } catch (error) {
         console.error(error);
