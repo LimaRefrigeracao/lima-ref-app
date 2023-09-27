@@ -1,5 +1,8 @@
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
+import { io } from 'socket.io-client';
+const socket = io(import.meta.env.VITE_BASE_URL_API);
+
 const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Forno Elétrico', 'Air Fryer', 'Central de Ar', 'Bebedouro', 'Ar-Condicionado', 'Expositor', 'Tanquinho', 'Lava e Seca', 'Secadora', 'Outros']);
 const statusPaymentOptions = ref(['1', '2', '3']);
 const statusPaymentMapping = ref({
@@ -156,4 +159,19 @@ const googleMapsUrl = (adress) => {
     window.open(mapsLink, '_blank');
 };
 
-export { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage, loadingOpen, loadingClose, googleMapsUrl };
+export {
+    productsTypes,
+    statusPaymentOptions,
+    statusServiceOptions,
+    statusTypes,
+    socket,
+    formatData,
+    getStatusServiceLabel,
+    getStatusPaymentLabel,
+    getStatusPaymentClass,
+    getStatusServiceClass,
+    sendWhatsAppMessage,
+    loadingOpen,
+    loadingClose,
+    googleMapsUrl
+};

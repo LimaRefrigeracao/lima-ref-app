@@ -9,6 +9,7 @@ import {
     statusPaymentOptions,
     statusServiceOptions,
     statusTypes,
+    socket,
     formatData,
     getStatusServiceLabel,
     getStatusPaymentLabel,
@@ -43,6 +44,20 @@ const clearFilter = () => {
 };
 
 const dataGetOS = ref([]);
+
+socket.on('reloadDataOrders', (data) => {
+    dataGetOS.value = data;
+    let dataOpen;
+    if (!data.order_of_service) {
+        
+        dataOpen = { order_of_service: data[0].cod_order };
+    } else {
+        dataOpen = data.order_of_service;
+    }
+    console.log(data)
+    console.log(dataOpen)
+    openModalOS('top', dataOpen); 
+});
 const getUniqueOS = async (order_of_service) => {
     loadingOpen();
     try {
@@ -57,12 +72,15 @@ const getUniqueOS = async (order_of_service) => {
     }
 };
 const dataGetService = ref([]);
+socket.on('reloadDataService', (data) => {
+    dataGetService.value = data;
+});
 const getServices = async () => {
     loadingOpen();
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.log(response.status);
+        console.log(dataGetService.value);
         initFilters();
         loadingClose();
     } catch (error) {
@@ -71,6 +89,7 @@ const getServices = async () => {
         loadingClose();
     }
 };
+
 const dataPostService = ref({});
 const validatePostService = async () => {
     if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.code) {
@@ -92,7 +111,6 @@ const postService = async () => {
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
         console.log(response.status);
-        await getServices();
         closeModal();
         loadingClose();
     } catch (error) {
@@ -119,7 +137,6 @@ const deleteService = async (idService, cod_order) => {
         const response = await Axios.delete('/services/' + idService + '/' + cod_order);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
         console.log(response.status);
-        await getServices();
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
@@ -145,7 +162,6 @@ const updateWarehouse = async (id) => {
         const response = await Axios.put('/services/warehouse/' + id + '/false');
         toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado ao depósito', life: 5000 });
         console.log(response.status);
-        await getServices();
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
@@ -172,7 +188,6 @@ const updateInfoClient = async () => {
         });
         toast.add({ severity: 'success', summary: 'Editado', detail: 'As informações do cliente foram editadas', life: 5000 });
         console.log(response.status);
-        await getServices();
         closeModal();
         loadingClose();
     } catch (error) {
@@ -193,8 +208,7 @@ const updateStatus = async () => {
     try {
         const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status);
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
-        console.log(response.status);
-        await getServices();
+        console.log(response.data);
         closeModal();
         loadingClose();
     } catch (error) {
@@ -203,6 +217,7 @@ const updateStatus = async () => {
         loadingClose();
     }
 };
+
 const validateUpdateStatusPayment = async () => {
     if (!dataEditPaymentStatus.value.payment_status) {
         addMessage('updateStatusPayment', 'error', 'Campo obrigatório.');
@@ -216,7 +231,6 @@ const updatePaymentStatus = async () => {
         const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status);
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
         console.log(response.status);
-        await getServices();
         closeModal();
         loadingClose();
     } catch (error) {
@@ -242,7 +256,6 @@ const updateEstimateOS = async (data) => {
             price: dataPutOrderOfService.value.price
         });
         console.log(response.status);
-        openModalOS('top', data);
         closeModal();
         loadingClose();
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
@@ -258,8 +271,6 @@ const deleteEstimateOS = async (cod, data) => {
         const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
         console.log(response.status);
-        const dataOpen = { order_of_service: cod };
-        openModalOS('top', dataOpen);
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar registro de OS', life: 5000 });
@@ -272,7 +283,9 @@ const displayModalOS = ref(false);
 const positionModalOS = ref(false);
 const dataViewEstimateOS = ref([]);
 const openModalOS = async (position, data) => {
+
     const dataOS = await getUniqueOS(data.order_of_service);
+
     if (dataOS) {
         messageAddEstimateOS.value.length = 0;
         dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
