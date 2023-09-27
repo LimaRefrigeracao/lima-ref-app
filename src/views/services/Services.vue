@@ -9,6 +9,7 @@ import {
     statusPaymentOptions,
     statusServiceOptions,
     statusTypes,
+    optionsTypesTables,
     socket,
     formatData,
     getStatusServiceLabel,
@@ -21,6 +22,7 @@ import {
     loadingClose
 } from '../components/computeds.js';
 
+const typeTable = ref({ value: 0, label: 'Abertos' });
 const toast = useToast();
 const popup = ref(null);
 const confirmPopup = useConfirm();
@@ -49,14 +51,13 @@ socket.on('reloadDataOrders', (data) => {
     dataGetOS.value = data;
     let dataOpen;
     if (!data.order_of_service) {
-        
         dataOpen = { order_of_service: data[0].cod_order };
     } else {
         dataOpen = data.order_of_service;
     }
-    console.log(data)
-    console.log(dataOpen)
-    openModalOS('top', dataOpen); 
+    console.log(data);
+    console.log(dataOpen);
+    openModalOS('top', dataOpen);
 });
 const getUniqueOS = async (order_of_service) => {
     loadingOpen();
@@ -80,7 +81,7 @@ const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.log(dataGetService.value);
+        console.log(response.status);
         initFilters();
         loadingClose();
     } catch (error) {
@@ -88,6 +89,54 @@ const getServices = async () => {
         console.error(error);
         loadingClose();
     }
+};
+const getServicesFinished = async () => {
+    loadingOpen();
+    try {
+        const response = await Axios.get('/services/finished');
+        dataGetService.value = response.data;
+        console.log(response.status);
+        initFilters();
+        loadingClose();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços finalizados', life: 5000 });
+        console.error(error);
+        loadingClose();
+    }
+};
+const getServicesWarehouse = async () => {
+    try {
+        const response = await Axios.get('/services/warehouse');
+        dataGetService.value = response.data;
+        console.error(response.status);
+        initFilters();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const updateWarehouseForService = async (id) => {
+    try {
+        const response = await Axios.put('/services/warehouse/' + id + '/true');
+        toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado de volta', life: 5000 });
+        console.log(response.status);
+        await getServicesWarehouse();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço de volta', life: 5000 });
+        console.error(error);
+    }
+};
+const confirmUpdateForServices = (event, idService) => {
+    confirmPopup.require({
+        target: event.target,
+        message: 'Deseja levar este serviço de volta?',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        accept: () => {
+            updateWarehouseForService(idService);
+        }
+    });
 };
 
 const dataPostService = ref({});
@@ -283,7 +332,6 @@ const displayModalOS = ref(false);
 const positionModalOS = ref(false);
 const dataViewEstimateOS = ref([]);
 const openModalOS = async (position, data) => {
-
     const dataOS = await getUniqueOS(data.order_of_service);
 
     if (dataOS) {
@@ -412,6 +460,16 @@ const closeModal = () => {
     }
 };
 
+const changeTable = async (type) => {
+    if (type == 1) {
+        await getServicesFinished();
+    } else if (type == 2) {
+        await getServicesWarehouse();
+    } else {
+        await getServices();
+    }
+};
+
 onBeforeMount(() => {
     getServices();
 });
@@ -426,7 +484,7 @@ onBeforeMount(() => {
                 <h5>SERVIÇOS</h5>
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2">
+                        <div class="my-2" v-if="typeTable.value == 0">
                             <Dialog header="Adicionar Serviço" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
                                 <transition-group tag="div">
                                     <Message v-for="msg of messageAddService" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
@@ -479,6 +537,7 @@ onBeforeMount(() => {
                     </template>
                     <template v-slot:end>
                         <div class="flex justify-content-between flex-column sm:flex-row">
+                            <Dropdown v-model="typeTable" :options="optionsTypesTables" optionLabel="label" @change="changeTable(typeTable.value)" placeholder="Escolher Tabela" class="p-column-filter mb-2 mr-4" />
                             <Button type="button" icon="pi pi-filter-slash" label="Limpar filtros" class="p-button-outlined mb-2 mr-2" @click="clearFilter()" />
                         </div>
                     </template>
@@ -592,6 +651,15 @@ onBeforeMount(() => {
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
+                        </template>
+                    </Column>
+
+                    <Column v-if="typeTable.value == 2" bodyClass="text-center" field="created_at_warehouse" header="D. E. Depósito" :showFilterMatchModes="false" dataType="date">
+                        <template #body="{ data }">
+                            {{ formatData(data.created_at_warehouse) }}
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <InputText type="date" v-model="filterModel.value" class="p-column-filter" placeholder="" />
                         </template>
                     </Column>
 
@@ -854,7 +922,8 @@ onBeforeMount(() => {
                                 </template>
                             </Dialog>
                             <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
-                            <Button ref="popup" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
+                            <Button ref="popup" v-if="typeTable.value == 0 || typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
+                            <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
                             <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
                         </template>
                     </Column>
