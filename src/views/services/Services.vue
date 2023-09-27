@@ -4,7 +4,21 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount } from 'vue';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
-import { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage } from '../components/computeds.js';
+import {
+    productsTypes,
+    statusPaymentOptions,
+    statusServiceOptions,
+    statusTypes,
+    formatData,
+    getStatusServiceLabel,
+    getStatusPaymentLabel,
+    getStatusPaymentClass,
+    getStatusServiceClass,
+    sendWhatsAppMessage,
+    googleMapsUrl,
+    loadingOpen,
+    loadingClose
+} from '../components/computeds.js';
 
 const toast = useToast();
 const popup = ref(null);
@@ -30,23 +44,31 @@ const clearFilter = () => {
 
 const dataGetOS = ref([]);
 const getUniqueOS = async (order_of_service) => {
+    loadingOpen();
     try {
         const response = await Axios.get('/order_of_service/' + order_of_service);
         dataGetOS.value = response.data[0];
+        loadingClose();
         return dataGetOS.value;
     } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar OS específica', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const dataGetService = ref([]);
 const getServices = async () => {
+    loadingOpen();
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.log(response.status)
+        console.log(response.status);
         initFilters();
+        loadingClose();
     } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const dataPostService = ref({});
@@ -58,6 +80,7 @@ const validatePostService = async () => {
     }
 };
 const postService = async () => {
+    loadingOpen();
     try {
         const response = await Axios.post('/services', {
             product: dataPostService.value.product,
@@ -71,9 +94,11 @@ const postService = async () => {
         console.log(response.status);
         await getServices();
         closeModal();
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar serviço', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const confirmDeleteService = (event, data) => {
@@ -89,14 +114,17 @@ const confirmDeleteService = (event, data) => {
     });
 };
 const deleteService = async (idService, cod_order) => {
+    loadingOpen();
     try {
         const response = await Axios.delete('/services/' + idService + '/' + cod_order);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
         console.log(response.status);
         await getServices();
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const confirmUpdateWarehouse = (event, idService) => {
@@ -112,14 +140,17 @@ const confirmUpdateWarehouse = (event, idService) => {
     });
 };
 const updateWarehouse = async (id) => {
+    loadingOpen();
     try {
         const response = await Axios.put('/services/warehouse/' + id + '/false');
         toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado ao depósito', life: 5000 });
         console.log(response.status);
         await getServices();
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const validateEditInfoClient = async () => {
@@ -130,6 +161,7 @@ const validateEditInfoClient = async () => {
     }
 };
 const updateInfoClient = async () => {
+    loadingOpen();
     try {
         const response = await Axios.put('/services/info/client/' + dataEditInfoClient.value.id, {
             product: dataEditInfoClient.value.product,
@@ -142,9 +174,11 @@ const updateInfoClient = async () => {
         console.log(response.status);
         await getServices();
         closeModal();
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao editar as informações do cliente', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const validateUpdateStatusService = async () => {
@@ -155,15 +189,18 @@ const validateUpdateStatusService = async () => {
     }
 };
 const updateStatus = async () => {
+    loadingOpen();
     try {
         const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status);
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
         console.log(response.status);
         await getServices();
         closeModal();
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const validateUpdateStatusPayment = async () => {
@@ -174,15 +211,18 @@ const validateUpdateStatusPayment = async () => {
     }
 };
 const updatePaymentStatus = async () => {
+    loadingOpen();
     try {
         const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status);
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
         console.log(response.status);
         await getServices();
         closeModal();
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status de pagamento ', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 const dataPutOrderOfService = ref({});
@@ -194,6 +234,7 @@ const validateUpdateEstimateOS = async (data) => {
     }
 };
 const updateEstimateOS = async (data) => {
+    loadingOpen();
     try {
         const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
             amount: dataPutOrderOfService.value.amount,
@@ -203,22 +244,27 @@ const updateEstimateOS = async (data) => {
         console.log(response.status);
         openModalOS('top', data);
         closeModal();
+        loadingClose();
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro de OS', life: 5000 });
         console.error(error);
+        loadingClose();
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro de OS', life: 5000 });
     }
 };
 const deleteEstimateOS = async (cod, data) => {
+    loadingOpen();
     try {
         const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
         console.log(response.status);
         const dataOpen = { order_of_service: cod };
         openModalOS('top', dataOpen);
+        loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar registro de OS', life: 5000 });
         console.error(error);
+        loadingClose();
     }
 };
 
@@ -591,7 +637,7 @@ onBeforeMount(() => {
                                     {{ data.adress }}
                                 </h6>
                                 <template #footer>
-                                    <Button class="p-button-rounded p-button-info mr-2 mb-2"><i class="pi pi-map-marker mr-2"></i>Abrir no Maps</Button>
+                                    <Button class="p-button-rounded p-button-info mr-2 mb-2" @click="googleMapsUrl(data.adress)"><i class="pi pi-map-marker mr-2"></i>Abrir no Maps</Button>
                                 </template>
                             </Dialog>
                             <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>

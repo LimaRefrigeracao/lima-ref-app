@@ -30,6 +30,8 @@ const statusTypes = ref([
     { code: 4, name: 'Mexendo' },
     { code: 5, name: 'Orçamentado' },
     { code: 6, name: 'Autorizado' },
+    { code: 6, name: 'Aguardando peças' },
+    { code: 6, name: 'Consertando' },
     { code: 7, name: 'Testando' },
     { code: 8, name: 'Pronto' },
     { code: 9, name: 'Entregar' },
@@ -148,4 +150,10 @@ const loadingClose = () => {
     Swal.close();
 };
 
-export { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage, loadingOpen, loadingClose };
+const googleMapsUrl = (adress) => {
+    const adressFormated = encodeURIComponent(adress);
+    const mapsLink = `https://www.google.com/maps/search/?api=1&query=${adressFormated}`;
+    window.open(mapsLink, '_blank');
+};
+
+export { productsTypes, statusPaymentOptions, statusServiceOptions, statusTypes, formatData, getStatusServiceLabel, getStatusPaymentLabel, getStatusPaymentClass, getStatusServiceClass, sendWhatsAppMessage, loadingOpen, loadingClose, googleMapsUrl };
