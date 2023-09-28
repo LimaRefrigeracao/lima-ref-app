@@ -49,27 +49,15 @@ const dataGetOS = ref([]);
 
 socket.on('reloadDataOrders', (data) => {
     dataGetOS.value = data;
-    let dataOpen;
-    if (!data.order_of_service) {
-        dataOpen = { order_of_service: data[0].cod_order };
-    } else {
-        dataOpen = data.order_of_service;
-    }
-    console.log(data);
-    console.log(dataOpen);
-    openModalOS('top', dataOpen);
 });
 const getUniqueOS = async (order_of_service) => {
-    loadingOpen();
     try {
         const response = await Axios.get('/order_of_service/' + order_of_service);
         dataGetOS.value = response.data[0];
-        loadingClose();
         return dataGetOS.value;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar OS específica', life: 5000 });
         console.error(error);
-        loadingClose();
     }
 };
 const dataGetService = ref([]);
@@ -292,7 +280,7 @@ const updateEstimateOS = async (data) => {
             price: dataPutOrderOfService.value.price
         });
         console.log(response.status);
-        closeModal();
+        openModalOS('top', data);
         loadingClose();
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
     } catch (error) {
@@ -307,6 +295,8 @@ const deleteEstimateOS = async (cod, data) => {
         const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
         console.log(response.status);
+        const dataOpen = { order_of_service: cod };
+        openModalOS('top', dataOpen);
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar registro de OS', life: 5000 });
@@ -318,8 +308,12 @@ const deleteEstimateOS = async (cod, data) => {
 const displayModalOS = ref(false);
 const positionModalOS = ref(false);
 const dataViewEstimateOS = ref([]);
+const displayButtonRemoveOS = ref(false);
 const openModalOS = async (position, data) => {
     const dataOS = await getUniqueOS(data.order_of_service);
+    if (data.status !== 13) {
+        displayButtonRemoveOS.value = true;
+    }
 
     if (dataOS) {
         messageAddEstimateOS.value.length = 0;
@@ -522,7 +516,7 @@ onBeforeMount(() => {
                     </template>
                     <template v-slot:end>
                         <div class="flex justify-content-between flex-column sm:flex-row mt-2">
-                            <div class="p-inputgroup p-column-filter mb-2 mr-4" style="width: auto; height:45px">
+                            <div class="p-inputgroup p-column-filter mb-2 mr-4" style="width: auto; height: 45px">
                                 <span class="p-inputgroup-addon"> Local </span>
                                 <span class="p-inputgroup-addon">
                                     <Dropdown v-model="typeTable" label="teste" :options="optionsTypesTables" optionLabel="label" @change="changeTable(typeTable.value)" />
@@ -615,7 +609,7 @@ onBeforeMount(() => {
                                             {{ data.price }}
                                         </template>
                                     </Column>
-                                    <Column headerStyle="width:4rem">
+                                    <Column headerStyle="width:4rem" v-if="displayButtonRemoveOS == true">
                                         <template #body="{ data }">
                                             <Button icon="pi pi-trash" class="p-button-danger" @click="deleteEstimateOS(dataGetOS.cod_order, data)" v-tooltip.top="'Excluir registro da OS'" />
                                         </template>
@@ -624,13 +618,13 @@ onBeforeMount(() => {
                                         <div class="grid p-fluid mt-1">
                                             <div class="col-12 md:col-4">
                                                 <div class="p-inputgroup">
-                                                    <span class="p-inputgroup-addon"> VALOR TOTAL </span>
+                                                    <span class="p-inputgroup-addon"> VALOR </span>
                                                     <span class="p-inputgroup-addon"> R$ </span>
-                                                    <InputText v-model="dataGetOS.value" disabled />
+                                                    <InputText style="min-width: 60px" v-model="dataGetOS.value" disabled />
                                                     <span class="p-inputgroup-addon"> .00 </span>
                                                 </div>
                                             </div>
-                                            <div class="col-12 md:col-4">
+                                            <div class="col-12 md:col-6">
                                                 <Button icon="pi pi-share-alt" class="p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Compartilhar orçamento com o cliente'" />
                                                 <Button icon="pi pi-download" class="p-button-warning" v-tooltip.top="'Gerar Recibo'" />
                                             </div>
