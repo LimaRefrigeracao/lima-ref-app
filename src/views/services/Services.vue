@@ -22,7 +22,7 @@ import {
     loadingClose
 } from '../components/computeds.js';
 
-const typeTable = ref({ value: 0, label: 'Abertos' });
+const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
 const popup = ref(null);
 const confirmPopup = useConfirm();
@@ -90,20 +90,7 @@ const getServices = async () => {
         loadingClose();
     }
 };
-const getServicesFinished = async () => {
-    loadingOpen();
-    try {
-        const response = await Axios.get('/services/finished');
-        dataGetService.value = response.data;
-        console.log(response.status);
-        initFilters();
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços finalizados', life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
+
 const getServicesWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
@@ -462,11 +449,9 @@ const closeModal = () => {
 
 const changeTable = async (type) => {
     if (type == 1) {
-        await getServicesFinished();
+        await getServices();
     } else if (type == 2) {
         await getServicesWarehouse();
-    } else {
-        await getServices();
     }
 };
 
@@ -484,7 +469,7 @@ onBeforeMount(() => {
                 <h5>SERVIÇOS</h5>
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2" v-if="typeTable.value == 0">
+                        <div class="my-2" v-if="typeTable.value == 1">
                             <Dialog header="Adicionar Serviço" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
                                 <transition-group tag="div">
                                     <Message v-for="msg of messageAddService" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
@@ -536,8 +521,14 @@ onBeforeMount(() => {
                         </div>
                     </template>
                     <template v-slot:end>
-                        <div class="flex justify-content-between flex-column sm:flex-row">
-                            <Dropdown v-model="typeTable" :options="optionsTypesTables" optionLabel="label" @change="changeTable(typeTable.value)" placeholder="Escolher Tabela" class="p-column-filter mb-2 mr-4" />
+                        <div class="flex justify-content-between flex-column sm:flex-row mt-2">
+                            <div class="p-inputgroup p-column-filter mb-2 mr-4" style="width: auto; height:45px">
+                                <span class="p-inputgroup-addon"> Local </span>
+                                <span class="p-inputgroup-addon">
+                                    <Dropdown v-model="typeTable" label="teste" :options="optionsTypesTables" optionLabel="label" @change="changeTable(typeTable.value)" />
+                                </span>
+                            </div>
+
                             <Button type="button" icon="pi pi-filter-slash" label="Limpar filtros" class="p-button-outlined mb-2 mr-2" @click="clearFilter()" />
                         </div>
                     </template>
@@ -557,8 +548,8 @@ onBeforeMount(() => {
                     :globalFilterFields="['order_of_service', 'product', 'client', 'telephone', 'created_at', 'adress', 'observation']"
                     :filterLocale="filterLocale"
                 >
-                    <template #empty> Not found data </template>
-                    <template #loading> Loading customers data. Please wait. </template>
+                    <template #empty> Nenhum registro encontrado. </template>
+                    <template #loading> Carregando registros. Por favor aguarde. </template>
 
                     <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric">
                         <template #body="{ data }">
@@ -912,12 +903,11 @@ onBeforeMount(() => {
                                     <Button label="Editar" icon="pi pi-check" class="p-button-warning" @click="validateEditInfoClient()" />
                                 </template>
                             </Dialog>
-                            <div v-if="typeTable.value !== 1">
-                                <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
-                                <Button ref="popup" v-if="typeTable.value == 0" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
-                                <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
-                                <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
-                            </div>
+
+                            <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
+                            <Button ref="popup" v-if="typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
+                            <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
+                            <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
                         </template>
                     </Column>
                 </DataTable>

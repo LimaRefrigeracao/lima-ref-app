@@ -5,8 +5,7 @@ const socket = io(import.meta.env.VITE_BASE_URL_API);
 
 const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Forno Elétrico', 'Air Fryer', 'Central de Ar', 'Bebedouro', 'Ar-Condicionado', 'Expositor', 'Tanquinho', 'Lava e Seca', 'Secadora', 'Outros']);
 const optionsTypesTables = ref([
-    { value: 0, label: 'Abertos' },
-    { value: 1, label: 'Finalizados' },
+    { value: 1, label: 'Oficina' },
     { value: 2, label: 'Depósito' }
 ]);
 const statusPaymentOptions = ref(['1', '2', '3']);
