@@ -20,11 +20,6 @@ const router = createRouter({
                     component: () => import('@/views/services/Services.vue')
                 },
                 {
-                    path: '/deposito',
-                    name: 'warehouse',
-                    component: () => import('@/views/warehouse/Warehouse.vue')
-                },
-                {
                     path: '/nfse',
                     name: 'nfse',
                     beforeEnter() {
