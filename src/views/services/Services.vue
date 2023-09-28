@@ -2,7 +2,7 @@
 import Axios from '@/service/Axios';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, onMounted } from 'vue';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import {
     productsTypes,
@@ -80,12 +80,16 @@ const getServices = async () => {
 };
 
 const getServicesWarehouse = async () => {
+    loadingOpen();
     try {
         const response = await Axios.get('/services/warehouse');
         dataGetService.value = response.data;
         console.error(response.status);
         initFilters();
+        loadingClose();
     } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços do depósito', life: 5000 });
+        loadingClose();
         console.error(error);
     }
 };
@@ -131,7 +135,8 @@ const postService = async () => {
             telephone: dataPostService.value.telephone,
             adress: dataPostService.value.adress,
             status: dataPostService.value.status.code,
-            observation: dataPostService.value.observation
+            observation: dataPostService.value.observation,
+            created_at: dataPostService.value.created_at
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
         console.log(response.status);
@@ -449,6 +454,11 @@ const changeTable = async (type) => {
     }
 };
 
+onMounted(() => {
+    const dataAtual = new Date().toISOString().slice(0, 10);
+    dataPostService.value.created_at = dataAtual;
+});
+
 onBeforeMount(() => {
     getServices();
 });
@@ -499,10 +509,15 @@ onBeforeMount(() => {
                                             <label for="addStatus"><span style="color: red">*</span> Status</label>
                                         </span>
                                     </div>
-                                    <div class="field col-12 md:col-12">
+                                    <div class="field col-12 md:col-9">
                                         <span class="p-float-label">
                                             <Textarea inputId="addObservation" rows="1" cols="10" v-model="dataPostService.observation" />
                                             <label for="addObservation">Observação</label>
+                                        </span>
+                                    </div>
+                                    <div class="field col-12 md:col-3">
+                                        <span class="p-float-label">
+                                            <InputText type="date" v-model="dataPostService.created_at" />
                                         </span>
                                     </div>
                                 </div>
@@ -522,7 +537,6 @@ onBeforeMount(() => {
                                     <Dropdown v-model="typeTable" label="teste" :options="optionsTypesTables" optionLabel="label" @change="changeTable(typeTable.value)" />
                                 </span>
                             </div>
-
                             <Button type="button" icon="pi pi-filter-slash" label="Limpar filtros" class="p-button-outlined mb-2 mr-2" @click="clearFilter()" />
                         </div>
                     </template>
