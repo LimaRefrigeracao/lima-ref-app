@@ -1,13 +1,9 @@
-FROM node:lts-alpine
+FROM node:16-alpine
 
-WORKDIR /src/app
+RUN apk add --no-cache bash
 
-COPY package*.json ./
+RUN touch /home/node/.bashrc | echo "PS1='\w\$'" >> /home/node/.bashrc
 
-RUN npm install
+USER node
 
-COPY . .
-
-EXPOSE 3000
-
-CMD ["npm", "run", "dev"]
+WORKDIR /home/node/app

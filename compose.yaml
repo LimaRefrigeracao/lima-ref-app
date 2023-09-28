@@ -1,9 +1,12 @@
 services:
   app:
     build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
+    container_name: lima-ref-app
+    entrypoint: ./.docker/entrypoint.sh
     environment:
       - NODE_ENV=development
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/home/node/app
+    tty: true
