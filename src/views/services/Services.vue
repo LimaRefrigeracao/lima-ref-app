@@ -654,15 +654,6 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column v-if="typeTable.value == 2" bodyClass="text-center" field="created_at_warehouse" header="D. E. Depósito" :showFilterMatchModes="false" dataType="date">
-                        <template #body="{ data }">
-                            {{ formatData(data.created_at_warehouse) }}
-                        </template>
-                        <template #filter="{ filterModel }">
-                            <InputText type="date" v-model="filterModel.value" class="p-column-filter" placeholder="" />
-                        </template>
-                    </Column>
-
                     <Column bodyClass="text-center" field="created_at" header="D. Entrada" :showFilterMatchModes="false" dataType="date">
                         <template #body="{ data }">
                             {{ formatData(data.created_at) }}
@@ -921,10 +912,12 @@ onBeforeMount(() => {
                                     <Button label="Editar" icon="pi pi-check" class="p-button-warning" @click="validateEditInfoClient()" />
                                 </template>
                             </Dialog>
-                            <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
-                            <Button ref="popup" v-if="typeTable.value == 0 || typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
-                            <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
-                            <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            <div v-if="typeTable.value !== 1">
+                                <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
+                                <Button ref="popup" v-if="typeTable.value == 0" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
+                                <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
+                                <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            </div>
                         </template>
                     </Column>
                 </DataTable>
