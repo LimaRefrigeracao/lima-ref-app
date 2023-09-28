@@ -318,6 +318,8 @@ const openModalOS = async (position, data) => {
     const dataOS = await getUniqueOS(data.order_of_service);
     if (data.status !== 13) {
         displayButtonRemoveOS.value = true;
+    } else {
+        displayButtonRemoveOS.value = false;
     }
 
     if (dataOS) {
@@ -576,7 +578,7 @@ onBeforeMount(() => {
                                             <Message v-for="msg of messageAddEstimateOS" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
                                         </transition-group>
                                         <div class="grid p-fluid mt-1">
-                                            <div class="field col-12 md:col-2">
+                                            <div class="field col-12 md:col-3">
                                                 <span class="p-float-label">
                                                     <InputNumber id="addQuantOS" v-model="dataPutOrderOfService.amount" />
                                                     <label for="addQuantOS">
@@ -594,7 +596,7 @@ onBeforeMount(() => {
                                                     </label>
                                                 </span>
                                             </div>
-                                            <div class="field col-12 md:col-3">
+                                            <div class="field col-12 md:col-2">
                                                 <span class="p-float-label">
                                                     <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" />
                                                     <label for="addPriceOS">
@@ -603,8 +605,8 @@ onBeforeMount(() => {
                                                     </label>
                                                 </span>
                                             </div>
-                                            <div class="field col-12 md:col-2">
-                                                <Button icon="pi pi-plus" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Adicionar registro ao OS'" />
+                                            <div class="field col-12 md:col-1">
+                                                <Button icon="pi pi-plus" class="p-button-outlined p-button-info" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Adicionar Registro'" />
                                             </div>
                                         </div>
                                     </template>
@@ -625,22 +627,20 @@ onBeforeMount(() => {
                                     </Column>
                                     <Column headerStyle="width:4rem" v-if="displayButtonRemoveOS == true">
                                         <template #body="{ data }">
-                                            <Button icon="pi pi-trash" class="p-button-danger" @click="deleteEstimateOS(dataGetOS.cod_order, data)" v-tooltip.top="'Excluir registro da OS'" />
+                                            <Button icon="pi pi-trash" class="p-button-outlined p-button-danger" @click="deleteEstimateOS(dataGetOS.cod_order, data)" v-tooltip.top="'Excluir Registro'" />
                                         </template>
                                     </Column>
                                     <template #footer>
                                         <div class="grid p-fluid mt-1">
-                                            <div class="col-12 md:col-4">
+                                            <div class="col-12 md:col-6">
                                                 <div class="p-inputgroup">
                                                     <span class="p-inputgroup-addon"> VALOR </span>
-                                                    <span class="p-inputgroup-addon"> R$ </span>
-                                                    <InputText style="min-width: 60px" v-model="dataGetOS.value" disabled />
-                                                    <span class="p-inputgroup-addon"> .00 </span>
+                                                    <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
+                                                    <span class="p-inputgroup-addon">
+                                                        <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
+                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" v-tooltip.top="'Gerar Recibo'" />
+                                                    </span>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 md:col-6">
-                                                <Button icon="pi pi-share-alt" class="p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Compartilhar orçamento com o cliente'" />
-                                                <Button icon="pi pi-download" class="p-button-warning" v-tooltip.top="'Gerar Recibo'" />
                                             </div>
                                         </div>
                                     </template>
