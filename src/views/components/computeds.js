@@ -157,10 +157,20 @@ const loadingClose = () => {
     Swal.close();
 };
 
-const googleMapsUrl = (adress) => {
-    const adressFormated = encodeURIComponent(adress);
-    const mapsLink = `https://www.google.com/maps/search/?api=1&query=${adressFormated}`;
-    window.open(mapsLink, '_blank');
+const sendInfoClientsWhats = (data) => {
+    let adress = '';
+    let mapsLink = '';
+    if (data.adress) {
+        const adressFormated = encodeURIComponent(data.adress);
+        adress = `\nEndereço: ${data.adress}`;
+        mapsLink = `\nGoogleMaps: https://www.google.com/maps/search/?api=1&query=${adressFormated}`;
+    }
+
+    const message = `Produto: ${data.product} \nCliente: ${data.client} \nTelefone: ${data.telephone} ${adress} ${mapsLink}`;
+    const encodedMessage = encodeURIComponent(message);
+
+    const whatsappLink = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappLink, '_blank');
 };
 
 export {
@@ -176,7 +186,7 @@ export {
     getStatusPaymentClass,
     getStatusServiceClass,
     sendWhatsAppMessage,
+    sendInfoClientsWhats,
     loadingOpen,
-    loadingClose,
-    googleMapsUrl
+    loadingClose
 };

@@ -17,7 +17,7 @@ import {
     getStatusPaymentClass,
     getStatusServiceClass,
     sendWhatsAppMessage,
-    googleMapsUrl,
+    sendInfoClientsWhats,
     loadingOpen,
     loadingClose
 } from '../components/computeds.js';
@@ -96,10 +96,11 @@ const getServicesWarehouse = async () => {
 
 const updateWarehouseForService = async (id) => {
     try {
-        const response = await Axios.put('/services/warehouse/' + id + '/true');
+        const response = await Axios.put('/services/warehouse/' + id + '/true', {
+            typeTable: typeTable.value.value
+        });
         toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado de volta', life: 5000 });
         console.log(response.status);
-        await getServicesWarehouse();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço de volta', life: 5000 });
         console.error(error);
@@ -136,7 +137,8 @@ const postService = async () => {
             adress: dataPostService.value.adress,
             status: dataPostService.value.status.code,
             observation: dataPostService.value.observation,
-            created_at: dataPostService.value.created_at
+            created_at: dataPostService.value.created_at,
+            typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
         console.log(response.status);
@@ -163,7 +165,7 @@ const confirmDeleteService = (event, data) => {
 const deleteService = async (idService, cod_order) => {
     loadingOpen();
     try {
-        const response = await Axios.delete('/services/' + idService + '/' + cod_order);
+        const response = await Axios.delete('/services/' + idService + '/' + cod_order + '/' + typeTable.value.value);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
         console.log(response.status);
         loadingClose();
@@ -188,7 +190,9 @@ const confirmUpdateWarehouse = (event, idService) => {
 const updateWarehouse = async (id) => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/warehouse/' + id + '/false');
+        const response = await Axios.put('/services/warehouse/' + id + '/false', {
+            typeTable: typeTable.value.value
+        });
         toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado ao depósito', life: 5000 });
         console.log(response.status);
         loadingClose();
@@ -213,7 +217,8 @@ const updateInfoClient = async () => {
             client: dataEditInfoClient.value.client,
             telephone: dataEditInfoClient.value.telephone,
             adress: dataEditInfoClient.value.adress,
-            observation: dataEditInfoClient.value.observation
+            observation: dataEditInfoClient.value.observation,
+            typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Editado', detail: 'As informações do cliente foram editadas', life: 5000 });
         console.log(response.status);
@@ -235,7 +240,9 @@ const validateUpdateStatusService = async () => {
 const updateStatus = async () => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status);
+        const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status, {
+            typeTable: typeTable.value.value
+        });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
         console.log(response.data);
         closeModal();
@@ -257,7 +264,9 @@ const validateUpdateStatusPayment = async () => {
 const updatePaymentStatus = async () => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status);
+        const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status, {
+            typeTable: typeTable.value.value
+        });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
         console.log(response.status);
         closeModal();
@@ -285,6 +294,7 @@ const updateEstimateOS = async (data) => {
             price: dataPutOrderOfService.value.price
         });
         console.log(response.status);
+        closeModal();
         openModalOS('top', data);
         loadingClose();
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
@@ -301,6 +311,7 @@ const deleteEstimateOS = async (cod, data) => {
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
         console.log(response.status);
         const dataOpen = { order_of_service: cod };
+        closeModal();
         openModalOS('top', dataOpen);
         loadingClose();
     } catch (error) {
@@ -646,7 +657,8 @@ onBeforeMount(() => {
                                     </template>
                                 </DataTable>
                             </Dialog>
-                            <Chip :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar/Atualizar Orçamento'" style="cursor: pointer" />
+                            <Chip v-if="typeTable.value == 1" :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar/Atualizar Orçamento'" style="cursor: pointer" />
+                            <span v-if="typeTable.value == 2"> {{ data.order_of_service }} </span>
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
@@ -707,9 +719,6 @@ onBeforeMount(() => {
                                 <h6 class="line-height-3 m-0">
                                     {{ data.adress }}
                                 </h6>
-                                <template #footer>
-                                    <Button class="p-button-rounded p-button-info mr-2 mb-2" @click="googleMapsUrl(data.adress)"><i class="pi pi-map-marker mr-2"></i>Abrir no Maps</Button>
-                                </template>
                             </Dialog>
                             <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
 
@@ -913,6 +922,7 @@ onBeforeMount(() => {
                             </Dialog>
 
                             <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
+                            <Button icon="pi pi-share-alt" @click="sendInfoClientsWhats(data)" class="p-button-rounded p-button-success mr-2" v-tooltip.top="'Enviar informações'" type="text" placeholder="Top" />
                             <Button ref="popup" v-if="typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
                             <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
                             <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
