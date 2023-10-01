@@ -1,6 +1,5 @@
 <script setup>
 import axios from 'axios';
-
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 import { messageLogin, addMessage } from '../components/messages.js';
@@ -38,6 +37,7 @@ const login = async () => {
         });
         loadingClose();
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         router.push('/servicos');
     } catch (error) {
         loadingClose();

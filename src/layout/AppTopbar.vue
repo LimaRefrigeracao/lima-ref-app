@@ -70,6 +70,7 @@ const onChangeTheme = (theme, mode) => {
 
 const logout = async () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     const loginPath = '/';
     window.history.replaceState({}, 'Login', loginPath);
     router.push(loginPath);

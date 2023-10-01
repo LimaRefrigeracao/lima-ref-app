@@ -1,6 +1,17 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import AppLayout from '@/layout/AppLayout.vue';
 
+const validateToken = async () => {
+    const data = JSON.parse(localStorage.getItem('user'));
+    if (Date.now() >= data.exp * 1000) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return false;
+    } else {
+        return true;
+    }
+};
+
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
@@ -17,6 +28,16 @@ const router = createRouter({
                 {
                     path: '/servicos',
                     name: 'services',
+                    beforeEnter(to, from, next) {
+                        const token = localStorage.getItem('token');
+                        const user = localStorage.getItem('user');
+                        const response = validateToken();
+                        if (!token || !user || !response) {
+                            next('/login');
+                        } else {
+                            next();
+                        }
+                    },
                     component: () => import('@/views/services/Services.vue')
                 },
                 {
