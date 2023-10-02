@@ -100,8 +100,6 @@ import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
 import VirtualScroller from 'primevue/virtualscroller';
 
-import BlockViewer from '@/components/BlockViewer.vue';
-
 import '@/assets/styles.scss';
 
 const app = createApp(App);
@@ -116,8 +114,6 @@ app.directive('tooltip', Tooltip);
 app.directive('badge', BadgeDirective);
 app.directive('ripple', Ripple);
 app.directive('styleclass', StyleClass);
-
-app.component('BlockViewer', BlockViewer);
 
 app.component('Accordion', Accordion);
 app.component('AccordionTab', AccordionTab);

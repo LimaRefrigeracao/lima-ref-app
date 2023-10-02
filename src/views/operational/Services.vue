@@ -923,8 +923,8 @@ onBeforeMount(() => {
 
                             <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
                             <Button icon="pi pi-share-alt" @click="sendInfoClientsWhats(data)" class="p-button-rounded p-button-success mr-2" v-tooltip.top="'Enviar informações'" type="text" placeholder="Top" />
-                            <Button ref="popup" v-if="typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-box" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
-                            <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-wrench" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
+                            <Button ref="popup" v-if="typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-sign-in" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
+                            <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-sign-out" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
                             <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
                         </template>
                     </Column>

@@ -1,6 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
-import ProductService from '@/service/ProductService';
+/* import { onMounted, reactive, ref, watch } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
 
 const { isDarkTheme } = useLayout();
@@ -32,10 +31,9 @@ const items = ref([
     { label: 'Remove', icon: 'pi pi-fw pi-minus' }
 ]);
 const lineOptions = ref(null);
-const productService = new ProductService();
 
 onMounted(() => {
-    productService.getProductsSmall().then((data) => (products.value = data));
+    
 });
 
 const formatCurrency = (value) => {
@@ -111,11 +109,12 @@ watch(
         }
     },
     { immediate: true }
-);
+); */
 </script>
 
 <template>
-    <div class="grid">
+    EM DESENVOLVIMENTO ...
+    <!-- <div class="grid">
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card mb-0">
                 <div class="flex justify-content-between mb-3">
@@ -353,5 +352,5 @@ watch(
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </template>
