@@ -3,6 +3,7 @@ import Axios from '@/service/Axios';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { ref, onBeforeMount, onMounted } from 'vue';
+import { generateReceipt } from '../components/prints.js';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import {
     productsTypes,
@@ -649,7 +650,7 @@ onBeforeMount(() => {
                                                     <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
                                                     <span class="p-inputgroup-addon">
                                                         <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" v-tooltip.top="'Gerar Recibo'" />
+                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -932,4 +933,5 @@ onBeforeMount(() => {
             </div>
         </div>
     </div>
+
 </template>
