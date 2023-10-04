@@ -1,5 +1,4 @@
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from './export_vfs_fonts';
 import logo from './logoBase64';
 import { formateDateLocale } from './tools';
 
@@ -8,7 +7,7 @@ const generateReceipt = async (dataInfo, dataOS) => {
     const OS = JSON.parse(JSON.stringify(dataOS));
     const DATE = await formateDateLocale();
     const ESTIMATE = JSON.parse(OS.estimate);
-    
+
     const tableData = [
         [
             { fillColor: '#EEF9FC', text: 'QUANT.', bold: true, style: 'text_table_os' },
@@ -32,7 +31,6 @@ const generateReceipt = async (dataInfo, dataOS) => {
         { color: '#050A4D', text: 'VALOR TOTAL :', alignment: 'right', bold: true, border: [] },
         { fillColor: '#EEF9FC', text: `R$ ${OS.value},00`, bold: true, style: 'text_table_os' }
     ]);
-
 
     var docDefinition = {
         pageSize: 'A4',
@@ -137,6 +135,7 @@ const generateReceipt = async (dataInfo, dataOS) => {
                 ]
             }
         ],
+
         styles: {
             image: {
                 margin: [0, 0, 0, 20],
@@ -157,10 +156,21 @@ const generateReceipt = async (dataInfo, dataOS) => {
             text_result_os: {
                 alignment: 'center'
             }
+        },
+        defaultStyle: {
+            font: 'Roboto'
         }
     };
 
-    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+    pdfMake.fonts = {
+        Roboto: {
+            normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
+            bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
+            italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
+            bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
+        }
+    };
+
     pdfMake.createPdf(docDefinition).open();
 };
 
