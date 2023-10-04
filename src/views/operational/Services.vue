@@ -85,7 +85,7 @@ const getServicesWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
         dataGetService.value = response.data;
-        console.error(response.status);
+        console.log(response.status);
         initFilters();
         loadingClose();
     } catch (error) {

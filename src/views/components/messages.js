@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 const messageLogin = ref([]);
+const messageAddUser = ref([]);
 const messageAddService = ref([]);
 const messageAddEstimateOS = ref([]);
 const messageEditInfoClient = ref([]);
@@ -9,6 +10,9 @@ const addMessage = (type, severity, content) => {
     if (type == 'login') {
         messageLogin.value.length = 0;
         messageLogin.value.push({ severity, content });
+    } else if (type == 'addUser') {
+        messageAddUser.value.length = 0;
+        messageAddUser.value.push({ severity, content });
     } else if (type == 'addService') {
         messageAddService.value.length = 0;
         messageAddService.value.push({ severity, content });
@@ -27,4 +31,4 @@ const addMessage = (type, severity, content) => {
     }
 };
 
-export { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, messageLogin, addMessage};
+export { messageAddUser, messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, messageLogin, addMessage };
