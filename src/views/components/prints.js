@@ -1,42 +1,46 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-
-
-//https://pdfmake.github.io/docs/0.3/getting-started/
-var imageUrl = './logo-white.png';
-
-// Use um objeto XMLHttpRequest para carregar a imagem (ou você pode usar 'fetch' se preferir).
-var xhr = new XMLHttpRequest();
-xhr.responseType = 'blob';
-
-xhr.onload = function () {
-    if (xhr.status === 200) {
-        var reader = new FileReader();
-        reader.onloadend = function () {
-            // O resultado é a imagem em formato Base64.
-            var base64Data = reader.result;
-            console.log(base64Data);
-
-            // Agora você pode usar 'base64Data' como desejar.
-        };
-        reader.readAsDataURL(xhr.response);
-    }
-};
-
-xhr.open('GET', imageUrl);
-xhr.send();
+import logo from './logoBase64';
+import { formateDateLocale } from './tools';
 
 const generateReceipt = async (dataInfo, dataOS) => {
-    const info = JSON.parse(JSON.stringify(dataInfo));
-    const os = JSON.parse(JSON.stringify(dataOS));
+    const INFO = JSON.parse(JSON.stringify(dataInfo));
+    const OS = JSON.parse(JSON.stringify(dataOS));
+    const DATE = await formateDateLocale();
+    const ESTIMATE = JSON.parse(OS.estimate);
+    
+    const tableData = [
+        [
+            { fillColor: '#EEF9FC', text: 'QUANT.', bold: true, style: 'text_table_os' },
+            { fillColor: '#EEF9FC', text: 'DESCRIÇÃO', bold: true, style: 'text_table_os' },
+            { fillColor: '#EEF9FC', text: 'VALOR', bold: true, style: 'text_table_os' }
+        ]
+    ];
+
+    const estimateValues = ESTIMATE.map((objeto) => [objeto.amount, objeto.description, `R$ ${objeto.price},00`]);
+    for (let i = 0; i < estimateValues.length; i++) {
+        tableData.push(
+            estimateValues[i].map((value) => ({
+                text: value.toString(),
+                style: 'text_result_os'
+            }))
+        );
+    }
+
+    tableData.push([
+        { text: '', border: [] },
+        { color: '#050A4D', text: 'VALOR TOTAL :', alignment: 'right', bold: true, border: [] },
+        { fillColor: '#EEF9FC', text: `R$ ${OS.value},00`, bold: true, style: 'text_table_os' }
+    ]);
+
 
     var docDefinition = {
         pageSize: 'A4',
         content: [
             {
-                alignment: 'justify',
+                alignment: 'center',
                 columns: [
-                    { image: 'logo', style: 'image', width: 200, height: 75 },
+                    { image: logo, style: 'image', width: 220, height: 75 },
 
                     {
                         text: 'TELEFONE: (94) 99196-4476\n\n RUA C-DOIS, N 16, CAPUAVA 1, REDENÇÃO-PA',
@@ -45,46 +49,51 @@ const generateReceipt = async (dataInfo, dataOS) => {
                     }
                 ]
             },
+            '\n\n',
             {
-                text: 'DATA: 04/10/2023\n\n',
+                text: `DATA: ${DATE}`,
                 style: 'text_info_client'
             },
+            '\n',
             {
                 alignment: 'justify',
                 columns: [
                     {
-                        text: 'NOME: João Pedro\n\n TELEFONE: 94992927891',
+                        text: `PRODUTO: ${INFO.product}`,
                         style: 'text_info_client'
                     },
-
                     {
-                        text: 'PRODUTO: Geladeira\n\n OS: 320',
+                        text: `OS: ${INFO.order_of_service}`,
                         style: 'text_info_client'
                     }
                 ]
             },
+            '\n',
             {
-                text: '\nENDEREÇO: Rua Treze de Maio, 49, Santos Dumont\n\n\n',
+                alignment: 'justify',
+                columns: [
+                    {
+                        text: `NOME: ${INFO.client}`,
+                        style: 'text_info_client'
+                    },
+                    {
+                        text: `TELEFONE: ${INFO.telephone}`,
+                        style: 'text_info_client'
+                    }
+                ]
+            },
+            '\n',
+            {
+                text: `ENDEREÇO: ${INFO.adress}`,
                 style: 'text_info_client'
             },
+            '\n\n',
             {
                 table: {
                     style: 'table_os',
                     headerRows: 1,
                     widths: ['auto', '*', 'auto'],
-                    body: [
-                        [
-                            { fillColor: '#EEF9FC', text: 'QUANT.', bold: true, style: 'text_table_os' },
-                            { fillColor: '#EEF9FC', text: 'DESCRIÇÃO', bold: true, style: 'text_table_os' },
-                            { fillColor: '#EEF9FC', text: 'VALOR', bold: true, style: 'text_table_os' }
-                        ],
-                        ['1', 'Mão de Obra', '80'],
-                        [
-                            { text: '', border: [] },
-                            { color: '#050A4D', text: 'VALOR TOTAL :', alignment: 'right', bold: true, border: [] },
-                            { fillColor: '#EEF9FC', text: 'R$ 80,00', bold: true, style: 'text_table_os' }
-                        ]
-                    ]
+                    body: tableData
                 },
                 layout: {
                     hLineWidth: function (i, node) {
@@ -107,13 +116,13 @@ const generateReceipt = async (dataInfo, dataOS) => {
                     }
                 }
             },
-            '\n\n\n',
+            '\n\n\n\n',
             {
                 color: '#050A4D',
-                text: 'OS SERVIÇOS PRESTADOS NESTE PRODUTO ACIMA CITADO, CONTAM COM GARANTIA DE 90 DIAS A PARTIR DE 04/10/2023 .'
+                text: `OS SERVIÇOS PRESTADOS NESTE PRODUTO ACIMA CITADO, CONTAM COM GARANTIA DE 90 DIAS A PARTIR DE ${DATE} .`
             },
 
-            '\n\n\n',
+            '\n\n\n\n',
             {
                 alignment: 'center',
                 columns: [
@@ -128,19 +137,15 @@ const generateReceipt = async (dataInfo, dataOS) => {
                 ]
             }
         ],
-
-        images: {
-            logo: './logo-white.png'
-        },
         styles: {
             image: {
-                margin: [0, 20],
+                margin: [0, 0, 0, 20],
                 alignment: 'center'
             },
             text_info_header: {
                 color: '#050A4D',
                 alignment: 'center',
-                margin: [0, 40]
+                margin: [25, 20, 0, 20]
             },
             text_info_client: {
                 color: '#050A4D'
@@ -148,6 +153,9 @@ const generateReceipt = async (dataInfo, dataOS) => {
             text_table_os: {
                 alignment: 'center',
                 color: '#050A4D'
+            },
+            text_result_os: {
+                alignment: 'center'
             }
         }
     };
