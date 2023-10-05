@@ -58,12 +58,18 @@ const customBase64Uploader = async (event) => {
     const reader = new FileReader();
     let blob = await fetch(file.objectURL).then((r) => r.blob());
 
-    reader.readAsDataURL(blob);
+    const targetSizeBytes = 40 * 1024;
 
-    reader.onloadend = function () {
-        const base64data = reader.result;
-        dataPostUser.value.signature = base64data;
-    };
+    if (blob.size > targetSizeBytes) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Imagem muito grande. Max: 30KB. Para redimencionar sua imagem acesse: https://www.shutterstock.com/pt/image-resizer ', life: 8000 });
+    } else {
+        reader.readAsDataURL(blob);
+
+        reader.onloadend = function () {
+            const base64data = reader.result;
+            dataPostUser.value.signature = base64data;
+        };
+    }
 };
 
 const postUser = async () => {
