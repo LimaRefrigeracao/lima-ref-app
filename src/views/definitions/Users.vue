@@ -41,7 +41,6 @@ const deleteUser = async (id) => {
 };
 
 const confirmDeleteUser = (event, id) => {
-    console.log(id);
     confirmPopup.require({
         target: event.target,
         message: 'Deseja realmente excluir este usuário?',
@@ -64,7 +63,6 @@ const customBase64Uploader = async (event) => {
     reader.onloadend = function () {
         const base64data = reader.result;
         dataPostUser.value.signature = base64data;
-        console.log(base64data);
     };
 };
 

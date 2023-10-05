@@ -245,7 +245,7 @@ const updateStatus = async () => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
-        console.log(response.data);
+        console.log(response.status);
         closeModal();
         loadingClose();
     } catch (error) {
