@@ -650,7 +650,7 @@ onBeforeMount(() => {
                                                     <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
                                                     <span class="p-inputgroup-addon">
                                                         <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" />
+                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'"  :disabled="dataGetOS.estimate == '[]'"/>
                                                     </span>
                                                 </div>
                                             </div>

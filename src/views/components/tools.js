@@ -6,5 +6,4 @@ const formateDateLocale = async () => {
     return `${day}/${month}/${year}`;
 };
 
-
 export { formateDateLocale };

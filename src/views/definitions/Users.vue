@@ -31,7 +31,7 @@ const deleteUser = async (id) => {
         const response = await Axios.delete('/users/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Usuário deletado com sucesso', life: 5000 });
         console.log(response.status);
-        getUsers();
+        await getUsers();
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
@@ -57,21 +57,47 @@ const confirmDeleteUser = (event, id) => {
 const customBase64Uploader = async (event) => {
     const file = event.files[0];
     const reader = new FileReader();
-    let blob = await fetch(file.objectURL).then((r) => r.blob()); //blob:url
+    let blob = await fetch(file.objectURL).then((r) => r.blob());
 
     reader.readAsDataURL(blob);
 
     reader.onloadend = function () {
         const base64data = reader.result;
+        dataPostUser.value.signature = base64data;
         console.log(base64data);
     };
 };
 
-const validatePostService = async () => {
+const postUser = async () => {
+    loadingOpen();
+    try {
+        const response = await Axios.post('/users', {
+            username: dataPostUser.value.username,
+            email: dataPostUser.value.email,
+            password: dataPostUser.value.password,
+            confirmPassword: dataPostUser.value.confirmPassword,
+            signature: dataPostUser.value.signature,
+            admin: dataPostUser.value.admin
+        });
+        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Usuário adicionado com sucesso', life: 5000 });
+        console.log(response.status);
+        await getUsers();
+        closeModal();
+        loadingClose();
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar usuário', life: 5000 });
+        console.error(error);
+        loadingClose();
+    }
+};
+
+const validatePostUser = async () => {
     if (!dataPostUser.value.username || !dataPostUser.value.email || !dataPostUser.value.password || !dataPostUser.value.confirmPassword) {
         addMessage('addUser', 'error', 'Preencha todos os campos obrigatórios.');
+    } else if (dataPostUser.value.password !== dataPostUser.value.confirmPassword) {
+        addMessage('addUser', 'error', 'Senhas incoerentes.');
     } else {
-        //postUser();
+        await postUser();
     }
 };
 
@@ -81,6 +107,13 @@ const openModalAdd = (position) => {
     messageAddUser.value.length = 0;
     displayModalAdd.value = true;
     positionModalAdd.value = position;
+};
+
+const closeModal = () => {
+    if (displayModalAdd.value == true) {
+        displayModalAdd.value = false;
+        dataPostUser.value = [];
+    }
 };
 
 onBeforeMount(() => {
@@ -95,7 +128,7 @@ onBeforeMount(() => {
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">
-                    <Dialog header="Adicionar Serviço" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '28vw' }" :modal="true">
+                    <Dialog header="Adicionar Usuário" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '28vw' }" :modal="true">
                         <transition-group tag="div">
                             <Message v-for="msg of messageAddUser" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
                         </transition-group>
@@ -108,25 +141,25 @@ onBeforeMount(() => {
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <InputText type="text" id="addEmail" v-model="dataPostUser.adress" />
+                                    <InputText type="text" id="addEmail" v-model="dataPostUser.email" />
                                     <label for="addEmail"> <span style="color: red">*</span> Email </label>
                                 </span>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <Password id="addPassword" v-model="dataPostUser.password" toggleMask />
+                                    <Password id="addPassword" v-model="dataPostUser.password" toggleMask :feedback="false" />
                                     <label for="addPassword"> <span style="color: red">*</span> Senha </label>
                                 </span>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <Password id="addConfirmPassword" v-model="dataPostUser.confirmPassword" toggleMask />
+                                    <Password id="addConfirmPassword" v-model="dataPostUser.confirmPassword" toggleMask :feedback="false" />
                                     <label for="addConfirmPassword"> <span style="color: red">*</span> Confirmar Senha </label>
                                 </span>
                             </div>
                             <div class="field col-12 md:col-6">
                                 <span class="p-float-label">
-                                    <FileUpload id="addSignature" mode="basic" name="demo[]" url="/api/upload" accept="image/*" customUpload @uploader="customBase64Uploader" chooseLabel="Assinatura" />
+                                    <FileUpload id="addSignature" mode="basic" url="/api/upload" accept="image/*" customUpload @uploader="customBase64Uploader" chooseLabel="Assinatura" />
                                 </span>
                             </div>
                             <div class="field col-12 md:col-6">
@@ -138,7 +171,7 @@ onBeforeMount(() => {
                         </div>
                         <template #footer>
                             <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                            <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="validatePostService()" />
+                            <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="validatePostUser()" />
                         </template>
                     </Dialog>
                     <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd('top')" />
@@ -148,9 +181,15 @@ onBeforeMount(() => {
         <DataTable :value="dataGetUsers" :rowHover="true" showGridlines tableStyle="min-width: 50rem">
             <Column bodyClass="text-center" field="username" header="Nome de Usuário"></Column>
             <Column bodyClass="text-center" field="email" header="Email"></Column>
-            <Column bodyClass="text-center" field="admin" header="Admin">
+            <Column bodyClass="text-center" field="admin" header="Administrador">
                 <template #body="{ data }">
-                    <Badge v-if="data" severity="success"><i class="pi pi-check mt-1" /></Badge>
+                    <Badge v-if="data.admin" severity="success"><i class="pi pi-check mt-1" /></Badge>
+                    <Badge v-else severity="warning"><i class="pi pi-times mt-1" /></Badge>
+                </template>
+            </Column>
+            <Column bodyClass="text-center" field="signature" header="Assinatura">
+                <template #body="{ data }">
+                    <Badge v-if="data.signature" severity="success"><i class="pi pi-check mt-1" /></Badge>
                     <Badge v-else severity="warning"><i class="pi pi-times mt-1" /></Badge>
                 </template>
             </Column>

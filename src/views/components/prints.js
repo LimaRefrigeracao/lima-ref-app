@@ -1,12 +1,24 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import logo from './logoBase64';
 import { formateDateLocale } from './tools';
+import Axios from '@/service/Axios';
 
+const getSignature = async (id) => {
+    try {
+        const response = await Axios.get('/users/signature/' + id);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
 const generateReceipt = async (dataInfo, dataOS) => {
+    const idUser = JSON.parse(localStorage.getItem('user'));
+
     const INFO = JSON.parse(JSON.stringify(dataInfo));
     const OS = JSON.parse(JSON.stringify(dataOS));
     const DATE = await formateDateLocale();
     const ESTIMATE = JSON.parse(OS.estimate);
+    const SIGNATURE = await getSignature(idUser.id);
 
     const tableData = [
         [
@@ -121,6 +133,7 @@ const generateReceipt = async (dataInfo, dataOS) => {
             },
 
             '\n\n\n\n',
+            { image: SIGNATURE, style: 'image_signature', width: 120, height: 25 },
             {
                 alignment: 'center',
                 columns: [
@@ -137,6 +150,10 @@ const generateReceipt = async (dataInfo, dataOS) => {
         ],
 
         styles: {
+            image_signature: {
+                margin: [65, 0, 0, 0],
+                alignment: 'justify'
+            },
             image: {
                 margin: [0, 0, 0, 20],
                 alignment: 'center'
