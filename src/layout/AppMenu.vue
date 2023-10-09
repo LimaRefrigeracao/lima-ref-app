@@ -34,7 +34,7 @@ const modelAdmin = ref([
                         icon: 'pi pi-fw pi-chart-line',
                         to: '/painel-analitico'
                     },
-                    { label: 'NOTAS FISCAIS', icon: 'pi pi-fw pi-file-excel', url: 'https://www.nfse.gov.br/EmissorNacional/Login', target: '_blank' }
+                    { label: 'NOTAS FISCAIS', icon: 'pi pi-fw pi-file-excel', url: 'https://www.nfse.gov.br/EmissorNacional', target: '_blank' }
                 ]
             }
         ]
