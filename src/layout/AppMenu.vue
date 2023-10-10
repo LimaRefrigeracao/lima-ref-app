@@ -45,7 +45,10 @@ const modelAdmin = ref([
             {
                 label: 'DEFINIÇÕES',
                 icon: 'pi pi-fw pi-cog',
-                items: [{ label: 'USUÁRIOS', icon: 'pi pi-fw pi-user', to: '/usuarios' }]
+                items: [
+                    { label: 'USUÁRIOS', icon: 'pi pi-fw pi-user', to: '/usuarios' },
+                    { label: 'STATUS E PRODUTOS', icon: 'pi pi-fw pi-sitemap', to: '/status-e-produtos' }
+                ]
             }
         ]
     }

@@ -7,7 +7,9 @@
         "node": "16.17.0"
     },
     "scripts": {
-        "dev": "vite",
+        "dev": "npm-run-all --parallel start-json-server start-vite",
+        "start-json-server": "json-server --watch src/service/Data.json --port 3001",
+        "start-vite": "vite",
         "build": "vite build",
         "test": "npm run build && gh-pages -d dist",
         "preview": "vite preview",
@@ -18,6 +20,7 @@
         "@vitejs/plugin-vue": "^4.1.0",
         "axios": "^1.5.0",
         "chart.js": "3.3.2",
+        "json-server": "^0.17.4",
         "pdfmake": "^0.2.7",
         "primeflex": "^3.3.1",
         "primeicons": "^6.0.1",
@@ -25,6 +28,7 @@
         "serve": "^14.2.1",
         "socket.io-client": "^4.7.2",
         "sweetalert2": "^11.7.27",
+        "vee-validate": "^4.11.8",
         "vite": "^4.2.1",
         "vue": "^3.2.41",
         "vue-router": "^4.1.5"
@@ -35,6 +39,7 @@
         "eslint": "^8.22.0",
         "eslint-plugin-vue": "^9.3.0",
         "gh-pages": "^6.0.0",
+        "npm-run-all": "^4.1.5",
         "prettier": "^2.7.1",
         "sass": "^1.55.0"
     }

@@ -1,0 +1,31 @@
+{
+  "status_payment": [
+    {
+      "description": "Parcial",
+      "color": {
+        "severity": "success",
+        "hex": "#22C55E"
+      },
+      "id": 1,
+      "cod": 1
+    },
+    {
+      "description": "asdas",
+      "color": {
+        "severity": "info",
+        "hex": "#3B82F6"
+      },
+      "id": 2,
+      "cod": 2
+    },
+    {
+      "description": "Parcial",
+      "cod": 3,
+      "color": {
+        "severity": null,
+        "hex": "#8F48D2"
+      },
+      "id": 3
+    }
+  ]
+}

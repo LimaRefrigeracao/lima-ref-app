@@ -2,6 +2,14 @@ import { ref } from 'vue';
 import Swal from 'sweetalert2';
 import { io } from 'socket.io-client';
 const socket = io(import.meta.env.VITE_BASE_URL_API);
+const colorTypes = ref([
+    { severity: null, hex: '#757575' },
+    { severity: null, hex: '#8F48D2' },
+    { severity: 'info', hex: '#3B82F6' },
+    { severity: 'warning', hex: '#F59E0B' },
+    { severity: 'danger', hex: '#EF4444' },
+    { severity: 'success', hex: '#22C55E' }
+]);
 
 const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Forno Elétrico', 'Air Fryer', 'Central de Ar', 'Bebedouro', 'Ar-Condicionado', 'Expositor', 'Tanquinho', 'Lava e Seca', 'Secadora', 'Outros']);
 const optionsTypesTables = ref([
@@ -180,6 +188,7 @@ export {
     statusTypes,
     optionsTypesTables,
     socket,
+    colorTypes,
     formatData,
     getStatusServiceLabel,
     getStatusPaymentLabel,

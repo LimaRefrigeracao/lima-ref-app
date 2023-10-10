@@ -123,6 +123,7 @@ onBeforeMount(() => {
     <ConfirmPopup />
     <Toast />
     <div class="card">
+        <h5>USUÁRIOS</h5>
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">

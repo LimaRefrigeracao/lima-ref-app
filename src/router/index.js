@@ -92,6 +92,21 @@ const router = createRouter({
                         }
                     },
                     component: () => import('@/views/definitions/Users.vue')
+                },
+                {
+                    path: '/status-e-produtos',
+                    name: 'status-and-products',
+                    beforeEnter(to, from, next) {
+                        const token = localStorage.getItem('token');
+                        const user = localStorage.getItem('user');
+                        const response = validateToken();
+                        if (!token || !user || !response) {
+                            next('/login');
+                        } else {
+                            next();
+                        }
+                    },
+                    component: () => import('@/views/definitions/StatusAndProducts/StatusAndProducts.vue')
                 }
             ]
         }
