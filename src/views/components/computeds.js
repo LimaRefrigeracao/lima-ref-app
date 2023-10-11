@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import Swal from 'sweetalert2';
 import { io } from 'socket.io-client';
 const socket = io(import.meta.env.VITE_BASE_URL_API);
-import Axios from '../../service/Axios'
+import Axios from '../../service/Axios';
 
 /* Color Palette */
 const colorTypes = ref([
@@ -14,6 +14,29 @@ const colorTypes = ref([
     { severity: 'success', hex: '#22C55E' }
 ]);
 
+/* Dependences Service Status */
+const statusServiceOptions = ref([]);
+const statusServiceMapping = ref([]);
+const getStatusService = async () => {
+    try {
+        const response = await Axios.get('/status_service');
+        statusServiceOptions.value = response.data.map((item) => item.cod.toString());
+        statusServiceMapping.value = response.data;
+        statusServiceMapping.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+await getStatusService();
+const getStyleStatusService = (cod) => {
+    const statusService = statusServiceMapping.value.find((item) => item.cod === cod);
+    return statusService || null;
+};
+
 /* Dependences Payment Status */
 const statusPaymentOptions = ref([]);
 const statusPaymentMapping = ref([]);
@@ -22,14 +45,19 @@ const getStatusPayment = async () => {
         const response = await Axios.get('/status_payment');
         statusPaymentOptions.value = response.data.map((item) => item.cod.toString());
         statusPaymentMapping.value = response.data;
+        statusPaymentMapping.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
     } catch (error) {
         console.error(error);
     }
 };
 await getStatusPayment();
 const getStyleStatusPayment = (cod) => {
-    const status = statusPaymentMapping.value.find((item) => item.cod === cod);
-    return status|| null; 
+    const statusPayment = statusPaymentMapping.value.find((item) => item.cod === cod);
+    return statusPayment || null;
 };
 
 /* Products Types */
@@ -40,75 +68,6 @@ const optionsTypesTables = ref([
     { value: 1, label: 'Oficina' },
     { value: 2, label: 'Depósito' }
 ]);
-
-/* Dependences Service Status */
-const statusServiceOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']);
-const statusServiceMapping = ref({
-    1: 'Visitar',
-    2: 'Buscar',
-    3: 'Na Fila',
-    4: 'Mexendo',
-    5: 'Orçamentado',
-    6: 'Autorizado',
-    7: 'Aguardando peças',
-    8: 'Consertando',
-    9: 'Testando',
-    10: 'Pronto',
-    11: 'Entregar',
-    12: 'Devolver',
-    13: 'Concluído'
-});
-const statusTypes = ref([
-    { code: 1, name: 'Visitar' },
-    { code: 2, name: 'Buscar' },
-    { code: 3, name: 'Na Fila' },
-    { code: 4, name: 'Mexendo' },
-    { code: 5, name: 'Orçamentado' },
-    { code: 6, name: 'Autorizado' },
-    { code: 6, name: 'Aguardando peças' },
-    { code: 6, name: 'Consertando' },
-    { code: 7, name: 'Testando' },
-    { code: 8, name: 'Pronto' },
-    { code: 9, name: 'Entregar' },
-    { code: 10, name: 'Devolver' },
-    { code: 11, name: 'Concluído' }
-]);
-
-const getStatusServiceLabel = (status) => {
-    return statusServiceMapping.value[status] || status;
-};
-const getStatusServiceClass = (status) => {
-    switch (status) {
-        case 1:
-            return 'info';
-        case 2:
-            return 'info';
-        case 3:
-            return 'info';
-        case 4:
-            return 'warning';
-        case 5:
-            return 'warning';
-        case 6:
-            return 'warning';
-        case 7:
-            return 'warning';
-        case 8:
-            return 'warning';
-        case 9:
-            return 'warning';
-        case 10:
-            return 'success';
-        case 11:
-            return 'success';
-        case 12:
-            return 'success';
-        case 13:
-            return 'success';
-        default:
-            return '';
-    }
-};
 
 /* Formated Data D/M/A */
 const formatData = (dataString) => {
@@ -160,7 +119,6 @@ const sendWhatsAppMessage = (data, dataEstimate) => {
     window.open(whatsappLink, '_blank');
 };
 
-
 /* Message Whatsapp Employeers */
 const sendInfoClientsWhats = (data) => {
     let adress = '';
@@ -195,14 +153,13 @@ export {
     productsTypes,
     statusPaymentOptions,
     statusServiceOptions,
-    statusTypes,
+    statusServiceMapping,
     optionsTypesTables,
     socket,
     colorTypes,
     formatData,
-    getStatusServiceLabel,
+    getStyleStatusService,
     getStyleStatusPayment,
-    getStatusServiceClass,
     sendWhatsAppMessage,
     sendInfoClientsWhats,
     loadingOpen,

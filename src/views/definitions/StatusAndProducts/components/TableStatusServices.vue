@@ -1,41 +1,43 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { loadingOpen, loadingClose, colorTypes } from '../../../components/computeds';
-import AxiosJson from '../../../../service/AxiosJson';
+import Axios from '../../../../service/Axios';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { useField, useForm } from 'vee-validate';
+import { useForm } from 'vee-validate';
 
 const popup = ref(null);
 const confirmPopup = useConfirm();
 const toast = useToast();
-const dataGetStatusPayment = ref([]);
-const dataPostStatusPayment = ref([]);
+const dataGetStatusServices = ref([]);
+const dataPostStatusServices = ref([]);
 const { handleSubmit } = useForm();
-const { value: addDescription, errorMessage: descriptionError } = useField('addDescription', validateField);
-const { value: addColor, errorMessage: colorError } = useField('addColor', validateColor);
-const { value: addCod, errorMessage: codError } = useField('addCod', validateCod);
 
-const getStatusPayment = async () => {
+const getStatusServices = async () => {
     loadingOpen();
     try {
-        const response = await AxiosJson.get('/status_payment');
-        dataGetStatusPayment.value = response.data;
+        const response = await Axios.get('/status_service');
+        dataGetStatusServices.value = response.data;
+        dataGetStatusServices.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
         loadingClose();
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços do depósito', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
         loadingClose();
         console.error(error);
     }
 };
 
-const deleteStatusPayment = async (id) => {
+const deleteStatusServices = async (id) => {
     loadingOpen();
     try {
-        const response = await AxiosJson.delete('/status_payment/' + id);
-        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de pagamento deletado com sucesso', life: 5000 });
+        const response = await Axios.delete('/status_service/' + id);
+        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de serviço deletado com sucesso', life: 5000 });
         console.log(response.status);
-        await getStatusPayment();
+        await getStatusServices();
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
@@ -44,7 +46,7 @@ const deleteStatusPayment = async (id) => {
     }
 };
 
-const confirmDeleteStatusPayment = (event, id) => {
+const confirmDeleteStatusServices = (event, id) => {
     confirmPopup.require({
         target: event.target,
         message: 'Deseja realmente excluir este status?',
@@ -52,79 +54,60 @@ const confirmDeleteStatusPayment = (event, id) => {
         acceptLabel: 'Sim',
         rejectLabel: 'Não',
         accept: () => {
-            deleteStatusPayment(id);
+            deleteStatusServices(id);
         }
     });
 };
 
-const postStatusPayment = async () => {
+const postStatusServices = async () => {
     loadingOpen();
     try {
-        const response = await AxiosJson.post('/status_payment', {
-            description: dataPostStatusPayment.value.description,
-            cod: dataPostStatusPayment.value.cod,
-            color: dataPostStatusPayment.value.color
+        const response = await Axios.post('/status_service', {
+            description: dataPostStatusServices.value.description,
+            cod: dataPostStatusServices.value.cod,
+            color: dataPostStatusServices.value.color
         });
-        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de pagamento adicionado com sucesso', life: 5000 });
+        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de serviço adicionado com sucesso', life: 5000 });
         console.log(response.status);
-        await getStatusPayment();
+        await getStatusServices();
         loadingClose();
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar novo status de pagamento', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
         console.error(error);
         loadingClose();
     }
 };
-function validateField(value) {
-    if (!value) {
-        return false;
-    }
-    return true;
-}
-function validateColor(value) {
-    if (!value) {
-        return false;
-    }
-    return true;
-}
-function validateCod(value) {
-    if (!value) {
-        return false;
-    }
-    return true;
-}
 
-const onSubmit = handleSubmit(async (values) => {
-    if (values.addDescription && values.addColor) {
-        dataPostStatusPayment.value.description = values.addDescription;
-        dataPostStatusPayment.value.cod = values.addCod;
-        dataPostStatusPayment.value.color = values.addColor;
-        await postStatusPayment();
+const onSubmit = handleSubmit(async () => {
+    if (dataPostStatusServices.value.description && dataPostStatusServices.value.cod && dataPostStatusServices.value.color) {
+        await postStatusServices();
+    } else {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Preencha todos os campos!', life: 5000 });
     }
 });
 
 onMounted(() => {
-    getStatusPayment();
+    getStatusServices();
 });
 </script>
 
 <template>
     <div class="card">
-        <h5>STATUS DE PAGAMENTO</h5>
+        <h5>STATUS DE SERVIÇO</h5>
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <form @submit="onSubmit" class="flex flex-column align-items-center gap-2">
                     <div class="grid p-fluid" style="margin: auto">
                         <span class="p-float-label">
-                            <InputText type="text" id="addDescription" v-model="addDescription" :class="{ 'p-invalid': descriptionError }" style="max-width: 100px" />
+                            <InputText type="text" id="addDescription" v-model="dataPostStatusServices.description" :class="{ 'p-invalid': descriptionError }" style="max-width: 100px" />
                             <label for="addDescription"><span style="color: red">*</span> Descrição </label>
                         </span>
                         <span class="p-float-label ml-2">
-                            <InputNumber id="addCod" v-model="addCod" :class="{ 'p-invalid': codError }" style="max-width: 75px" />
+                            <InputNumber id="addCod" v-model="dataPostStatusServices.cod" :class="{ 'p-invalid': codError }" style="max-width: 75px" />
                             <label for="addCod"><span style="color: red">*</span> Código </label>
                         </span>
                         <span class="p-float-label ml-2">
-                            <Dropdown id="addColor" :options="colorTypes" v-model="addColor" style="min-width: 80px" :class="{ 'p-invalid': colorError }">
+                            <Dropdown id="addColor" :options="colorTypes" v-model="dataPostStatusServices.color" style="min-width: 80px" :class="{ 'p-invalid': colorError }">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
                                         <Badge :style="{ background: slotProps.value.hex }" style="margin-bottom: 2px" />
@@ -137,25 +120,25 @@ onMounted(() => {
                             <label for="addColor"><span style="color: red">*</span> Cor</label>
                         </span>
 
-                        <Button type="submit" icon="pi pi-plus" class="p-button-rounded p-button-info ml-2" v-tooltip.top="'Adicionar'" />
+                        <Button type="submit" icon="pi pi-plus" class="p-button-rounded p-button-info p-button-outlined ml-2" v-tooltip.top="'Adicionar'" />
                     </div>
                 </form>
             </template>
         </Toolbar>
-        <DataTable :value="dataGetStatusPayment" :rowHover="true" :rows="10" showGridlines>
+        <DataTable :value="dataGetStatusServices" :rowHover="true" :rows="10" showGridlines>
             <Column bodyClass="text-center" field="cod" header="Código">
                 <template #body="{ data }">
                     <Chip :label="data.cod" />
                 </template>
             </Column>
-            <Column bodyClass="text-center" field="description" header="Descrições">
+            <Column bodyClass="text-center" field="description" header="Descrição">
                 <template #body="{ data }">
                     <Tag :value="data.description" :style="{ background: data.color.hex }" />
                 </template>
             </Column>
             <Column bodyClass="text-center">
                 <template #body="{ data }">
-                    <Button ref="popup" @click="confirmDeleteStatusPayment($event, data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" v-tooltip.top="'Excluir'" />
+                    <Button ref="popup" @click="confirmDeleteStatusServices($event, data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" v-tooltip.top="'Excluir'" />
                 </template>
             </Column>
         </DataTable>

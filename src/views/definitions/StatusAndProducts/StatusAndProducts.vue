@@ -9,7 +9,7 @@ import TableStatusServices from './components/TableStatusServices.vue';
     <Toast />
     <div class="grid p-fluid">
         <div class="field col-12 md:col-4">
-            <TableStatusServices/>
+            <TableStatusServices />
         </div>
         <div class="field col-12 md:col-4">
             <TableStatusPayment />
