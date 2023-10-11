@@ -15,9 +15,9 @@ const modelAdmin = ref([
                     {
                         label: 'PAINEL DE CONTROLE',
                         icon: 'pi pi-fw pi-chart-bar',
-                        to: '/painel-de-controle'
+                        to: '/operacional/painel-de-controle'
                     },
-                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/servicos' }
+                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
                 ]
             }
         ]
@@ -32,7 +32,12 @@ const modelAdmin = ref([
                     {
                         label: 'PAINEL ANALÍTICO',
                         icon: 'pi pi-fw pi-chart-line',
-                        to: '/painel-analitico'
+                        to: '/financeiro/painel-analitico'
+                    },
+                    {
+                        label: 'GERENCIADOR',
+                        icon: 'pi pi-fw pi-calculator',
+                        to: '/financeiro/gerenciador'
                     },
                     { label: 'NOTAS FISCAIS', icon: 'pi pi-fw pi-file-excel', url: 'https://www.nfse.gov.br/EmissorNacional', target: '_blank' }
                 ]
@@ -46,8 +51,8 @@ const modelAdmin = ref([
                 label: 'DEFINIÇÕES',
                 icon: 'pi pi-fw pi-cog',
                 items: [
-                    { label: 'USUÁRIOS', icon: 'pi pi-fw pi-user', to: '/usuarios' },
-                    { label: 'STATUS E PRODUTOS', icon: 'pi pi-fw pi-sitemap', to: '/status-e-produtos' }
+                    { label: 'USUÁRIOS', icon: 'pi pi-fw pi-user', to: '/definicoes/usuarios' },
+                    { label: 'STATUS E PRODUTOS', icon: 'pi pi-fw pi-sitemap', to: '/definicoes/status-e-produtos' }
                 ]
             }
         ]
@@ -64,9 +69,9 @@ const model = ref([
                     {
                         label: 'PAINEL DE CONTROLE',
                         icon: 'pi pi-fw pi-chart-bar',
-                        to: '/painel-de-controle'
+                        to: '/operacional/painel-de-controle'
                     },
-                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/servicos' }
+                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
                 ]
             }
         ]

@@ -26,8 +26,8 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/servicos',
-                    name: 'services',
+                    path: '/operacional/servicos',
+                    name: 'operational-services',
                     beforeEnter(to, from, next) {
                         const token = localStorage.getItem('token');
                         const user = localStorage.getItem('user');
@@ -41,8 +41,8 @@ const router = createRouter({
                     component: () => import('@/views/operational/Services.vue')
                 },
                 {
-                    path: '/painel-de-controle',
-                    name: 'control-panel',
+                    path: '/operacional/painel-de-controle',
+                    name: 'operational-control-panel',
                     beforeEnter(to, from, next) {
                         const token = localStorage.getItem('token');
                         const user = localStorage.getItem('user');
@@ -53,19 +53,12 @@ const router = createRouter({
                             next();
                         }
                     },
-                    component: () => import('@/views/operational/ControlPanel.vue')
+                    component: () => import('@/views/operational/ControlPanel/ControlPanel.vue')
                 },
 
                 {
-                    path: '/nfse',
-                    name: 'nfse',
-                    beforeEnter() {
-                        window.open('https://www.nfse.gov.br/EmissorNacional/Login', '_blank');
-                    }
-                },
-                {
-                    path: '/painel-analitico',
-                    name: 'analytical-panel',
+                    path: '/financeiro/painel-analitico',
+                    name: 'financial-analytical-panel',
                     beforeEnter(to, from, next) {
                         const token = localStorage.getItem('token');
                         const user = localStorage.getItem('user');
@@ -79,8 +72,24 @@ const router = createRouter({
                     component: () => import('@/views/financial/AnalyticalPanel.vue')
                 },
                 {
-                    path: '/usuarios',
-                    name: 'users',
+                    path: '/financeiro/gerenciador',
+                    name: 'financial-manager',
+                    beforeEnter(to, from, next) {
+                        const token = localStorage.getItem('token');
+                        const user = localStorage.getItem('user');
+                        const response = validateToken();
+                        if (!token || !user || !response) {
+                            next('/login');
+                        } else {
+                            next();
+                        }
+                    },
+                    component: () => import('@/views/financial/Manager/Manager.vue')
+                },
+
+                {
+                    path: '/definicoes/usuarios',
+                    name: 'definitions-users',
                     beforeEnter(to, from, next) {
                         const token = localStorage.getItem('token');
                         const user = localStorage.getItem('user');
@@ -94,8 +103,8 @@ const router = createRouter({
                     component: () => import('@/views/definitions/Users.vue')
                 },
                 {
-                    path: '/status-e-produtos',
-                    name: 'status-and-products',
+                    path: '/definicoes/status-e-produtos',
+                    name: 'definitions-status-and-products',
                     beforeEnter(to, from, next) {
                         const token = localStorage.getItem('token');
                         const user = localStorage.getItem('user');
