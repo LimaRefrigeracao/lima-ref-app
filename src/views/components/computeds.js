@@ -31,7 +31,7 @@ const getStatusService = async () => {
         console.error(error);
     }
 };
-await getStatusService();
+getStatusService();
 const getStyleStatusService = (cod) => {
     const statusService = statusServiceMapping.value.find((item) => item.cod === cod);
     return statusService || null;
@@ -54,7 +54,7 @@ const getStatusPayment = async () => {
         console.error(error);
     }
 };
-await getStatusPayment();
+getStatusPayment();
 const getStyleStatusPayment = (cod) => {
     const statusPayment = statusPaymentMapping.value.find((item) => item.cod === cod);
     return statusPayment || null;
@@ -70,7 +70,7 @@ const getTypesProduct = async () => {
         console.error(error);
     }
 };
-await getTypesProduct();
+getTypesProduct();
 
 /* Tables Types */
 const optionsTypesTables = ref([
