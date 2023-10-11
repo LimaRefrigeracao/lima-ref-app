@@ -38,7 +38,7 @@ const login = async () => {
         loadingClose();
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        router.push('/servicos');
+        router.push('/operacional/servicos');
     } catch (error) {
         loadingClose();
         toast.add({ severity: 'error', summary: 'Informação Inválida', detail: error.response.data.msg, life: 5000 });
