@@ -26,18 +26,19 @@
         "socket.io-client": "^4.7.2",
         "sweetalert2": "^11.7.27",
         "vee-validate": "^4.11.8",
-        "vite": "^4.2.1",
         "vue": "^3.2.41",
         "vue-router": "^4.1.5"
     },
     "devDependencies": {
         "@rushstack/eslint-patch": "^1.1.4",
         "@vue/eslint-config-prettier": "^7.0.0",
+        "esbuild": "^0.19.4",
         "eslint": "^8.22.0",
         "eslint-plugin-vue": "^9.3.0",
         "gh-pages": "^6.0.0",
         "npm-run-all": "^4.1.5",
         "prettier": "^2.7.1",
-        "sass": "^1.55.0"
+        "sass": "^1.55.0",
+        "vite": "^4.4.11"
     }
 }
