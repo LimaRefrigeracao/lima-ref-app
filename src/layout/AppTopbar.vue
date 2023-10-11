@@ -88,12 +88,18 @@ const logout = async () => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <div class="col-3">
-                <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
-                <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 22px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
+            <Divider layout="vertical" />
+            <div class="col-3" style="margin:auto">
+                <i class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 25px" />
+                <!-- <i v-badge="1" class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 25px" /> -->
             </div>
-            <div class="col-3 ml-5">
-                <i class="pi pi-power-off" style="cursor: pointer; font-size: 22px; color: red" @click="logout()"> </i>
+            <div class="col-3 ml-2" style="margin:auto">
+                <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
+                <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
+            </div>
+            <Divider layout="vertical" />
+            <div class="col-3" style="margin:auto">
+                <i class="pi pi-power-off" style="cursor: pointer; font-size: 25px; color: red" @click="logout()"> </i>
             </div>
         </div>
     </div>
