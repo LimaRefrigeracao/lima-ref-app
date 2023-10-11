@@ -6,22 +6,22 @@ import { ref, onBeforeMount, onMounted } from 'vue';
 import { generateReceipt } from '../components/prints.js';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import {
-    productsTypes,
+    typesProductOptions,
     statusPaymentOptions,
     statusServiceOptions,
-    statusTypes,
+    statusServiceMapping,
     optionsTypesTables,
     socket,
     formatData,
-    getStatusServiceLabel,
-    getStatusPaymentLabel,
-    getStatusPaymentClass,
-    getStatusServiceClass,
+    getStyleStatusService,
+    getStyleStatusPayment,
     sendWhatsAppMessage,
     sendInfoClientsWhats,
     loadingOpen,
     loadingClose
 } from '../components/computeds.js';
+
+console.log(statusServiceOptions.value)
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
@@ -122,7 +122,7 @@ const confirmUpdateForServices = (event, idService) => {
 
 const dataPostService = ref({});
 const validatePostService = async () => {
-    if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.code) {
+    if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.cod) {
         addMessage('addService', 'error', 'Preencha todos os campos obrigatórios.');
     } else {
         postService();
@@ -136,7 +136,7 @@ const postService = async () => {
             client: dataPostService.value.client,
             telephone: dataPostService.value.telephone,
             adress: dataPostService.value.adress,
-            status: dataPostService.value.status.code,
+            status: dataPostService.value.status.cod,
             observation: dataPostService.value.observation,
             created_at: dataPostService.value.created_at,
             typeTable: typeTable.value.value
@@ -378,7 +378,7 @@ const openModalEditPaymentStatus = (position, data) => {
     messageUpdateStatusPayment.value.length = 0;
     displayModalEditPaymentStatus.value = true;
     positionModalEditPaymentStatus.value = position;
-    dataEditPaymentStatus.value.label = getStatusPaymentLabel(data.payment_status);
+    dataEditPaymentStatus.value.label = getStyleStatusPayment(data.payment_status).description;
     dataEditPaymentStatus.value.id = data.id;
     dataEditPaymentStatus.value.payment_status = data.payment_status;
 };
@@ -393,7 +393,7 @@ const openModalEditStatus = (position, data) => {
     messageUpdateStatusService.value.length = 0;
     displayModalEditStatus.value = true;
     positionModalEditStatus.value = position;
-    dataEditStatus.value.label = getStatusServiceLabel(data.status);
+    dataEditStatus.value.label = getStyleStatusService(data.status).description;
     dataEditStatus.value.id = data.id;
     dataEditStatus.value.status = data.status;
 };
@@ -495,7 +495,7 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <Dropdown id="addProduct" :options="productsTypes" v-model="dataPostService.product" />
+                                            <Dropdown id="addProduct" :options="typesProductOptions" v-model="dataPostService.product" />
                                             <label for="addProduct"><span style="color: red">*</span> Produto</label>
                                         </span>
                                     </div>
@@ -519,7 +519,7 @@ onBeforeMount(() => {
                                     </div>
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <Dropdown id="addStatus" :options="statusTypes" v-model="dataPostService.status" optionLabel="name" />
+                                            <Dropdown id="addStatus" :options="statusServiceMapping" v-model="dataPostService.status" optionLabel="description" />
                                             <label for="addStatus"><span style="color: red">*</span> Status</label>
                                         </span>
                                     </div>
@@ -650,7 +650,7 @@ onBeforeMount(() => {
                                                     <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
                                                     <span class="p-inputgroup-addon">
                                                         <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'"  :disabled="dataGetOS.estimate == '[]'"/>
+                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -680,7 +680,7 @@ onBeforeMount(() => {
                             {{ data.product }}
                         </template>
                         <template #filter="{ filterModel }">
-                            <Dropdown v-model="filterModel.value" :options="productsTypes" placeholder="Todos" class="p-column-filter" :showClear="true">
+                            <Dropdown v-model="filterModel.value" :options="typesProductOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
                                         <Badge :value="slotProps.value" severity="primary" />
@@ -767,15 +767,16 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
-                                            <Dropdown id="editStatus" v-model="dataEditStatus.status" :options="statusServiceOptions" class="p-column-filter" :showClear="true" optionLabel="label">
+                                            <Dropdown id="editStatus" v-model="dataEditStatus.status" :options="statusServiceOptions" class="p-column-filter"  :showClear="true">
                                                 <template #value="slotProps">
-                                                    <div v-if="slotProps.value">
-                                                        <Tag :value="getStatusServiceLabel(parseInt(slotProps.value))" :severity="getStatusServiceClass(parseInt(slotProps.value))" />
-                                                    </div>
-                                                </template>
-                                                <template #option="slotProps">
-                                                    <Tag :value="getStatusServiceLabel(parseInt(slotProps.option))" :severity="getStatusServiceClass(parseInt(slotProps.option))" />
-                                                </template>
+                                    <div v-if="slotProps.value">
+                                        <Tag :value="getStyleStatusService(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.value)).color.hex }" />
+                                    </div>
+                                    <span v-else>{{ slotProps.placeholder }}</span>
+                                </template>
+                                <template #option="slotProps">
+                                    <Tag :value="getStyleStatusService(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.option)).color.hex }" />
+                                </template>
                                             </Dropdown>
 
                                             <label for="editStatus"><span style="color: red">*</span>Status</label>
@@ -790,18 +791,18 @@ onBeforeMount(() => {
                                     <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="validateUpdateStatusService()" />
                                 </template>
                             </Dialog>
-                            <Tag @click="openModalEditStatus('top', data)" :value="getStatusServiceLabel(data.status)" :severity="getStatusServiceClass(data.status)" v-tooltip.top="'Atualizar Status'" style="cursor: pointer" />
+                            <Tag @click="openModalEditStatus('top', data)" :value="getStyleStatusService(data.status).description" :style="{ background: getStyleStatusService(data.status).color.hex }" v-tooltip.top="'Atualizar Status'" style="cursor: pointer" />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statusServiceOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
-                                        <Tag :value="getStatusServiceLabel(slotProps.value)" :severity="getStatusServiceClass(parseInt(slotProps.value))" />
+                                        <Tag :value="getStyleStatusService(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.value)).color.hex }" />
                                     </div>
                                     <span v-else>{{ slotProps.placeholder }}</span>
                                 </template>
                                 <template #option="slotProps">
-                                    <Tag :value="getStatusServiceLabel(slotProps.option)" :severity="getStatusServiceClass(parseInt(slotProps.option))" />
+                                    <Tag :value="getStyleStatusService(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.option)).color.hex }" />
                                 </template>
                             </Dropdown>
                         </template>
@@ -827,11 +828,12 @@ onBeforeMount(() => {
                                             <Dropdown id="editPaymentStatus" v-model="dataEditPaymentStatus.payment_status" :options="statusPaymentOptions" class="p-column-filter" :showClear="true" optionLabel="label">
                                                 <template #value="slotProps">
                                                     <div v-if="slotProps.value">
-                                                        <Tag :value="getStatusPaymentLabel(parseInt(slotProps.value))" :severity="getStatusPaymentClass(parseInt(slotProps.value))" />
+                                                        <Tag :value="getStyleStatusPayment(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.value)).color.hex }" />
                                                     </div>
+                                                    <span v-else>{{ slotProps.placeholder }}</span>
                                                 </template>
                                                 <template #option="slotProps">
-                                                    <Tag :value="getStatusPaymentLabel(parseInt(slotProps.option))" :severity="getStatusPaymentClass(parseInt(slotProps.option))" />
+                                                    <Tag :value="getStyleStatusPayment(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.option)).color.hex }" />
                                                 </template>
                                             </Dropdown>
 
@@ -849,8 +851,8 @@ onBeforeMount(() => {
                             </Dialog>
                             <Tag
                                 @click="openModalEditPaymentStatus('top', data)"
-                                :value="getStatusPaymentLabel(data.payment_status)"
-                                :severity="getStatusPaymentClass(data.payment_status)"
+                                :value="getStyleStatusPayment(data.payment_status).description"
+                                :style="{ background: getStyleStatusPayment(data.payment_status).color.hex }"
                                 v-tooltip.top="'Atualizar Status de Pagamento'"
                                 style="cursor: pointer"
                             />
@@ -859,12 +861,12 @@ onBeforeMount(() => {
                             <Dropdown v-model="filterModel.value" :options="statusPaymentOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
-                                        <Tag :value="getStatusPaymentLabel(slotProps.value)" :severity="getStatusPaymentClass(parseInt(slotProps.value))" />
+                                        <Tag :value="getStyleStatusPayment(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.value)).color.hex }" />
                                     </div>
                                     <span v-else>{{ slotProps.placeholder }}</span>
                                 </template>
                                 <template #option="slotProps">
-                                    <Tag :value="getStatusPaymentLabel(slotProps.option)" :severity="getStatusPaymentClass(parseInt(slotProps.option))" />
+                                    <Tag :value="getStyleStatusPayment(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.option)).color.hex }" />
                                 </template>
                             </Dropdown>
                         </template>
@@ -887,7 +889,7 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-5">
                                         <span class="p-float-label">
-                                            <Dropdown id="editProduct" :options="productsTypes" v-model="dataEditInfoClient.product" />
+                                            <Dropdown id="editProduct" :options="typesProductOptions" v-model="dataEditInfoClient.product" />
                                             <label for="editProduct"><span style="color: red">*</span> Produto</label>
                                         </span>
                                     </div>
@@ -933,5 +935,4 @@ onBeforeMount(() => {
             </div>
         </div>
     </div>
-
 </template>
