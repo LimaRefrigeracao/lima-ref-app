@@ -2,6 +2,9 @@ import { ref } from 'vue';
 import Swal from 'sweetalert2';
 import { io } from 'socket.io-client';
 const socket = io(import.meta.env.VITE_BASE_URL_API);
+import Axios from '../../service/Axios'
+
+/* Color Palette */
 const colorTypes = ref([
     { severity: null, hex: '#757575' },
     { severity: null, hex: '#8F48D2' },
@@ -11,17 +14,34 @@ const colorTypes = ref([
     { severity: 'success', hex: '#22C55E' }
 ]);
 
+/* Dependences Payment Status */
+const statusPaymentOptions = ref([]);
+const statusPaymentMapping = ref([]);
+const getStatusPayment = async () => {
+    try {
+        const response = await Axios.get('/status_payment');
+        statusPaymentOptions.value = response.data.map((item) => item.cod.toString());
+        statusPaymentMapping.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+await getStatusPayment();
+const getStyleStatusPayment = (cod) => {
+    const status = statusPaymentMapping.value.find((item) => item.cod === cod);
+    return status|| null; 
+};
+
+/* Products Types */
 const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Forno Elétrico', 'Air Fryer', 'Central de Ar', 'Bebedouro', 'Ar-Condicionado', 'Expositor', 'Tanquinho', 'Lava e Seca', 'Secadora', 'Outros']);
+
+/* Tables Types */
 const optionsTypesTables = ref([
     { value: 1, label: 'Oficina' },
     { value: 2, label: 'Depósito' }
 ]);
-const statusPaymentOptions = ref(['1', '2', '3']);
-const statusPaymentMapping = ref({
-    1: 'Aberto',
-    2: 'Pendente',
-    3: 'Pago'
-});
+
+/* Dependences Service Status */
 const statusServiceOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']);
 const statusServiceMapping = ref({
     1: 'Visitar',
@@ -57,21 +77,6 @@ const statusTypes = ref([
 const getStatusServiceLabel = (status) => {
     return statusServiceMapping.value[status] || status;
 };
-const getStatusPaymentLabel = (status) => {
-    return statusPaymentMapping.value[status] || status;
-};
-const getStatusPaymentClass = (status) => {
-    switch (status) {
-        case 1:
-            return 'info';
-        case 2:
-            return 'warning';
-        case 3:
-            return 'success';
-        default:
-            return '';
-    }
-};
 const getStatusServiceClass = (status) => {
     switch (status) {
         case 1:
@@ -104,6 +109,8 @@ const getStatusServiceClass = (status) => {
             return '';
     }
 };
+
+/* Formated Data D/M/A */
 const formatData = (dataString) => {
     const partes = dataString.split('-');
     if (partes.length !== 3) {
@@ -115,6 +122,7 @@ const formatData = (dataString) => {
     return `${dia}/${mes}/${ano}`;
 };
 
+/* Message Whatsapp Client */
 const sendWhatsAppMessage = (data, dataEstimate) => {
     const jsonData = JSON.parse(dataEstimate.estimate);
     const list = jsonData.map((item) => {
@@ -152,19 +160,8 @@ const sendWhatsAppMessage = (data, dataEstimate) => {
     window.open(whatsappLink, '_blank');
 };
 
-const loadingOpen = () => {
-    Swal.fire({
-        title: 'Carregando',
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-};
 
-const loadingClose = () => {
-    Swal.close();
-};
-
+/* Message Whatsapp Employeers */
 const sendInfoClientsWhats = (data) => {
     let adress = '';
     let mapsLink = '';
@@ -181,6 +178,19 @@ const sendInfoClientsWhats = (data) => {
     window.open(whatsappLink, '_blank');
 };
 
+/* Loads Alert */
+const loadingOpen = () => {
+    Swal.fire({
+        title: 'Carregando',
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+};
+const loadingClose = () => {
+    Swal.close();
+};
+
 export {
     productsTypes,
     statusPaymentOptions,
@@ -191,8 +201,7 @@ export {
     colorTypes,
     formatData,
     getStatusServiceLabel,
-    getStatusPaymentLabel,
-    getStatusPaymentClass,
+    getStyleStatusPayment,
     getStatusServiceClass,
     sendWhatsAppMessage,
     sendInfoClientsWhats,

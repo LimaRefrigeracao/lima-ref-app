@@ -14,14 +14,15 @@ import {
     socket,
     formatData,
     getStatusServiceLabel,
-    getStatusPaymentLabel,
-    getStatusPaymentClass,
+    getStyleStatusPayment,
     getStatusServiceClass,
     sendWhatsAppMessage,
     sendInfoClientsWhats,
     loadingOpen,
     loadingClose
 } from '../components/computeds.js';
+
+console.log(statusPaymentOptions.value);
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
@@ -378,7 +379,7 @@ const openModalEditPaymentStatus = (position, data) => {
     messageUpdateStatusPayment.value.length = 0;
     displayModalEditPaymentStatus.value = true;
     positionModalEditPaymentStatus.value = position;
-    dataEditPaymentStatus.value.label = getStatusPaymentLabel(data.payment_status);
+    dataEditPaymentStatus.value.label = getStyleStatusPayment(data.payment_status).description;
     dataEditPaymentStatus.value.id = data.id;
     dataEditPaymentStatus.value.payment_status = data.payment_status;
 };
@@ -650,7 +651,7 @@ onBeforeMount(() => {
                                                     <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
                                                     <span class="p-inputgroup-addon">
                                                         <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'"  :disabled="dataGetOS.estimate == '[]'"/>
+                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -827,11 +828,12 @@ onBeforeMount(() => {
                                             <Dropdown id="editPaymentStatus" v-model="dataEditPaymentStatus.payment_status" :options="statusPaymentOptions" class="p-column-filter" :showClear="true" optionLabel="label">
                                                 <template #value="slotProps">
                                                     <div v-if="slotProps.value">
-                                                        <Tag :value="getStatusPaymentLabel(parseInt(slotProps.value))" :severity="getStatusPaymentClass(parseInt(slotProps.value))" />
+                                                        <Tag :value="getStyleStatusPayment(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.value)).color.hex }" />
                                                     </div>
+                                                    <span v-else>{{ slotProps.placeholder }}</span>
                                                 </template>
                                                 <template #option="slotProps">
-                                                    <Tag :value="getStatusPaymentLabel(parseInt(slotProps.option))" :severity="getStatusPaymentClass(parseInt(slotProps.option))" />
+                                                    <Tag :value="getStyleStatusPayment(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.option)).color.hex }" />
                                                 </template>
                                             </Dropdown>
 
@@ -849,8 +851,8 @@ onBeforeMount(() => {
                             </Dialog>
                             <Tag
                                 @click="openModalEditPaymentStatus('top', data)"
-                                :value="getStatusPaymentLabel(data.payment_status)"
-                                :severity="getStatusPaymentClass(data.payment_status)"
+                                :value="getStyleStatusPayment(data.payment_status).description"
+                                :style="{ background: getStyleStatusPayment(data.payment_status).color.hex }"
                                 v-tooltip.top="'Atualizar Status de Pagamento'"
                                 style="cursor: pointer"
                             />
@@ -859,12 +861,12 @@ onBeforeMount(() => {
                             <Dropdown v-model="filterModel.value" :options="statusPaymentOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
-                                        <Tag :value="getStatusPaymentLabel(slotProps.value)" :severity="getStatusPaymentClass(parseInt(slotProps.value))" />
+                                        <Tag :value="getStyleStatusPayment(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.value)).color.hex }" />
                                     </div>
                                     <span v-else>{{ slotProps.placeholder }}</span>
                                 </template>
                                 <template #option="slotProps">
-                                    <Tag :value="getStatusPaymentLabel(slotProps.option)" :severity="getStatusPaymentClass(parseInt(slotProps.option))" />
+                                    <Tag :value="getStyleStatusPayment(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusPayment(parseInt(slotProps.option)).color.hex }" />
                                 </template>
                             </Dropdown>
                         </template>
@@ -933,5 +935,4 @@ onBeforeMount(() => {
             </div>
         </div>
     </div>
-
 </template>
