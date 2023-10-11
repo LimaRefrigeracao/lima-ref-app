@@ -14,7 +14,7 @@ const colorTypes = ref([
     { severity: 'success', hex: '#22C55E' }
 ]);
 
-/* Dependences Service Status */
+/* Service Status */
 const statusServiceOptions = ref([]);
 const statusServiceMapping = ref([]);
 const getStatusService = async () => {
@@ -37,7 +37,7 @@ const getStyleStatusService = (cod) => {
     return statusService || null;
 };
 
-/* Dependences Payment Status */
+/* Payment Status */
 const statusPaymentOptions = ref([]);
 const statusPaymentMapping = ref([]);
 const getStatusPayment = async () => {
@@ -61,7 +61,16 @@ const getStyleStatusPayment = (cod) => {
 };
 
 /* Products Types */
-const productsTypes = ref(['Máquina de Lavar', 'Geladeira', 'Freezer', 'Micro-ondas', 'Forno Elétrico', 'Air Fryer', 'Central de Ar', 'Bebedouro', 'Ar-Condicionado', 'Expositor', 'Tanquinho', 'Lava e Seca', 'Secadora', 'Outros']);
+const typesProductOptions = ref([]);
+const getTypesProduct = async () => {
+    try {
+        const response = await Axios.get('/types_product');
+        typesProductOptions.value = response.data.map((item) => item.name);
+    } catch (error) {
+        console.error(error);
+    }
+};
+await getTypesProduct();
 
 /* Tables Types */
 const optionsTypesTables = ref([
@@ -150,7 +159,7 @@ const loadingClose = () => {
 };
 
 export {
-    productsTypes,
+    typesProductOptions,
     statusPaymentOptions,
     statusServiceOptions,
     statusServiceMapping,

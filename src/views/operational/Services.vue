@@ -6,7 +6,7 @@ import { ref, onBeforeMount, onMounted } from 'vue';
 import { generateReceipt } from '../components/prints.js';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import {
-    productsTypes,
+    typesProductOptions,
     statusPaymentOptions,
     statusServiceOptions,
     statusServiceMapping,
@@ -495,7 +495,7 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-4">
                                         <span class="p-float-label">
-                                            <Dropdown id="addProduct" :options="productsTypes" v-model="dataPostService.product" />
+                                            <Dropdown id="addProduct" :options="typesProductOptions" v-model="dataPostService.product" />
                                             <label for="addProduct"><span style="color: red">*</span> Produto</label>
                                         </span>
                                     </div>
@@ -680,7 +680,7 @@ onBeforeMount(() => {
                             {{ data.product }}
                         </template>
                         <template #filter="{ filterModel }">
-                            <Dropdown v-model="filterModel.value" :options="productsTypes" placeholder="Todos" class="p-column-filter" :showClear="true">
+                            <Dropdown v-model="filterModel.value" :options="typesProductOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
                                         <Badge :value="slotProps.value" severity="primary" />
@@ -889,7 +889,7 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-5">
                                         <span class="p-float-label">
-                                            <Dropdown id="editProduct" :options="productsTypes" v-model="dataEditInfoClient.product" />
+                                            <Dropdown id="editProduct" :options="typesProductOptions" v-model="dataEditInfoClient.product" />
                                             <label for="editProduct"><span style="color: red">*</span> Produto</label>
                                         </span>
                                     </div>

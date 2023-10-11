@@ -1,5 +1,5 @@
 <script setup>
-import TableProducts from './components/TableProducts.vue';
+import TableTypesProducts from './components/TableTypesProducts.vue';
 import TableStatusPayment from './components/TableStatusPayment.vue';
 import TableStatusServices from './components/TableStatusServices.vue';
 </script>
@@ -15,7 +15,7 @@ import TableStatusServices from './components/TableStatusServices.vue';
             <TableStatusPayment />
         </div>
         <div class="field col-12 md:col-4">
-            <TableProducts />
+            <TableTypesProducts />
         </div>
     </div>
 </template>

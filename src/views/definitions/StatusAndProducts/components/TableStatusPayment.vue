@@ -69,6 +69,7 @@ const postStatusPayment = async () => {
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de pagamento adicionado com sucesso', life: 5000 });
         console.log(response.status);
+        clearFields();
         await getStatusPayment();
         loadingClose();
     } catch (error) {
@@ -86,6 +87,10 @@ const onSubmit = handleSubmit(async () => {
     }
 });
 
+const clearFields = () => {
+    dataPostStatusPayment.value = [];
+};
+
 onMounted(() => {
     getStatusPayment();
 });
@@ -99,15 +104,15 @@ onMounted(() => {
                 <form @submit="onSubmit" class="flex flex-column align-items-center gap-2">
                     <div class="grid p-fluid" style="margin: auto">
                         <span class="p-float-label">
-                            <InputText type="text" id="addDescription" v-model="dataPostStatusPayment.description" :class="{ 'p-invalid': descriptionError }" style="max-width: 100px" />
-                            <label for="addDescription"><span style="color: red">*</span> Descrição </label>
-                        </span>
-                        <span class="p-float-label ml-2">
-                            <InputNumber id="addCod" v-model="dataPostStatusPayment.cod" :class="{ 'p-invalid': codError }" style="max-width: 75px" />
+                            <InputNumber id="addCod" v-model="dataPostStatusPayment.cod" style="max-width: 80px" />
                             <label for="addCod"><span style="color: red">*</span> Código </label>
                         </span>
                         <span class="p-float-label ml-2">
-                            <Dropdown id="addColor" :options="colorTypes" v-model="dataPostStatusPayment.color" style="min-width: 80px" :class="{ 'p-invalid': colorError }">
+                            <InputText type="text" id="addDescription" v-model="dataPostStatusPayment.description" style="max-width: 140px" />
+                            <label for="addDescription"><span style="color: red">*</span> Descrição </label>
+                        </span>
+                        <span class="p-float-label ml-2">
+                            <Dropdown id="addColor" :options="colorTypes" v-model="dataPostStatusPayment.color" style="min-width: 80px">
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value">
                                         <Badge :style="{ background: slotProps.value.hex }" style="margin-bottom: 2px" />
