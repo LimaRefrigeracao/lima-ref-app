@@ -11,7 +11,7 @@ const getCountProductByService = async () => {
     try {
         const response = await Axios.get('/panel_control/product_by_service');
         data.value = response.data;
-        console.log(response.data)
+        console.log(response.status);
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar dados', life: 5000 });
