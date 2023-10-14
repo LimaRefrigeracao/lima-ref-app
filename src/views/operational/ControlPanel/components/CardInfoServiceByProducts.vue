@@ -6,13 +6,12 @@ onMounted(() => {});
 <template>
     <div class="card">
         <div class="flex justify-content-between align-items-center mb-5">
-            <h5>Best Selling Products</h5>
+            <h5>Quantidade por Tipo de Produto</h5>
         </div>
         <ul class="list-none p-0 m-0">
             <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Space T-Shirt</span>
-                    <div class="mt-1 text-600">Clothing</div>
+                    <span class="text-900 mr-2 mb-1 md:mb-0">Space T-Shirt</span>
                 </div>
                 <div class="mt-2 md:mt-0 flex align-items-center">
                     <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
@@ -23,8 +22,7 @@ onMounted(() => {});
             </li>
             <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Portal Sticker</span>
-                    <div class="mt-1 text-600">Accessories</div>
+                    <span class="text-900 mr-2 mb-1 md:mb-0">Portal Sticker</span>
                 </div>
                 <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                     <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
@@ -35,8 +33,7 @@ onMounted(() => {});
             </li>
             <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Supernova Sticker</span>
-                    <div class="mt-1 text-600">Accessories</div>
+                    <span class="text-900 mr-2 mb-1 md:mb-0">Supernova Sticker</span>
                 </div>
                 <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                     <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
@@ -47,8 +44,7 @@ onMounted(() => {});
             </li>
             <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Wonders Notebook</span>
-                    <div class="mt-1 text-600">Office</div>
+                    <span class="text-900 mr-2 mb-1 md:mb-0">Wonders Notebook</span>
                 </div>
                 <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                     <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
@@ -59,8 +55,7 @@ onMounted(() => {});
             </li>
             <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Mat Black Case</span>
-                    <div class="mt-1 text-600">Accessories</div>
+                    <span class="text-900 mr-2 mb-1 md:mb-0">Mat Black Case</span>
                 </div>
                 <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                     <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
@@ -71,8 +66,7 @@ onMounted(() => {});
             </li>
             <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
-                    <div class="mt-1 text-600">Clothing</div>
+                    <span class="text-900 mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
                 </div>
                 <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                     <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
