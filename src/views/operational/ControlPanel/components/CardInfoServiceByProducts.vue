@@ -36,10 +36,10 @@ onMounted(() => {
                     <span class="text-900 mr-2 mb-1 md:mb-0">{{ product.name }}</span>
                 </div>
                 <div class="mt-2 md:mt-0 flex align-items-center">
-                    <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
-                        <div :class="'bg-' + product.color + ' h-full'" :style="'width:' + Math.floor(product.count / data.length * 100) + '%'"></div>
+                    <div class="surface-100 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                        <div class="h-full" :style="'background-color: #757575; width:' + Math.floor(product.count / data.length * 100) + '%'"></div>
                     </div>
-                    <span :class="'text-' + product.color + ' ml-3 font-medium'">{{ product.count }}</span>
+                    <span class="ml-3 font-medium" :style="'color: #757575'">{{ product.count }}</span>
                 </div>
             </li>
         </ul>
