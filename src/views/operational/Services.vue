@@ -21,8 +21,6 @@ import {
     loadingClose
 } from '../components/computeds.js';
 
-console.log(statusServiceOptions.value)
-
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
 const popup = ref(null);
