@@ -64,7 +64,7 @@ onBeforeMount(() => {
 <template>
     <Toast />
     <div class="card">
-        <h5>Gráfico de Desempenho Anual</h5>
+        <h6>GRÁFICO DE DESEMPENHO</h6>
         <div v-if="dataLoaded">
             <Chart type="line" height="80" :data="data" :options="lineOptions" />
         </div>

@@ -9,6 +9,10 @@ import CardInfoServicePerformance from './components/CardInfoServicePerformance.
 <template>
     <div class="grid">
         <CardsInfoServicesGeneral />
+        
+        <div class="col-12 xl:col-12">
+            <CardInfoServicePerformance />
+        </div>
 
         <div class="col-12 xl:col-4">
             <CardInfoServiceByStatus />
@@ -20,10 +24,6 @@ import CardInfoServicePerformance from './components/CardInfoServicePerformance.
 
         <div class="col-12 xl:col-4">
             <CardInfoServiceByProducts />
-        </div>
-
-        <div class="col-12 xl:col-12">
-            <CardInfoServicePerformance />
         </div>
     </div>
 </template>

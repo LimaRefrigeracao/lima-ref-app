@@ -28,7 +28,7 @@ onMounted(() => {
     <Toast />
     <div class="card">
         <div class="flex justify-content-between align-items-center mb-5">
-            <h5>Por Tipo de Produto</h5>
+            <h6>QUANTIDADE POR TIPO DE PRODUTO</h6>
         </div>
         <ul class="list-none p-0 m-0">
             <li v-for="product in data.values" :key="product.index" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">

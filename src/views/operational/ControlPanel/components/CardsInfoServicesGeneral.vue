@@ -31,7 +31,7 @@ onMounted(() => {
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
                 <div>
-                    <span class="block text-500 font-medium mb-3">Serviços em Andamento</span>
+                    <span class="block text-500 font-medium mb-3">SERVIÇOS EM ANDAMENTO</span>
                     <div class="text-900 font-medium text-xl">{{ data.service_in_progress }}</div>
                 </div>
                 <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width: 3rem; height: 3rem">
@@ -45,7 +45,7 @@ onMounted(() => {
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
                 <div>
-                    <span class="block text-500 font-medium mb-3">Pagamentos em Processamento</span>
+                    <span class="block text-500 font-medium mb-3">PAGAMENTOS EM PROCESSAMENTO</span>
                     <div class="text-900 font-medium text-xl">{{ data.payment_in_processing }}</div>
                 </div>
                 <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width: 3rem; height: 3rem">
