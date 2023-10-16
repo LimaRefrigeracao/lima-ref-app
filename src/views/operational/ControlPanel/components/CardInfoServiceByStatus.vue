@@ -29,12 +29,12 @@ onMounted(() => {
     <Toast />
     <div class="card">
         <div class="flex justify-content-between align-items-center mb-5">
-            <h5>Quantidade por Status</h5>
+            <h5>Por Status de Serviço</h5>
         </div>
         <ul class="list-none p-0 m-0">
             <li v-for="status in data.values" :key="status.index" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
                 <div>
-                    <span class="text-900 mr-2 mb-1 md:mb-0">{{ status.description }}</span>
+                    <span class="block text-500 font-medium mb-1 md:mb-0">{{ status.description }}</span>
                 </div>
                 <div class="mt-2 md:mt-0 flex align-items-center">
                     <div class="surface-100 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
