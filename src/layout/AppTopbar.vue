@@ -2,22 +2,15 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
 import { useRouter } from 'vue-router';
+
+import TopbarNotification from './components/TopbarNotification.vue'
+
 const router = useRouter();
 const { changeThemeSettings, layoutConfig, onMenuToggle } = useLayout();
 
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
 
-const menu = ref();
-const items = ref([
-    {
-        label: 'Nenhuma notificação',
-    },
-]);
-
-const toggle = (event) => {
-    menu.value.toggle(event);
-};
 
 onMounted(() => {
     bindOutsideClickListener();
@@ -100,17 +93,15 @@ const logout = async () => {
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
             <Divider layout="vertical" />
-            <div class="col-3" style="margin:auto">
-                <i class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 25px" label="Toggle" @click="toggle" aria-haspopup="true" aria-controls="overlay_tmenu"/>
-                <!-- <i v-badge="1" class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 25px" label="Toggle" @click="toggle" aria-haspopup="true" aria-controls="overlay_tmenu"/> -->
-                <TieredMenu ref="menu" id="overlay_tmenu" :model="items" popup />
+            <div class="col-3" style="margin: auto">
+                <TopbarNotification />
             </div>
-            <div class="col-3 ml-2" style="margin:auto">
+            <div class="col-3 ml-2" style="margin: auto">
                 <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
                 <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
             </div>
             <Divider layout="vertical" />
-            <div class="col-3" style="margin:auto">
+            <div class="col-3" style="margin: auto">
                 <i class="pi pi-power-off" style="cursor: pointer; font-size: 25px; color: red" @click="logout()"> </i>
             </div>
         </div>
