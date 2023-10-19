@@ -903,14 +903,3 @@ onBeforeMount(() => {
         </div>
     </div>
 </template>
-<style scoped>
-.custom-item-button {
-    background-color: #2196f3;
-    color: white;
-}
-
-.custom-main-button {
-    background-color: #f44336;
-    color: white;
-}
-</style>
