@@ -26,21 +26,6 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/operacional/servicos2',
-                    name: 'operational-services-2',
-                    beforeEnter(to, from, next) {
-                        const token = localStorage.getItem('token');
-                        const user = localStorage.getItem('user');
-                        const response = validateToken();
-                        if (!token || !user || !response) {
-                            next('/login');
-                        } else {
-                            next();
-                        }
-                    },
-                    component: () => import('@/views/operational/Services2.vue')
-                },
-                {
                     path: '/operacional/servicos',
                     name: 'operational-services',
                     beforeEnter(to, from, next) {

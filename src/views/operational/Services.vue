@@ -23,7 +23,6 @@ import {
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
-const popup = ref(null);
 const confirmPopup = useConfirm();
 const loading = ref(null);
 const filters = ref(null);
@@ -341,6 +340,7 @@ const openModalOS = async (position, data) => {
         toast.add({ severity: 'info', summary: 'Sem Orçamento', detail: 'Não foi encontrado o orçamento desse serviço.', life: 5000 });
     }
 };
+
 const displayModalViewObservation = ref(false);
 const positionModalViewObservation = ref(false);
 const dataViewObservation = ref({
@@ -365,6 +365,7 @@ const openModalViewAdress = (position, data) => {
     dataViewAdress.value.id = data.id;
     dataViewAdress.value.adress = data.adress;
 };
+
 const displayModalEditPaymentStatus = ref(false);
 const positionModalEditPaymentStatus = ref(false);
 const dataEditPaymentStatus = ref({
@@ -395,6 +396,14 @@ const openModalEditStatus = (position, data) => {
     dataEditStatus.value.id = data.id;
     dataEditStatus.value.status = data.status;
 };
+
+const isInfoClientChanged = () => {
+    return JSON.stringify(dataEditInfoClient.value) !== JSON.stringify(originalInfoClient.value);
+};
+const originalInfoClient = ref({});
+const resetInfoClient = () => {
+    dataEditInfoClient.value = { ...originalInfoClient.value };
+};
 const displayModalEditInfo = ref(false);
 const positionModalEditInfo = ref(false);
 const dataEditInfoClient = ref({});
@@ -408,6 +417,13 @@ const openModalEditInfo = (position, data) => {
     dataEditInfoClient.value.telephone = data.telephone;
     dataEditInfoClient.value.adress = data.adress;
     dataEditInfoClient.value.observation = data.observation;
+
+    originalInfoClient.value.id = data.id;
+    originalInfoClient.value.product = data.product;
+    originalInfoClient.value.client = data.client;
+    originalInfoClient.value.telephone = data.telephone;
+    originalInfoClient.value.adress = data.adress;
+    originalInfoClient.value.observation = data.observation;
 };
 const displayModalAdd = ref(false);
 const positionModalAdd = ref(false);
@@ -465,6 +481,21 @@ const changeTable = async (type) => {
         await getServicesWarehouse();
     }
 };
+
+
+
+const idop = ref(null);
+const op = ref();
+const toggle = async (event, id) => {
+    idop.value = id;
+    const result = await openOverlay(id);
+    if (result) {
+        op.value.toggle(event);
+    }
+};
+const openOverlay = (id) => {
+    return id === idop.value;
+}
 
 onMounted(() => {
     const dataAtual = new Date().toISOString().slice(0, 10);
@@ -571,7 +602,7 @@ onBeforeMount(() => {
                     <template #empty> Nenhum registro encontrado. </template>
                     <template #loading> Carregando registros. Por favor aguarde. </template>
 
-                    <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric">
+                    <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric" style="width: 3vw">
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.order_of_service == dataGetOS.cod_order"
@@ -664,7 +695,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="created_at" header="D. Entrada" :showFilterMatchModes="false" dataType="date">
+                    <Column bodyClass="text-center" field="created_at" header="DATA" :showFilterMatchModes="false" dataType="date"  style="width: 6vw">
                         <template #body="{ data }">
                             {{ formatData(data.created_at) }}
                         </template>
@@ -673,7 +704,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="product" header="Produto" :showFilterMatchModes="false">
+                    <Column bodyClass="text-center" field="product" header="PRODUTO" :showFilterMatchModes="false">
                         <template #body="{ data }">
                             {{ data.product }}
                         </template>
@@ -692,7 +723,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="client" header="Cliente" :showFilterMatchModes="false" dataType="text">
+                    <Column bodyClass="text-center" field="client" header="CLIENTE" :showFilterMatchModes="false" dataType="text">
                         <template #body="{ data }">
                             {{ data.client }}
                         </template>
@@ -701,10 +732,10 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="telephone" header="Telefone" :showFilterMatchModes="false" dataType="text">
+                    <Column bodyClass="text-center" field="telephone" header="TELEFONE" :showFilterMatchModes="false" dataType="text" style="width: 5vw">
                         <template #body="{ data }">
                             <a :href="`https://wa.me/${data.telephone}`" target="_blank">
-                                <Tag value="" severity="success" v-tooltip.top="'Abrir no Whatsapp'"> {{ data.telephone }} <i class="pi pi-whatsapp ml-1"></i> </Tag>
+                                <Tag severity="success" v-tooltip.top="'Abrir no Whatsapp'"> {{ data.telephone }} <i class="pi pi-whatsapp ml-1"></i> </Tag>
                             </a>
                         </template>
                         <template #filter="{ filterModel }">
@@ -712,7 +743,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center">
+                    <Column field="adress" header="ENDEREÇO" dataType="boolean" bodyClass="text-center" style="width: 4vw">
                         <template #body="{ data }">
                             <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="positionModalViewAdress" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
                                 <h6 class="line-height-3 m-0">
@@ -720,15 +751,11 @@ onBeforeMount(() => {
                                 </h6>
                             </Dialog>
                             <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
-
-                            <i v-if="!data.adress" class="text-red-500 pi pi-minus"></i>
-                        </template>
-                        <template #filter="{ filterModel }">
-                            <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Endereço" />
+                            <i v-if="!data.adress" class="pi pi-minus"></i>
                         </template>
                     </Column>
 
-                    <Column field="observation" header="Obs." dataType="boolean" bodyClass="text-center">
+                    <Column field="observation" header="OBSERVAÇÃO" dataType="boolean" bodyClass="text-center"  style="width: 5vw">
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.id == dataViewObservation.id"
@@ -744,11 +771,11 @@ onBeforeMount(() => {
                                 </h6>
                             </Dialog>
                             <i v-if="data.observation" @click="openModalViewObservation('top', data)" class="text-green-500 pi pi-tag" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
-                            <i v-if="!data.observation" class="text-yellow-500 pi pi-minus"></i>
+                            <i v-if="!data.observation" class="pi pi-minus"></i>
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="status" header="Status de Serviço" :showFilterMatchModes="false">
+                    <Column bodyClass="text-center" field="status" header="STATUS" :showFilterMatchModes="false" style="width: 7vw">
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.id == dataEditStatus.id"
@@ -765,16 +792,16 @@ onBeforeMount(() => {
                                 <div class="grid p-fluid mt-1">
                                     <div class="field col-12 md:col-12">
                                         <span class="p-float-label">
-                                            <Dropdown id="editStatus" v-model="dataEditStatus.status" :options="statusServiceOptions" class="p-column-filter"  :showClear="true">
+                                            <Dropdown id="editStatus" v-model="dataEditStatus.status" :options="statusServiceOptions" class="p-column-filter" :showClear="true">
                                                 <template #value="slotProps">
-                                    <div v-if="slotProps.value">
-                                        <Tag :value="getStyleStatusService(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.value)).color.hex }" />
-                                    </div>
-                                    <span v-else>{{ slotProps.placeholder }}</span>
-                                </template>
-                                <template #option="slotProps">
-                                    <Tag :value="getStyleStatusService(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.option)).color.hex }" />
-                                </template>
+                                                    <div v-if="slotProps.value">
+                                                        <Tag :value="getStyleStatusService(parseInt(slotProps.value)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.value)).color.hex }" />
+                                                    </div>
+                                                    <span v-else>{{ slotProps.placeholder }}</span>
+                                                </template>
+                                                <template #option="slotProps">
+                                                    <Tag :value="getStyleStatusService(parseInt(slotProps.option)).description" :style="{ background: getStyleStatusService(parseInt(slotProps.option)).color.hex }" />
+                                                </template>
                                             </Dropdown>
 
                                             <label for="editStatus"><span style="color: red">*</span>Status</label>
@@ -789,7 +816,13 @@ onBeforeMount(() => {
                                     <Button label="Atualizar" icon="pi pi-check" class="p-button-warning" @click="validateUpdateStatusService()" />
                                 </template>
                             </Dialog>
-                            <Tag @click="openModalEditStatus('top', data)" :value="getStyleStatusService(data.status).description" :style="{ background: getStyleStatusService(data.status).color.hex }" v-tooltip.top="'Atualizar Status'" style="cursor: pointer" />
+                            <Tag
+                                @click="openModalEditStatus('top', data)"
+                                :value="getStyleStatusService(data.status).description"
+                                :style="{ background: getStyleStatusService(data.status).color.hex }"
+                                v-tooltip.top="'Atualizar Status'"
+                                style="cursor: pointer"
+                            />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statusServiceOptions" placeholder="Todos" class="p-column-filter" :showClear="true">
@@ -806,7 +839,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="payment_status" header="Status de Pagamento" :showFilterMatchModes="false">
+                    <Column bodyClass="text-center" field="payment_status" header="PAGAMENTO" :showFilterMatchModes="false" style="width: 8vw">
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.id == dataEditPaymentStatus.id"
@@ -870,11 +903,11 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center">
+                    <Column bodyClass="text-center" style="width: 4vw">
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.id == dataEditInfoClient.id"
-                                header="Editar informações do Cliente"
+                                header="Informações do Cliente"
                                 v-model:visible="displayModalEditInfo"
                                 :position="positionModalEditInfo"
                                 :breakpoints="{ '960px': '75vw' }"
@@ -917,16 +950,20 @@ onBeforeMount(() => {
                                     </div>
                                 </div>
                                 <template #footer>
+                                    <Button label="Resetar" icon="pi pi-refresh" class="p-button-primary" v-show="isInfoClientChanged()" @click="resetInfoClient()" />
                                     <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
                                     <Button label="Editar" icon="pi pi-check" class="p-button-warning" @click="validateEditInfoClient()" />
                                 </template>
                             </Dialog>
 
-                            <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning mr-2" v-tooltip.top="'Editar informações'" type="text" placeholder="Top" />
-                            <Button icon="pi pi-share-alt" @click="sendInfoClientsWhats(data)" class="p-button-rounded p-button-success mr-2" v-tooltip.top="'Enviar informações'" type="text" placeholder="Top" />
-                            <Button ref="popup" v-if="typeTable.value == 1" @click="confirmUpdateWarehouse($event, data.id)" icon="pi pi-sign-in" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Enviar ao depósito'" />
-                            <Button ref="popup" v-if="typeTable.value == 2" @click="confirmUpdateForServices($event, data.id)" icon="pi pi-sign-out" class="p-button-rounded p-button-info mr-2" v-tooltip.top="'Retornar para serviço'" />
-                            <Button ref="popup" @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            <Button v-tooltip.top="'Ações'" icon="pi pi-ellipsis-v" @click="toggle($event, data.id)" class="p-button-rounded surface-400 surface-border" />
+                            <OverlayPanel v-if="openOverlay(data.id)" ref="op">
+                                <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning" v-tooltip.top="'Ver informações'" />
+                                <Button icon="pi pi-share-alt" @click="sendInfoClientsWhats(data)" class="ml-1 p-button-rounded p-button-success" v-tooltip.top="'Enviar informações'" />
+                                <Button v-if="typeTable.value == 1" icon="pi pi-sign-in" @click="confirmUpdateWarehouse($event, data.id)" class="ml-1 p-button-rounded p-button-info" v-tooltip.top="'Enviar ao depósito'" />
+                                <Button v-if="typeTable.value == 2" icon="pi pi-sign-out" @click="confirmUpdateForServices($event, data.id)" class="ml-1 p-button-rounded p-button-info" v-tooltip.top="'Retornar para serviço'" />
+                                <Button @click="confirmDeleteService($event, data)" icon="pi pi-trash" class="ml-1 p-button-rounded p-button-danger" v-tooltip.top="'Excluir'" />
+                            </OverlayPanel>
                         </template>
                     </Column>
                 </DataTable>

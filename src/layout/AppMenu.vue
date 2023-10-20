@@ -71,7 +71,7 @@ const model = ref([
                         icon: 'pi pi-fw pi-chart-bar',
                         to: '/operacional/painel-de-controle'
                     },
-                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos2' }
+                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
                 ]
             }
         ]
