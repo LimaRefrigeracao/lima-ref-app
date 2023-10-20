@@ -1,16 +1,12 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
-import { useRouter } from 'vue-router';
+import TopbarNotification from './components/TopbarNotification.vue';
 
-import TopbarNotification from './components/TopbarNotification.vue'
-
-const router = useRouter();
 const { changeThemeSettings, layoutConfig, onMenuToggle } = useLayout();
 
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
-
 
 onMounted(() => {
     bindOutsideClickListener();
@@ -72,13 +68,6 @@ const onChangeTheme = (theme, mode) => {
     linkElement.parentNode.insertBefore(cloneLinkElement, linkElement.nextSibling);
 };
 
-const logout = async () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    const loginPath = '/';
-    window.history.replaceState({}, 'Login', loginPath);
-    router.push(loginPath);
-};
 </script>
 
 <template>
@@ -92,7 +81,6 @@ const logout = async () => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <Divider layout="vertical" />
             <div class="col-3" style="margin: auto">
                 <TopbarNotification />
             </div>
@@ -100,10 +88,8 @@ const logout = async () => {
                 <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
                 <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
             </div>
-            <Divider layout="vertical" />
-            <div class="col-3" style="margin: auto">
-                <i class="pi pi-power-off" style="cursor: pointer; font-size: 25px; color: red" @click="logout()"> </i>
-            </div>
+
+            
         </div>
     </div>
 </template>

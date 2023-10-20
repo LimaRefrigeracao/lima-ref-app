@@ -1,7 +1,17 @@
 <script setup>
 import { ref } from 'vue';
-
+import { useRouter } from 'vue-router';
 import AppMenuItem from './AppMenuItem.vue';
+
+const router = useRouter();
+
+const logout = async () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    const loginPath = '/';
+    window.history.replaceState({}, 'Login', loginPath);
+    router.push(loginPath);
+};
 
 const data = JSON.parse(localStorage.getItem('user'));
 
@@ -80,18 +90,29 @@ const model = ref([
 </script>
 
 <template>
-    <ul v-if="!data.admin" class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
-            <li v-if="item.separator" class="menu-separator"></li>
-        </template>
-    </ul>
-    <ul v-if="data.admin" class="layout-menu">
-        <template v-for="(item, i) in modelAdmin" :key="item">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
-            <li v-if="item.separator" class="menu-separator"></li>
-        </template>
-    </ul>
+    <div class="sidebar">
+        <ul v-if="!data.admin" class="layout-menu">
+            <template v-for="(item, i) in model" :key="item">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </template>
+        </ul>
+        <ul v-if="data.admin" class="layout-menu">
+            <template v-for="(item, i) in modelAdmin" :key="item">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </template>
+        </ul>
+    </div>
+    <div style="text-align: center">
+        <i class="pi pi-power-off" v-tooltip.top="'Sair'" style="cursor: pointer; font-size: 30px; color: red" @click="logout()"> </i>
+    </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+}
+</style>
