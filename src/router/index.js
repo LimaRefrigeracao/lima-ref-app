@@ -100,7 +100,7 @@ const router = createRouter({
                             next();
                         }
                     },
-                    component: () => import('@/views/definitions/Users.vue')
+                    component: () => import('@/views/definitions/Users/Users.vue')
                 },
                 {
                     path: '/definicoes/status-e-produtos',

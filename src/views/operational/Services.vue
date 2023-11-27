@@ -1,8 +1,6 @@
 <script setup>
-import Axios from '@/service/Axios';
-import { useToast } from 'primevue/usetoast';
+import { ref, onBeforeMount, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 import { useConfirm } from 'primevue/useconfirm';
-import { ref, onBeforeMount, onMounted } from 'vue';
 import { generateReceipt } from '../components/prints.js';
 import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import {
@@ -17,8 +15,6 @@ import {
     getStyleStatusPayment,
     sendWhatsAppMessage,
     sendInfoClientsWhats,
-    loadingOpen,
-    loadingClose
 } from '../components/computeds.js';
 
 const typeTable = ref({ value: 1, label: 'Oficina' });

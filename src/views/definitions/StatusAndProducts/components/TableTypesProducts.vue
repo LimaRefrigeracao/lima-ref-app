@@ -1,8 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { loadingOpen, loadingClose } from '../../../components/computeds';
-import Axios from '../../../../service/Axios';
-import { useToast } from 'primevue/usetoast';
+import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 import { useConfirm } from 'primevue/useconfirm';
 import { useForm } from 'vee-validate';
 

@@ -1,8 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import Axios from '../../../../service/Axios';
-import { loadingOpen, loadingClose } from '../../../components/computeds.js';
-import { useToast } from 'primevue/usetoast';
+import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 const toast = useToast();
 
 const data = ref([]);

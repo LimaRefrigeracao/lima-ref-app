@@ -1,18 +1,17 @@
 <script setup>
+import { ref, loadingOpen, loadingClose, useToast, computed } from '@/views/common';
 import axios from 'axios';
 import { useLayout } from '@/layout/composables/layout';
-import { ref, computed } from 'vue';
 import { messageLogin, addMessage } from '../components/messages.js';
-import { loadingOpen, loadingClose } from '../components/computeds.js';
-import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+
 const toast = useToast();
 const router = useRouter();
-
 const { layoutConfig } = useLayout();
 const username = ref('');
 const password = ref('');
 const remember = ref(false);
+
 messageLogin.value.length = 0;
 
 const logoUrl = computed(() => {

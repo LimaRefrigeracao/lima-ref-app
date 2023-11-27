@@ -1,16 +1,14 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue';
-import { loadingOpen, loadingClose } from '../components/computeds';
-import { messageAddUser, addMessage } from '../components/messages.js';
-import Axios from '@/service/Axios';
-import { useToast } from 'primevue/usetoast';
+import { ref, onBeforeMount, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
+import { messageAddUser, addMessage } from '../../components/messages.js';
 import { useConfirm } from 'primevue/useconfirm';
 
 const popup = ref(null);
 const confirmPopup = useConfirm();
 const toast = useToast();
-const dataGetUsers = ref([]);
+
 const dataPostUser = ref([]);
+const dataGetUsers = ref([]);
 const getUsers = async () => {
     loadingOpen();
     try {
