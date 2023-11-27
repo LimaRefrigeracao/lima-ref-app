@@ -2,7 +2,7 @@
 import { ref, onBeforeMount, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 import { useConfirm } from 'primevue/useconfirm';
 import { generateReceipt } from '../components/prints.js';
-import { messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
+import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
 import {
     typesProductOptions,
     statusPaymentOptions,
@@ -14,7 +14,7 @@ import {
     getStyleStatusService,
     getStyleStatusPayment,
     sendWhatsAppMessage,
-    sendInfoClientsWhats,
+    sendInfoClientsWhats
 } from '../components/computeds.js';
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
@@ -38,6 +38,12 @@ const initFilters = () => {
 const clearFilter = () => {
     initFilters();
 };
+
+const typeOS = ref({ label: 'Simplificada', value: 'simples' });
+const typeOsOptions = ref([
+    { label: 'Simplificada', value: 'simples' },
+    { label: 'Completa', value: 'completa' }
+]);
 
 const dataGetOS = ref([]);
 
@@ -273,10 +279,18 @@ const updatePaymentStatus = async () => {
 };
 const dataPutOrderOfService = ref({});
 const validateUpdateEstimateOS = async (data) => {
-    if (!dataPutOrderOfService.value.amount || !dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
-        addMessage('addEstimateOS', 'error', 'Preencha todos os campos obrigatórios.');
+    if (typeOS.value.value == 'simples') {
+        if (!dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
+            addMessage('addEstimateOSSimple', 'error', 'Preencha todos os campos obrigatórios.');
+        } else {
+            updateEstimateOS(data);
+        }
     } else {
-        updateEstimateOS(data);
+        if (!dataPutOrderOfService.value.amount || !dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
+            addMessage('addEstimateOSComplete', 'error', 'Preencha todos os campos obrigatórios.');
+        } else {
+            updateEstimateOS(data);
+        }
     }
 };
 const updateEstimateOS = async (data) => {
@@ -328,7 +342,8 @@ const openModalOS = async (position, data) => {
     }
 
     if (dataOS) {
-        messageAddEstimateOS.value.length = 0;
+        messageAddEstimateOSSimple.value.length = 0;
+        messageAddEstimateOSComplete.value.length = 0;
         dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
         displayModalOS.value = true;
         positionModalOS.value = position;
@@ -478,8 +493,6 @@ const changeTable = async (type) => {
     }
 };
 
-
-
 const idop = ref(null);
 const op = ref();
 const toggle = async (event, id) => {
@@ -491,7 +504,7 @@ const toggle = async (event, id) => {
 };
 const openOverlay = (id) => {
     return id === idop.value;
-}
+};
 
 onMounted(() => {
     const dataAtual = new Date().toISOString().slice(0, 10);
@@ -609,10 +622,48 @@ onBeforeMount(() => {
                                 :style="{ width: '50vw' }"
                                 :modal="true"
                             >
-                                <DataTable :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
+                                <div class="flex justify-content-center mb-4">
+                                    <SelectButton v-model="typeOS" :options="typeOsOptions" optionLabel="label" dataKey="label" />
+                                </div>
+
+                                <Card style="background-color: #f8f9fa; padding: 0px" v-if="typeOS.value == 'simples'">
+                                    <transition-group tag="div">
+                                        <Message v-for="msg of messageAddEstimateOSSimple" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                    </transition-group>
+                                    <template #content>
+                                        <div class="grid p-fluid mt-1">
+                                            <div class="field col-12 md:col-7">
+                                                <span class="p-float-label">
+                                                    <Textarea id="addDescriptionOS" rows="1" v-model="dataPutOrderOfService.description" />
+                                                    <label for="addDescriptionOS">
+                                                        <strong style="color: red; margin-right: 2px">* </strong>
+                                                        <strong>Descrição</strong>
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-2">
+                                                <span class="p-float-label">
+                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" :minFractionDigits="2" />
+                                                    <label for="addPriceOS">
+                                                        <strong style="color: red; margin-right: 2px">* </strong>
+                                                        <strong>Preço</strong>
+                                                    </label>
+                                                </span>
+                                            </div>
+
+                                            <div class="field col-12 md:col-3 justify-content-center">
+                                                <Button icon="pi pi-save" class="p-button-outlined p-button-info mr-2" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Salvar Orçamento'" />
+                                                <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
+                                                <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
+                                            </div>
+                                        </div>
+                                    </template>
+                                </Card>
+
+                                <DataTable v-if="typeOS.value == 'completa'" :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
                                     <template #header>
                                         <transition-group tag="div">
-                                            <Message v-for="msg of messageAddEstimateOS" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                                            <Message v-for="msg of messageAddEstimateOSComplete" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
                                         </transition-group>
                                         <div class="grid p-fluid mt-1">
                                             <div class="field col-12 md:col-3">
@@ -691,7 +742,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column bodyClass="text-center" field="created_at" header="DATA" :showFilterMatchModes="false" dataType="date"  style="width: 6vw">
+                    <Column bodyClass="text-center" field="created_at" header="DATA" :showFilterMatchModes="false" dataType="date" style="width: 6vw">
                         <template #body="{ data }">
                             {{ formatData(data.created_at) }}
                         </template>
@@ -751,7 +802,7 @@ onBeforeMount(() => {
                         </template>
                     </Column>
 
-                    <Column field="observation" header="OBSERVAÇÃO" dataType="boolean" bodyClass="text-center"  style="width: 5vw">
+                    <Column field="observation" header="OBSERVAÇÃO" dataType="boolean" bodyClass="text-center" style="width: 5vw">
                         <template #body="{ data }">
                             <Dialog
                                 v-if="data.id == dataViewObservation.id"

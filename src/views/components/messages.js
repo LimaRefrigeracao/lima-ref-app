@@ -2,7 +2,8 @@ import { ref } from 'vue';
 const messageLogin = ref([]);
 const messageAddUser = ref([]);
 const messageAddService = ref([]);
-const messageAddEstimateOS = ref([]);
+const messageAddEstimateOSSimple = ref([]);
+const messageAddEstimateOSComplete = ref([]);
 const messageEditInfoClient = ref([]);
 const messageUpdateStatusService = ref([]);
 const messageUpdateStatusPayment = ref([]);
@@ -16,9 +17,12 @@ const addMessage = (type, severity, content) => {
     } else if (type == 'addService') {
         messageAddService.value.length = 0;
         messageAddService.value.push({ severity, content });
-    } else if (type == 'addEstimateOS') {
-        messageAddEstimateOS.value.length = 0;
-        messageAddEstimateOS.value.push({ severity, content });
+    } else if (type == 'addEstimateOSSimple') {
+        messageAddEstimateOSSimple.value.length = 0;
+        messageAddEstimateOSSimple.value.push({ severity, content });
+    } else if (type == 'addEstimateOSComplete') {
+        messageAddEstimateOSComplete.value.length = 0;
+        messageAddEstimateOSComplete.value.push({ severity, content });
     } else if (type == 'editInfoClient') {
         messageEditInfoClient.value.length = 0;
         messageEditInfoClient.value.push({ severity, content });
@@ -31,4 +35,4 @@ const addMessage = (type, severity, content) => {
     }
 };
 
-export { messageAddUser, messageAddService, messageAddEstimateOS, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, messageLogin, addMessage };
+export { messageAddUser, messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, messageLogin, addMessage };
