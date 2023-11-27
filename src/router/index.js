@@ -38,7 +38,7 @@ const router = createRouter({
                             next();
                         }
                     },
-                    component: () => import('@/views/operational/Services.vue')
+                    component: () => import('@/views/operational/Services/Services.vue')
                 },
                 {
                     path: '/operacional/painel-de-controle',

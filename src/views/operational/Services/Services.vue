@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onBeforeMount, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 import { useConfirm } from 'primevue/useconfirm';
-import { generateReceipt } from '../components/prints.js';
-import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../components/messages.js';
+import { generateReceipt } from '../../components/prints.js';
+import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../../components/messages.js';
 import {
     typesProductOptions,
     statusPaymentOptions,
@@ -15,7 +15,7 @@ import {
     getStyleStatusPayment,
     sendWhatsAppMessage,
     sendInfoClientsWhats
-} from '../components/computeds.js';
+} from '../../components/computeds.js';
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
@@ -42,7 +42,7 @@ const clearFilter = () => {
 const typeOS = ref({ label: 'Simplificada', value: 'simples' });
 const typeOsOptions = ref([
     { label: 'Simplificada', value: 'simples' },
-    { label: 'Completa', value: 'completa' }
+    { label: 'Detalhada', value: 'completa' }
 ]);
 
 const dataGetOS = ref([]);
@@ -277,19 +277,20 @@ const updatePaymentStatus = async () => {
         loadingClose();
     }
 };
-const dataPutOrderOfService = ref({});
+const dataPutOrderOfServiceSimple = ref({});
+const dataPutOrderOfServiceComplete = ref({});
 const validateUpdateEstimateOS = async (data) => {
     if (typeOS.value.value == 'simples') {
-        if (!dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
+        if (!dataPutOrderOfServiceSimple.value.description || !dataPutOrderOfServiceSimple.value.price) {
             addMessage('addEstimateOSSimple', 'error', 'Preencha todos os campos obrigatórios.');
         } else {
-            updateEstimateOS(data);
+            //updateEstimateOS(data);
         }
     } else {
-        if (!dataPutOrderOfService.value.amount || !dataPutOrderOfService.value.description || !dataPutOrderOfService.value.price) {
+        if (!dataPutOrderOfServiceComplete.value.amount || !dataPutOrderOfServiceComplete.value.description || !dataPutOrderOfServiceComplete.value.price) {
             addMessage('addEstimateOSComplete', 'error', 'Preencha todos os campos obrigatórios.');
         } else {
-            updateEstimateOS(data);
+            //updateEstimateOS(data);
         }
     }
 };
@@ -297,6 +298,7 @@ const updateEstimateOS = async (data) => {
     loadingOpen();
     try {
         const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
+            type: typeOS.value.value,
             amount: dataPutOrderOfService.value.amount,
             description: dataPutOrderOfService.value.description,
             price: dataPutOrderOfService.value.price
@@ -345,6 +347,7 @@ const openModalOS = async (position, data) => {
         messageAddEstimateOSSimple.value.length = 0;
         messageAddEstimateOSComplete.value.length = 0;
         dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
+        dataPutOrderOfServiceSimple.value = JSON.parse(dataOS.estimate);
         displayModalOS.value = true;
         positionModalOS.value = position;
     } else {
@@ -445,9 +448,9 @@ const openModalAdd = (position) => {
 };
 const closeModal = () => {
     if (displayModalOS.value == true) {
-        dataPutOrderOfService.value.amount = null;
-        dataPutOrderOfService.value.description = '';
-        dataPutOrderOfService.value.price = null;
+        dataPutOrderOfServiceComplete.value.amount = null;
+        dataPutOrderOfServiceComplete.value.description = '';
+        dataPutOrderOfServiceComplete.value.price = null;
     }
     if (displayModalEditPaymentStatus.value == true) {
         messageUpdateStatusPayment.value.length = 0;
@@ -626,39 +629,28 @@ onBeforeMount(() => {
                                     <SelectButton v-model="typeOS" :options="typeOsOptions" optionLabel="label" dataKey="label" />
                                 </div>
 
-                                <Card style="background-color: #f8f9fa; padding: 0px" v-if="typeOS.value == 'simples'">
+                                <DataTable v-if="typeOS.value == 'simples'" :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
                                     <transition-group tag="div">
                                         <Message v-for="msg of messageAddEstimateOSSimple" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
                                     </transition-group>
-                                    <template #content>
-                                        <div class="grid p-fluid mt-1">
-                                            <div class="field col-12 md:col-7">
-                                                <span class="p-float-label">
-                                                    <Textarea id="addDescriptionOS" rows="1" v-model="dataPutOrderOfService.description" />
-                                                    <label for="addDescriptionOS">
-                                                        <strong style="color: red; margin-right: 2px">* </strong>
-                                                        <strong>Descrição</strong>
-                                                    </label>
-                                                </span>
-                                            </div>
-                                            <div class="field col-12 md:col-2">
-                                                <span class="p-float-label">
-                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" :minFractionDigits="2" />
-                                                    <label for="addPriceOS">
-                                                        <strong style="color: red; margin-right: 2px">* </strong>
-                                                        <strong>Preço</strong>
-                                                    </label>
-                                                </span>
-                                            </div>
-
-                                            <div class="field col-12 md:col-3 justify-content-center">
-                                                <Button icon="pi pi-save" class="p-button-outlined p-button-info mr-2" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Salvar Orçamento'" />
-                                                <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
-                                            </div>
-                                        </div>
-                                    </template>
-                                </Card>
+                                    <Column headerStyle="width:50%" field="description" header="Descrição">
+                                        <template #body="">
+                                            <Textarea id="addDescriptionOS" style="width:100%" rows="3"  v-model="dataPutOrderOfServiceSimple[0].description" />
+                                        </template>
+                                    </Column>
+                                    <Column field="price" header="Preço">
+                                        <template #body="">
+                                            <InputNumber id="addPriceOS"  v-model="dataPutOrderOfServiceSimple[0].price" :minFractionDigits="2" />
+                                        </template>
+                                    </Column>
+                                    <Column>
+                                        <template #body="{ data }">
+                                            <Button icon="pi pi-save" class="p-button-outlined p-button-info mr-2" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Salvar Orçamento'" />
+                                            <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
+                                            <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
+                                        </template>
+                                    </Column>
+                                </DataTable>
 
                                 <DataTable v-if="typeOS.value == 'completa'" :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
                                     <template #header>
@@ -668,7 +660,7 @@ onBeforeMount(() => {
                                         <div class="grid p-fluid mt-1">
                                             <div class="field col-12 md:col-3">
                                                 <span class="p-float-label">
-                                                    <InputNumber id="addQuantOS" v-model="dataPutOrderOfService.amount" />
+                                                    <InputNumber id="addQuantOS" v-model="dataPutOrderOfServiceComplete.amount" />
                                                     <label for="addQuantOS">
                                                         <span style="color: red">*</span>
                                                         Quantidade
@@ -677,7 +669,7 @@ onBeforeMount(() => {
                                             </div>
                                             <div class="field col-12 md:col-5">
                                                 <span class="p-float-label">
-                                                    <InputText id="addDescriptionOS" v-model="dataPutOrderOfService.description" />
+                                                    <InputText id="addDescriptionOS" v-model="dataPutOrderOfServiceComplete.description" />
                                                     <label for="addDescriptionOS">
                                                         <span style="color: red">*</span>
                                                         Descrição
@@ -686,7 +678,7 @@ onBeforeMount(() => {
                                             </div>
                                             <div class="field col-12 md:col-2">
                                                 <span class="p-float-label">
-                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfService.price" />
+                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfServiceComplete.price" />
                                                     <label for="addPriceOS">
                                                         <span style="color: red">*</span>
                                                         Preço
