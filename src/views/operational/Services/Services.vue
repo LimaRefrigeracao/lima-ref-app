@@ -240,7 +240,7 @@ const dataPutOrderOfServiceSimple = ref({});
 const dataPutOrderOfServiceComplete = ref({});
 const validateUpdateEstimateOS = async (data) => {
     if (typeOS.value.value == 'simples') {
-        if (!dataPutOrderOfServiceSimple.value.description || !dataPutOrderOfServiceSimple.value.price) {
+        if (!dataPutOrderOfServiceSimple.value[0].description || !dataPutOrderOfServiceSimple.value[0].price) {
             addMessage('addEstimateOSSimple', 'error', 'Preencha todos os campos obrigatórios.');
         } else {
             updateEstimateOS(data);
@@ -258,12 +258,15 @@ const updateEstimateOS = async (data) => {
     try {
         const dataPutOrderOfService = ref({});
         if (typeOS.value.value == 'simples') {
-            dataPutOrderOfService.value = dataPutOrderOfServiceSimple.value;
+            dataPutOrderOfService.value.amount = '';
+            dataPutOrderOfService.value.description = dataPutOrderOfServiceSimple.value[0].description;
+            dataPutOrderOfService.value.price = dataPutOrderOfServiceSimple.value[0].price;
         } else {
             dataPutOrderOfService.value = dataPutOrderOfServiceComplete.value;
         }
         const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
             type: typeOS.value.value,
+            id: !dataPutOrderOfService.value.id ? null : dataPutOrderOfService.value.id,
             amount: dataPutOrderOfService.value.amount,
             description: dataPutOrderOfService.value.description,
             price: dataPutOrderOfService.value.price
@@ -307,14 +310,18 @@ const openModalOS = async (position, data) => {
     } else {
         displayButtonRemoveOS.value = false;
     }
-
     if (dataOS) {
         messageAddEstimateOSSimple.value.length = 0;
         messageAddEstimateOSComplete.value.length = 0;
         dataViewEstimateOS.value = JSON.parse(dataOS.estimate);
-        dataPutOrderOfServiceSimple.value = JSON.parse(dataOS.estimate);
+        dataPutOrderOfServiceSimple.value = dataViewEstimateOS.value && dataViewEstimateOS.value.length > 0 ? dataViewEstimateOS.value : { 0: { id: null, description: '', price: null } };
         displayModalOS.value = true;
         positionModalOS.value = position;
+        if (dataViewEstimateOS.value[0].amount !== '') {
+            typeOS.value = { label: 'Detalhada', value: 'completa' };
+        } else {
+            typeOS.value = { label: 'Simplificada', value: 'simples' };
+        }
     } else {
         toast.add({ severity: 'info', summary: 'Sem Orçamento', detail: 'Não foi encontrado o orçamento desse serviço.', life: 5000 });
     }
@@ -479,7 +486,7 @@ onBeforeMount(() => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2" v-if="typeTable.value == 1">
-                            <DialogServiceAdd></DialogServiceAdd>
+                            <DialogServiceAdd />
                             <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd()" />
                         </div>
                     </template>
@@ -532,23 +539,33 @@ onBeforeMount(() => {
                                     <transition-group tag="div">
                                         <Message v-for="msg of messageAddEstimateOSSimple" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
                                     </transition-group>
-                                    <Column headerStyle="width:50%" field="description" header="Descrição">
-                                        <template #body="">
-                                            <Textarea id="addDescriptionOS" style="width: 100%" rows="3" v-model="dataPutOrderOfServiceSimple[0].description" />
-                                        </template>
-                                    </Column>
-                                    <Column field="price" header="Preço">
-                                        <template #body="">
-                                            <InputNumber id="addPriceOS" v-model="dataPutOrderOfServiceSimple[0].price" :minFractionDigits="2" />
-                                        </template>
-                                    </Column>
-                                    <Column>
-                                        <template #body="{ data }">
-                                            <Button icon="pi pi-save" class="p-button-outlined p-button-info mr-2" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Salvar Orçamento'" />
-                                            <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                            <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
-                                        </template>
-                                    </Column>
+                                    <template #header>
+                                        <div class="grid p-fluid mt-1">
+                                            <div class="field col-12 md:col-6">
+                                                <span class="p-float-label">
+                                                    <Textarea id="addDescriptionOS" v-model="dataPutOrderOfServiceSimple[0].description" rows="3" />
+                                                    <label for="addDescriptionOS">
+                                                        <span style="color: red">*</span>
+                                                        Descrição
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-3">
+                                                <span class="p-float-label">
+                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfServiceSimple[0].price" :minFractionDigits="2" />
+                                                    <label for="addPriceOS">
+                                                        <span style="color: red">*</span>
+                                                        Preço
+                                                    </label>
+                                                </span>
+                                            </div>
+                                            <div class="field col-12 md:col-3">
+                                                <Button icon="pi pi-save" class="p-button-outlined p-button-info mr-2" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Salvar Orçamento'" />
+                                                <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
+                                                <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
+                                            </div>
+                                        </div>
+                                    </template>
                                 </DataTable>
 
                                 <DataTable v-if="typeOS.value == 'completa'" :value="dataViewEstimateOS" responsiveLayout="scroll" :rows="6">
@@ -577,7 +594,7 @@ onBeforeMount(() => {
                                             </div>
                                             <div class="field col-12 md:col-2">
                                                 <span class="p-float-label">
-                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfServiceComplete.price" />
+                                                    <InputNumber id="addPriceOS" v-model="dataPutOrderOfServiceComplete.price" :minFractionDigits="2" />
                                                     <label for="addPriceOS">
                                                         <span style="color: red">*</span>
                                                         Preço
