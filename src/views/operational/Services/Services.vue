@@ -1,21 +1,11 @@
 <script setup>
-import { ref, onBeforeMount, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
+import { ref, onBeforeMount, provide, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 import { useConfirm } from 'primevue/useconfirm';
 import { generateReceipt } from '../../components/prints.js';
 import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../../components/messages.js';
-import {
-    typesProductOptions,
-    statusPaymentOptions,
-    statusServiceOptions,
-    statusServiceMapping,
-    optionsTypesTables,
-    socket,
-    formatData,
-    getStyleStatusService,
-    getStyleStatusPayment,
-    sendWhatsAppMessage,
-    sendInfoClientsWhats
-} from '../../components/computeds.js';
+import { typesProductOptions, statusPaymentOptions, statusServiceOptions, optionsTypesTables, socket, formatData, getStyleStatusService, getStyleStatusPayment, sendWhatsAppMessage, sendInfoClientsWhats } from '../../components/computeds.js';
+
+import DialogServiceAdd from './components/DialogServiceAdd.vue';
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
@@ -119,37 +109,6 @@ const confirmUpdateForServices = (event, idService) => {
     });
 };
 
-const dataPostService = ref({});
-const validatePostService = async () => {
-    if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.cod) {
-        addMessage('addService', 'error', 'Preencha todos os campos obrigatórios.');
-    } else {
-        postService();
-    }
-};
-const postService = async () => {
-    loadingOpen();
-    try {
-        const response = await Axios.post('/services', {
-            product: dataPostService.value.product,
-            client: dataPostService.value.client,
-            telephone: dataPostService.value.telephone,
-            adress: dataPostService.value.adress,
-            status: dataPostService.value.status.cod,
-            observation: dataPostService.value.observation,
-            created_at: dataPostService.value.created_at,
-            typeTable: typeTable.value.value
-        });
-        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
-        console.log(response.status);
-        closeModal();
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar serviço', life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
 const confirmDeleteService = (event, data) => {
     confirmPopup.require({
         target: event.target,
@@ -284,19 +243,25 @@ const validateUpdateEstimateOS = async (data) => {
         if (!dataPutOrderOfServiceSimple.value.description || !dataPutOrderOfServiceSimple.value.price) {
             addMessage('addEstimateOSSimple', 'error', 'Preencha todos os campos obrigatórios.');
         } else {
-            //updateEstimateOS(data);
+            updateEstimateOS(data);
         }
     } else {
         if (!dataPutOrderOfServiceComplete.value.amount || !dataPutOrderOfServiceComplete.value.description || !dataPutOrderOfServiceComplete.value.price) {
             addMessage('addEstimateOSComplete', 'error', 'Preencha todos os campos obrigatórios.');
         } else {
-            //updateEstimateOS(data);
+            updateEstimateOS(data);
         }
     }
 };
 const updateEstimateOS = async (data) => {
     loadingOpen();
     try {
+        const dataPutOrderOfService = ref({});
+        if (typeOS.value.value == 'simples') {
+            dataPutOrderOfService.value = dataPutOrderOfServiceSimple.value;
+        } else {
+            dataPutOrderOfService.value = dataPutOrderOfServiceComplete.value;
+        }
         const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
             type: typeOS.value.value,
             amount: dataPutOrderOfService.value.amount,
@@ -440,12 +405,12 @@ const openModalEditInfo = (position, data) => {
     originalInfoClient.value.observation = data.observation;
 };
 const displayModalAdd = ref(false);
-const positionModalAdd = ref(false);
-const openModalAdd = (position) => {
+provide('displayDialogAdd', displayModalAdd);
+const openModalAdd = () => {
     messageAddService.value.length = 0;
     displayModalAdd.value = true;
-    positionModalAdd.value = position;
 };
+
 const closeModal = () => {
     if (displayModalOS.value == true) {
         dataPutOrderOfServiceComplete.value.amount = null;
@@ -476,16 +441,6 @@ const closeModal = () => {
         dataEditInfoClient.value.adress = '';
         dataEditInfoClient.value.observation = '';
     }
-    if (displayModalAdd.value == true) {
-        messageAddService.value.length = 0;
-        displayModalAdd.value = false;
-        dataPostService.value.product = '';
-        dataPostService.value.client = '';
-        dataPostService.value.telephone = '';
-        dataPostService.value.adress = '';
-        dataPostService.value.status = '';
-        dataPostService.value.observation = '';
-    }
 };
 
 const changeTable = async (type) => {
@@ -509,11 +464,6 @@ const openOverlay = (id) => {
     return id === idop.value;
 };
 
-onMounted(() => {
-    const dataAtual = new Date().toISOString().slice(0, 10);
-    dataPostService.value.created_at = dataAtual;
-});
-
 onBeforeMount(() => {
     getServices();
 });
@@ -529,59 +479,8 @@ onBeforeMount(() => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2" v-if="typeTable.value == 1">
-                            <Dialog header="Adicionar Serviço" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
-                                <transition-group tag="div">
-                                    <Message v-for="msg of messageAddService" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
-                                </transition-group>
-                                <div class="grid p-fluid mt-1">
-                                    <div class="field col-12 md:col-4">
-                                        <span class="p-float-label">
-                                            <Dropdown id="addProduct" :options="typesProductOptions" v-model="dataPostService.product" />
-                                            <label for="addProduct"><span style="color: red">*</span> Produto</label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-4">
-                                        <span class="p-float-label">
-                                            <InputText type="text" id="addClient" v-model="dataPostService.client" />
-                                            <label for="addClient"><span style="color: red">*</span> Cliente</label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-4">
-                                        <span class="p-float-label">
-                                            <InputText t id="addTelephone" :maxlength="11" :inputStyle="{ 'text-transform': 'none' }" v-model="dataPostService.telephone" />
-                                            <label for="addTelephone"><span style="color: red">*</span> Telefone</label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-8">
-                                        <span class="p-float-label">
-                                            <InputText type="text" id="addAdress" v-model="dataPostService.adress" />
-                                            <label for="addAdress">Endereço</label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-4">
-                                        <span class="p-float-label">
-                                            <Dropdown id="addStatus" :options="statusServiceMapping" v-model="dataPostService.status" optionLabel="description" />
-                                            <label for="addStatus"><span style="color: red">*</span> Status</label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-9">
-                                        <span class="p-float-label">
-                                            <Textarea inputId="addObservation" rows="1" cols="10" v-model="dataPostService.observation" />
-                                            <label for="addObservation">Observação</label>
-                                        </span>
-                                    </div>
-                                    <div class="field col-12 md:col-3">
-                                        <span class="p-float-label">
-                                            <InputText type="date" v-model="dataPostService.created_at" />
-                                        </span>
-                                    </div>
-                                </div>
-                                <template #footer>
-                                    <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                                    <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="validatePostService()" />
-                                </template>
-                            </Dialog>
-                            <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd('top')" />
+                            <DialogServiceAdd></DialogServiceAdd>
+                            <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd()" />
                         </div>
                     </template>
                     <template v-slot:end>
@@ -635,12 +534,12 @@ onBeforeMount(() => {
                                     </transition-group>
                                     <Column headerStyle="width:50%" field="description" header="Descrição">
                                         <template #body="">
-                                            <Textarea id="addDescriptionOS" style="width:100%" rows="3"  v-model="dataPutOrderOfServiceSimple[0].description" />
+                                            <Textarea id="addDescriptionOS" style="width: 100%" rows="3" v-model="dataPutOrderOfServiceSimple[0].description" />
                                         </template>
                                     </Column>
                                     <Column field="price" header="Preço">
                                         <template #body="">
-                                            <InputNumber id="addPriceOS"  v-model="dataPutOrderOfServiceSimple[0].price" :minFractionDigits="2" />
+                                            <InputNumber id="addPriceOS" v-model="dataPutOrderOfServiceSimple[0].price" :minFractionDigits="2" />
                                         </template>
                                     </Column>
                                     <Column>
