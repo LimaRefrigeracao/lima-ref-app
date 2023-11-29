@@ -4,6 +4,8 @@
 
 ```sh
 npm install
+and
+npm i -g nodemon
 ```
 
 ### Start for Development
