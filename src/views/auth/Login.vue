@@ -2,7 +2,7 @@
 import { ref, loadingOpen, loadingClose, useToast, computed } from '@/views/common';
 import axios from 'axios';
 import { useLayout } from '@/layout/composables/layout';
-import { messageLogin, addMessage } from '../components/messages.js';
+import { messageLogin, addMessage } from '../utils/messages.js';
 import { useRouter } from 'vue-router';
 
 const toast = useToast();

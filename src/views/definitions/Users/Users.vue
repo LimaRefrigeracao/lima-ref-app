@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onBeforeMount, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { messageAddUser, addMessage } from '../../components/messages.js';
+import { messageAddUser, addMessage } from '../../utils/messages.js';
 import { useConfirm } from 'primevue/useconfirm';
 
 const popup = ref(null);

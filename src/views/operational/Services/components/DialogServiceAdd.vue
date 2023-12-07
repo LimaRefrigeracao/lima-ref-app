@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, Axios, inject, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { statusServiceMapping, typesProductOptions } from '../../../components/computeds.js';
-import { messageAddService, addMessage } from '../../../components/messages.js';
+import { statusServiceMapping, typesProductOptions } from '../../../utils/computeds.js';
+import { messageAddService, addMessage } from '../../../utils/messages.js';
 
 const toast = useToast();
 const displayModalAdd = inject('displayDialogAdd');

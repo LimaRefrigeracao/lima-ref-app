@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onBeforeMount, provide, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
 import { useConfirm } from 'primevue/useconfirm';
-import { generateReceipt } from '../../components/prints.js';
-import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../../components/messages.js';
-import { typesProductOptions, statusPaymentOptions, statusServiceOptions, optionsTypesTables, socket, formatData, getStyleStatusService, getStyleStatusPayment, sendWhatsAppMessage, sendInfoClientsWhats } from '../../components/computeds.js';
+import pdfGenerator from '@/service/PdfGenerator.js';
+import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../../utils/messages.js';
+import { typesProductOptions, statusPaymentOptions, statusServiceOptions, optionsTypesTables, socket, formatData, getStyleStatusService, getStyleStatusPayment, sendWhatsAppMessage, sendInfoClientsWhats } from '../../utils/computeds.js';
 
 import DialogServiceAdd from './components/DialogServiceAdd.vue';
 
@@ -562,7 +562,7 @@ onBeforeMount(() => {
                                             <div class="field col-12 md:col-3">
                                                 <Button icon="pi pi-save" class="p-button-outlined p-button-info mr-2" @click="validateUpdateEstimateOS(data)" v-tooltip.top="'Salvar Orçamento'" />
                                                 <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
+                                                <Button icon="pi pi-download" class="p-button-outlined p-button-warning" @click="pdfGenerator.generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
                                             </div>
                                         </div>
                                     </template>
@@ -634,7 +634,7 @@ onBeforeMount(() => {
                                                     <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
                                                     <span class="p-inputgroup-addon">
                                                         <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
+                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="pdfGenerator.generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
                                                     </span>
                                                 </div>
                                             </div>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Axios from '../../service/Axios';
-import { formatData, getStyleStatusService } from '../../views/components/computeds.js';
+import { formatData, getStyleStatusService } from '../../views/utils/computeds.js';
 
 const notifications = ref([]);
 
