@@ -18,17 +18,18 @@ const typeSearch = ref([
 
 <template>
     <div class="grid flex justify-content-center">
-        <div class="col-10 xl:col-10">
+        <div class="col-12 xl:col-12">
             <div class="card">
                 <h5>MOVIMENTAÇÃO</h5>
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <Dropdown v-model="selectedTypeSearch" editable :options="typeSearch" optionLabel="name" placeholder="Select a City" class="w-full md:w-14rem" />
-                        <Calendar class="ml-2" v-if="selectedTypeSearch.code == 'periodo'" v-model="dates" selectionMode="multiple" />
-                        <Calendar class="ml-2" v-else-if="selectedTypeSearch.code == 'mes'" v-model="date" view="month" dateFormat="mm/yy" :maxDate="maxDate" />
-                        <Calendar class="ml-2" v-else-if="selectedTypeSearch.code == 'ano'" v-model="date" view="year" dateFormat="yy" :maxDate="maxDate" />
-
-                        <Button class="ml-2" icon="pi pi-search" v-tooltip.top="'Pesquisar'"/>
+                        <div >
+                            <Dropdown v-model="selectedTypeSearch" editable :options="typeSearch" optionLabel="name" placeholder="Select a City" class="ml-2 w-full md:w-13rem" />
+                            <Calendar class="ml-2" v-if="selectedTypeSearch.code == 'periodo'" v-model="dates" selectionMode="multiple" />
+                            <Calendar class="ml-2" v-else-if="selectedTypeSearch.code == 'mes'" v-model="date" view="month" dateFormat="mm/yy" :maxDate="maxDate" />
+                            <Calendar class="ml-2" v-else-if="selectedTypeSearch.code == 'ano'" v-model="date" view="year" dateFormat="yy" :maxDate="maxDate" />
+                            <Button class="ml-2" icon="pi pi-search" v-tooltip.top="'Pesquisar'" />
+                        </div>
                     </template>
                     <template v-slot:end>
                         <SelectButton v-model="type" :options="options" aria-labelledby="basic" />
