@@ -41,7 +41,7 @@ onBeforeMount(() => {
 <template>
     <div class="grid">
         <div class="col-12 lg:col-6 xl:col-3">
-            <Card>
+            <Card v-if="dataEarnings.daily.value !== null">
                 <template #header>
                     <Toolbar>
                         <template #start>
@@ -60,7 +60,7 @@ onBeforeMount(() => {
             </Card>
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
-            <Card>
+            <Card v-if="dataEarnings.weekly.value !== null">
                 <template #header>
                     <Toolbar>
                         <template #start>
@@ -79,7 +79,7 @@ onBeforeMount(() => {
             </Card>
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
-            <Card>
+            <Card v-if="dataEarnings.monthly.value !== null">
                 <template #header>
                     <Toolbar>
                         <template #start>
@@ -98,7 +98,7 @@ onBeforeMount(() => {
             </Card>
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
-            <Card>
+            <Card v-if="dataEarnings.yearly.value !== null">
                 <template #header>
                     <Toolbar>
                         <template #start>
