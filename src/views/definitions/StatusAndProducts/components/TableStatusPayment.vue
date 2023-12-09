@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { colorTypes } from '../../../components/computeds';
+import { colorTypes } from '../../../utils/computeds';
 import { useConfirm } from 'primevue/useconfirm';
 import { useForm } from 'vee-validate';
 

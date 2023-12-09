@@ -69,7 +69,7 @@ const router = createRouter({
                             next();
                         }
                     },
-                    component: () => import('@/views/financial/AnalyticalPanel.vue')
+                    component: () => import('@/views/financial/AnalyticalPanel/AnalyticalPanel.vue')
                 },
                 {
                     path: '/financeiro/gerenciador',
