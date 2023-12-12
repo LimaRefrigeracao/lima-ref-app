@@ -35,9 +35,15 @@ const login = async () => {
             remember: remember.value
         });
         loadingClose();
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        router.push('/operacional/servicos');
+        const token = response.data.token;
+
+        if (token && typeof token === 'string' && token.trim() !== '') {
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            router.push('/operacional/servicos');
+        } else {
+            toast.add({ severity: 'error', summary: 'Erro no Login', detail: 'Token inválido ou ausente.', life: 5000 });
+        }
     } catch (error) {
         loadingClose();
         toast.add({ severity: 'error', summary: 'Informação Inválida', detail: error.response.data.msg, life: 5000 });

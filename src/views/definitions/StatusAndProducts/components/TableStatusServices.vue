@@ -34,7 +34,7 @@ const deleteStatusServices = async (id) => {
     try {
         const response = await Axios.delete('/status_service/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de serviço deletado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         await getStatusServices();
         loadingClose();
     } catch (error) {
@@ -66,7 +66,7 @@ const postStatusServices = async () => {
             color: dataPostStatusServices.value.color
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de serviço adicionado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         clearFields();
         await getStatusServices();
         loadingClose();

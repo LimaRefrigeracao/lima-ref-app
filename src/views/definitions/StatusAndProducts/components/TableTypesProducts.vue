@@ -28,7 +28,7 @@ const deleteTypesProduct = async (id) => {
     try {
         const response = await Axios.delete('/types_product/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Tipo de produto deletado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         await getTypesProduct();
         loadingClose();
     } catch (error) {
@@ -58,7 +58,7 @@ const postTypesProduct = async () => {
             name: dataPostTypesProduct.value.name,
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo tipo de produto adicionado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         clearFields();
         await getTypesProduct();
         loadingClose();

@@ -3,9 +3,66 @@ import { ref, onBeforeMount, provide, Axios, loadingOpen, loadingClose, useToast
 import { useConfirm } from 'primevue/useconfirm';
 import pdfGenerator from '@/service/PdfGenerator.js';
 import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../../utils/messages.js';
-import { typesProductOptions, statusPaymentOptions, statusServiceOptions, optionsTypesTables, socket, formatData, getStyleStatusService, getStyleStatusPayment, sendWhatsAppMessage, sendInfoClientsWhats } from '../../utils/computeds.js';
+import { optionsTypesTables, socket, formatData, sendWhatsAppMessage, sendInfoClientsWhats } from '../../utils/computeds.js';
 
 import DialogServiceAdd from './components/DialogServiceAdd.vue';
+
+/* Service Status */
+const statusServiceOptions = ref([]);
+const statusServiceMapping = ref([]);
+const getStatusService = async () => {
+    try {
+        const response = await Axios.get('/status_service');
+        statusServiceOptions.value = response.data.map((item) => item.cod.toString());
+        statusServiceMapping.value = response.data;
+        statusServiceMapping.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const getStyleStatusService = (cod) => {
+    const statusService = statusServiceMapping.value.find((item) => item.cod === cod);
+    return statusService || null;
+};
+
+/* Payment Status */
+const statusPaymentOptions = ref([]);
+const statusPaymentMapping = ref([]);
+const getStatusPayment = async () => {
+    try {
+        const response = await Axios.get('/status_payment');
+        statusPaymentOptions.value = response.data.map((item) => item.cod.toString());
+        statusPaymentMapping.value = response.data;
+        statusPaymentMapping.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const getStyleStatusPayment = (cod) => {
+    const statusPayment = statusPaymentMapping.value.find((item) => item.cod === cod);
+    return statusPayment || null;
+};
+
+/* Products Types */
+const typesProductOptions = ref([]);
+const getTypesProduct = async () => {
+    try {
+        const response = await Axios.get('/types_product');
+        typesProductOptions.value = response.data.map((item) => item.name);
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 const typeTable = ref({ value: 1, label: 'Oficina' });
 const toast = useToast();
@@ -59,7 +116,7 @@ const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-        console.log(response.status);
+         
         initFilters();
         loadingClose();
     } catch (error) {
@@ -74,7 +131,7 @@ const getServicesWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
         dataGetService.value = response.data;
-        console.log(response.status);
+         
         initFilters();
         loadingClose();
     } catch (error) {
@@ -86,13 +143,13 @@ const getServicesWarehouse = async () => {
 
 const updateWarehouseForService = async (id) => {
     try {
-        const response = await Axios.put('/services/warehouse/' + id + '/true', {
+        await Axios.put('/services/warehouse/' + id + '/true', {
             typeTable: typeTable.value.value
         });
-        toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado de volta', life: 5000 });
-        console.log(response.status);
+        toast.add({ severity: 'success', summary: 'Enviado', detail: '', life: 5000 });
+         
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço de volta', life: 5000 });
+        toast.add({ severity: 'error', summary: 'Erro', detail: '', life: 5000 });
         console.error(error);
     }
 };
@@ -124,9 +181,9 @@ const confirmDeleteService = (event, data) => {
 const deleteService = async (idService, cod_order) => {
     loadingOpen();
     try {
-        const response = await Axios.delete('/services/' + idService + '/' + cod_order + '/' + typeTable.value.value);
+        await Axios.delete('/services/' + idService + '/' + cod_order + '/' + typeTable.value.value);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
@@ -149,11 +206,11 @@ const confirmUpdateWarehouse = (event, idService) => {
 const updateWarehouse = async (id) => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/warehouse/' + id + '/false', {
+        await Axios.put('/services/warehouse/' + id + '/false', {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado ao depósito', life: 5000 });
-        console.log(response.status);
+         
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
@@ -171,7 +228,7 @@ const validateEditInfoClient = async () => {
 const updateInfoClient = async () => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/info/client/' + dataEditInfoClient.value.id, {
+        await Axios.put('/services/info/client/' + dataEditInfoClient.value.id, {
             product: dataEditInfoClient.value.product,
             client: dataEditInfoClient.value.client,
             telephone: dataEditInfoClient.value.telephone,
@@ -180,7 +237,7 @@ const updateInfoClient = async () => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Editado', detail: 'As informações do cliente foram editadas', life: 5000 });
-        console.log(response.status);
+         
         closeModal();
         loadingClose();
     } catch (error) {
@@ -199,11 +256,11 @@ const validateUpdateStatusService = async () => {
 const updateStatus = async () => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status, {
+        await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status, {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         closeModal();
         loadingClose();
     } catch (error) {
@@ -223,11 +280,11 @@ const validateUpdateStatusPayment = async () => {
 const updatePaymentStatus = async () => {
     loadingOpen();
     try {
-        const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status, {
+        await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status, {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         closeModal();
         loadingClose();
     } catch (error) {
@@ -264,14 +321,14 @@ const updateEstimateOS = async (data) => {
         } else {
             dataPutOrderOfService.value = dataPutOrderOfServiceComplete.value;
         }
-        const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
+        await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
             type: typeOS.value.value,
             id: !dataPutOrderOfService.value.id ? null : dataPutOrderOfService.value.id,
             amount: dataPutOrderOfService.value.amount,
             description: dataPutOrderOfService.value.description,
             price: dataPutOrderOfService.value.price
         });
-        console.log(response.status);
+         
         closeModal();
         openModalOS('top', data);
         loadingClose();
@@ -285,9 +342,9 @@ const updateEstimateOS = async (data) => {
 const deleteEstimateOS = async (cod, data) => {
     loadingOpen();
     try {
-        const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
+        await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         const dataOpen = { order_of_service: cod };
         closeModal();
         openModalOS('top', dataOpen);
@@ -472,6 +529,9 @@ const openOverlay = (id) => {
 };
 
 onBeforeMount(() => {
+    getTypesProduct();
+    getStatusPayment();
+    getStatusService();
     getServices();
 });
 </script>

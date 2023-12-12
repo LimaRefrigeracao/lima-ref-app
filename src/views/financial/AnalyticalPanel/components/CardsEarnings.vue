@@ -25,7 +25,7 @@ const getInfoEarnings = async () => {
     try {
         const response = await Axios.get('/panel_analytical/info_values_os_paid');
         dataEarnings.value = response.data;
-        console.log(dataEarnings.value);
+         
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar informações das entrada!', life: 5000 });

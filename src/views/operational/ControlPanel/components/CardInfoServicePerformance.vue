@@ -43,7 +43,7 @@ const getValueChat = async () => {
         data.value.datasets[2].data = response.data.paid;
 
         dataLoaded.value = true;
-        console.log(response.status);
+         
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar dados', life: 5000 });
