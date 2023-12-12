@@ -2,7 +2,6 @@ import { ref } from 'vue';
 import Swal from 'sweetalert2';
 import { io } from 'socket.io-client';
 const socket = io(import.meta.env.VITE_BASE_URL_API);
-import Axios from '../../service/Axios';
 
 /* Color Palette */
 const colorTypes = ref([
@@ -13,64 +12,6 @@ const colorTypes = ref([
     { severity: 'danger', hex: '#EF4444' },
     { severity: 'success', hex: '#22C55E' }
 ]);
-
-/* Service Status */
-const statusServiceOptions = ref([]);
-const statusServiceMapping = ref([]);
-const getStatusService = async () => {
-    try {
-        const response = await Axios.get('/status_service');
-        statusServiceOptions.value = response.data.map((item) => item.cod.toString());
-        statusServiceMapping.value = response.data;
-        statusServiceMapping.value.forEach((value) => {
-            if (value.color) {
-                value.color = JSON.parse(value.color);
-            }
-        });
-    } catch (error) {
-        console.error(error);
-    }
-};
-getStatusService();
-const getStyleStatusService = (cod) => {
-    const statusService = statusServiceMapping.value.find((item) => item.cod === cod);
-    return statusService || null;
-};
-
-/* Payment Status */
-const statusPaymentOptions = ref([]);
-const statusPaymentMapping = ref([]);
-const getStatusPayment = async () => {
-    try {
-        const response = await Axios.get('/status_payment');
-        statusPaymentOptions.value = response.data.map((item) => item.cod.toString());
-        statusPaymentMapping.value = response.data;
-        statusPaymentMapping.value.forEach((value) => {
-            if (value.color) {
-                value.color = JSON.parse(value.color);
-            }
-        });
-    } catch (error) {
-        console.error(error);
-    }
-};
-getStatusPayment();
-const getStyleStatusPayment = (cod) => {
-    const statusPayment = statusPaymentMapping.value.find((item) => item.cod === cod);
-    return statusPayment || null;
-};
-
-/* Products Types */
-const typesProductOptions = ref([]);
-const getTypesProduct = async () => {
-    try {
-        const response = await Axios.get('/types_product');
-        typesProductOptions.value = response.data.map((item) => item.name);
-    } catch (error) {
-        console.error(error);
-    }
-};
-getTypesProduct();
 
 /* Tables Types */
 const optionsTypesTables = ref([
@@ -158,19 +99,4 @@ const loadingClose = () => {
     Swal.close();
 };
 
-export {
-    typesProductOptions,
-    statusPaymentOptions,
-    statusServiceOptions,
-    statusServiceMapping,
-    optionsTypesTables,
-    socket,
-    colorTypes,
-    formatData,
-    getStyleStatusService,
-    getStyleStatusPayment,
-    sendWhatsAppMessage,
-    sendInfoClientsWhats,
-    loadingOpen,
-    loadingClose
-};
+export { optionsTypesTables, socket, colorTypes, formatData, sendWhatsAppMessage, sendInfoClientsWhats, loadingOpen, loadingClose };

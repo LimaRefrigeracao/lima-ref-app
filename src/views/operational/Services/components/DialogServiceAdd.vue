@@ -1,11 +1,36 @@
 <script setup>
 import { ref, onMounted, Axios, inject, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { statusServiceMapping, typesProductOptions } from '../../../utils/computeds.js';
 import { messageAddService, addMessage } from '../../../utils/messages.js';
 
 const toast = useToast();
 const displayModalAdd = inject('displayDialogAdd');
 const dataPostService = ref({});
+
+const statusServiceMapping = ref([]);
+const getStatusService = async () => {
+    try {
+        const response = await Axios.get('/status_service');
+        statusServiceMapping.value = response.data;
+        statusServiceMapping.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+/* Products Types */
+const typesProductOptions = ref([]);
+const getTypesProduct = async () => {
+    try {
+        const response = await Axios.get('/types_product');
+        typesProductOptions.value = response.data.map((item) => item.name);
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 const validatePostService = async () => {
     if (!dataPostService.value.product || !dataPostService.value.client || !dataPostService.value.telephone || !dataPostService.value.status.cod) {
@@ -18,7 +43,7 @@ const validatePostService = async () => {
 const postService = async () => {
     loadingOpen();
     try {
-        const response = await Axios.post('/services', {
+        await Axios.post('/services', {
             product: dataPostService.value.product,
             client: dataPostService.value.client,
             telephone: dataPostService.value.telephone,
@@ -29,7 +54,7 @@ const postService = async () => {
             typeTable: 1
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         closeModal();
         loadingClose();
     } catch (error) {
@@ -53,6 +78,8 @@ const closeModal = () => {
 };
 
 onMounted(() => {
+    getTypesProduct();
+    getStatusService();
     const dataAtual = new Date().toISOString().slice(0, 10);
     dataPostService.value.created_at = dataAtual;
 });

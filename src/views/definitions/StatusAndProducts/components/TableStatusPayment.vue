@@ -34,7 +34,7 @@ const deleteStatusPayment = async (id) => {
     try {
         const response = await Axios.delete('/status_payment/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de pagamento deletado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         await getStatusPayment();
         loadingClose();
     } catch (error) {
@@ -66,7 +66,7 @@ const postStatusPayment = async () => {
             color: dataPostStatusPayment.value.color
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de pagamento adicionado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         clearFields();
         await getStatusPayment();
         loadingClose();

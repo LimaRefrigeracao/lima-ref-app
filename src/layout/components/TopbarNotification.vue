@@ -1,7 +1,29 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Axios from '../../service/Axios';
-import { formatData, getStyleStatusService } from '../../views/utils/computeds.js';
+import { formatData } from '../../views/utils/computeds.js';
+
+const statusServiceOptions = ref([]);
+const statusServiceMapping = ref([]);
+const getStatusService = async () => {
+    try {
+        const response = await Axios.get('/status_service');
+        statusServiceOptions.value = response.data.map((item) => item.cod.toString());
+        statusServiceMapping.value = response.data;
+        statusServiceMapping.value.forEach((value) => {
+            if (value.color) {
+                value.color = JSON.parse(value.color);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const getStyleStatusService = (cod) => {
+    const statusService = statusServiceMapping.value.find((item) => item.cod === cod);
+    return statusService || null;
+};
 
 const notifications = ref([]);
 
@@ -23,6 +45,7 @@ const getNotifications = async () => {
 };
 
 onMounted(() => {
+    getStatusService();
     getNotifications();
 });
 </script>

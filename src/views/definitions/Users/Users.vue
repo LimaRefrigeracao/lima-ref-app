@@ -14,7 +14,7 @@ const getUsers = async () => {
     try {
         const response = await Axios.get('/users');
         dataGetUsers.value = response.data;
-        console.log(response.status);
+         
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços do depósito', life: 5000 });
@@ -28,7 +28,7 @@ const deleteUser = async (id) => {
     try {
         const response = await Axios.delete('/users/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Usuário deletado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         await getUsers();
         loadingClose();
     } catch (error) {
@@ -82,7 +82,7 @@ const postUser = async () => {
             admin: dataPostUser.value.admin
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Usuário adicionado com sucesso', life: 5000 });
-        console.log(response.status);
+         
         await getUsers();
         closeModal();
         loadingClose();
