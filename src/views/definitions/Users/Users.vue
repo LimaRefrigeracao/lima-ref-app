@@ -26,7 +26,7 @@ const getUsers = async () => {
 const deleteUser = async (id) => {
     loadingOpen();
     try {
-        const response = await Axios.delete('/users/' + id);
+        await Axios.delete('/users/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Usuário deletado com sucesso', life: 5000 });
          
         await getUsers();
@@ -73,7 +73,7 @@ const customBase64Uploader = async (event) => {
 const postUser = async () => {
     loadingOpen();
     try {
-        const response = await Axios.post('/users', {
+        await Axios.post('/users', {
             username: dataPostUser.value.username,
             email: dataPostUser.value.email,
             password: dataPostUser.value.password,
