@@ -32,7 +32,7 @@ const getStatusServices = async () => {
 const deleteStatusServices = async (id) => {
     loadingOpen();
     try {
-        const response = await Axios.delete('/status_service/' + id);
+        await Axios.delete('/status_service/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de serviço deletado com sucesso', life: 5000 });
          
         await getStatusServices();
@@ -60,7 +60,7 @@ const confirmDeleteStatusServices = (event, id) => {
 const postStatusServices = async () => {
     loadingOpen();
     try {
-        const response = await Axios.post('/status_service', {
+        await Axios.post('/status_service', {
             description: dataPostStatusServices.value.description,
             cod: dataPostStatusServices.value.cod,
             color: dataPostStatusServices.value.color

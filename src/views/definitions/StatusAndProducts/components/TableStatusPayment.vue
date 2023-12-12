@@ -32,7 +32,7 @@ const getStatusPayment = async () => {
 const deleteStatusPayment = async (id) => {
     loadingOpen();
     try {
-        const response = await Axios.delete('/status_payment/' + id);
+        await Axios.delete('/status_payment/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de pagamento deletado com sucesso', life: 5000 });
          
         await getStatusPayment();
@@ -60,7 +60,7 @@ const confirmDeleteStatusPayment = (event, id) => {
 const postStatusPayment = async () => {
     loadingOpen();
     try {
-        const response = await Axios.post('/status_payment', {
+        await Axios.post('/status_payment', {
             description: dataPostStatusPayment.value.description,
             cod: dataPostStatusPayment.value.cod,
             color: dataPostStatusPayment.value.color
