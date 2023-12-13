@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import Axios from '@/service/Axios';
 import { loadingOpen, loadingClose, useToast } from '@/views/common';
 
@@ -46,6 +46,11 @@ const postAddExpense = async () => {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao tentar cadastrar despesa.', life: 8000 });
     }
 };
+
+onMounted(() => {
+    const dataAtual = new Date().toISOString().slice(0, 10);
+    dataDialogAddExpenses.value.date = dataAtual;
+});
 </script>
 <template>
     <Toast />
@@ -53,7 +58,7 @@ const postAddExpense = async () => {
         <div class="grid p-fluid mt-1">
             <div class="field col-12 md:col-12">
                 <span class="p-float-label block">
-                    <Calendar v-model="dataDialogAddExpenses.date" dateFormat="dd/mm/yy" inputId="date" />
+                    <InputText type="date" v-model="dataDialogAddExpenses.date" id="date" />
                     <label for="date"><span style="color: red">*</span> Data</label>
                 </span>
             </div>
