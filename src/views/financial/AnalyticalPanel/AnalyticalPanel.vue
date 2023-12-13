@@ -1,13 +1,28 @@
 <script setup>
-import CardsEarnings from './components/CardsEarnings.vue';
+import CardsInvoicingGross from './components/CardsInvoicingGross.vue';
+import CardsInvoicingLiquid from './components/CardsInvoicingLiquid.vue';
+import { ref } from 'vue';
+
+const type = ref('Bruto');
+const optionsType = ref(['Bruto', 'Líquido']);
 </script>
 
 <template>
     <div class="grid flex justify-content-center">
         <div class="col-12 xl:col-12">
             <div class="card">
-                <h5 class="mb-4" style="color:#16A704;">ENTRADAS <i class="pi pi-sign-in" style="font-size: 16px"></i></h5>
-                <CardsEarnings />
+                <Toolbar class="mb-4">
+                    <template #start>
+                        <strong style="font-size: large"> FATURAMENTO </strong>
+                    </template>
+
+                    <template #end>
+                        <SelectButton v-model="type" :options="optionsType" aria-labelledby="basic" />
+                    </template>
+                </Toolbar>
+
+                <CardsInvoicingGross v-if="type == 'Bruto'" />
+                <CardsInvoicingLiquid v-else />
             </div>
         </div>
     </div>
