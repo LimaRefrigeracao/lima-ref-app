@@ -5,7 +5,9 @@ import DialogAddExpenses from './components/DialogAddExpenses.vue';
 import { loadingOpen, loadingClose, useToast } from '@/views/common';
 import Axios from '@/service/Axios';
 import { useConfirm } from 'primevue/useconfirm';
+import { io } from 'socket.io-client';
 
+const socket = io(import.meta.env.VITE_BASE_URL_API);
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -13,6 +15,9 @@ const visibleDialogAdd = ref(false);
 provide('visibleDialogAdd', visibleDialogAdd);
 
 const dataGetExpenses = ref([]);
+socket.on('reloadDataExpenses', (data) => {
+    dataGetExpenses.value = data;
+});
 const getExpenses = async () => {
     loadingOpen();
     try {
