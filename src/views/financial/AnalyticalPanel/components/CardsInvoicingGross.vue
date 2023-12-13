@@ -45,7 +45,9 @@ onBeforeMount(() => {
                 <template #header>
                     <Toolbar>
                         <template #start>
-                            <span class="block text-700 font-medium mb-2 mt-2">DIÁRIO</span>
+                            <span class="block text-700 font-medium mb-2 mt-2">
+                                DIÁRIO <i class="pi pi-sign-in" style="font-size: 14px; color: #16a704;"></i>
+                            </span>
                         </template>
                         <template #end>
                             <span class="text-green-500 font-medium"> {{ dataEarnings.daily.day }} </span>
@@ -64,7 +66,9 @@ onBeforeMount(() => {
                 <template #header>
                     <Toolbar>
                         <template #start>
-                            <span class="block text-700 font-medium mb-2 mt-2">SEMANAL</span>
+                            <span class="block text-700 font-medium mb-2 mt-2">
+                                SEMANAL <i class="pi pi-sign-in" style="font-size: 14px; color: #16a704;"></i>
+                            </span>
                         </template>
                         <template #end>
                             <span class="text-green-500 font-medium"> {{ dataEarnings.weekly.week }}</span>
@@ -83,7 +87,9 @@ onBeforeMount(() => {
                 <template #header>
                     <Toolbar>
                         <template #start>
-                            <span class="block text-700 font-medium mb-2 mt-2">MENSAL</span>
+                            <span class="block text-700 font-medium mb-2 mt-2">
+                                MENSAL <i class="pi pi-sign-in" style="font-size: 14px; color: #16a704;"></i>
+                            </span>
                         </template>
                         <template #end>
                             <span class="text-green-500 font-medium"> {{ dataEarnings.monthly.month }} </span>
@@ -102,7 +108,9 @@ onBeforeMount(() => {
                 <template #header>
                     <Toolbar>
                         <template #start>
-                            <span class="block text-700 font-medium mb-2 mt-2">ANUAL</span>
+                            <span class="block text-700 font-medium mb-2 mt-2">
+                                ANUAL <i class="pi pi-sign-in" style="font-size: 14px; color: #16a704; "></i>
+                            </span>
                         </template>
                         <template #end>
                             <span class="text-green-500 font-medium"> {{ dataEarnings.yearly.year }} </span>
