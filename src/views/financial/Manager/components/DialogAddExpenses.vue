@@ -14,6 +14,8 @@ const expenseTypes = ref([
     { name: 'Aluguel', code: 'A' },
     { name: 'Gasolina', code: 'G' },
     { name: 'Veículo', code: 'V' },
+    { name: 'Feramenta', code: 'F' },
+    { name: 'Pessoal', code: 'PS' },
     { name: 'Emergência', code: 'E' },
     { name: 'Outro', code: 'O' }
 ]);

@@ -36,7 +36,7 @@ onBeforeMount(() => {
 </script>
 <template>
     <div class="grid">
-        <div class="col-6">
+        <div class="col-12 lg:col-6 xl:col-6">
             <Card style="padding: 0px">
                 <template #header>
                     <Toolbar>
@@ -94,7 +94,7 @@ onBeforeMount(() => {
             </Card>
         </div>
 
-        <div class="col-6">
+        <div class="col-12 lg:col-6 xl:col-6">
             <Card style="padding: 0px">
                 <template #header>
                     <Toolbar>
