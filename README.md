@@ -1,30 +1,12 @@
 # App Lima Refrigeração
 
-## Install dependency
-
-```sh
-npm install
-and
-npm i -g nodemon
-```
-
-### Start for Development
-
+### Start for Local
+##### Node version - Min: 16.17.0 | Atual: 20.10.0
 ```sh
 npm run dev
 ```
-
-### Analyze code
-
 ```sh
-npm run lint
+npm install
 ```
 
-### Stating
-
-```sh
-npm run stating
-```
-
-### https://github.com/primefaces/sakai-vue
-### https://primevue.org/
+### Components ['https://primevue.org/']
