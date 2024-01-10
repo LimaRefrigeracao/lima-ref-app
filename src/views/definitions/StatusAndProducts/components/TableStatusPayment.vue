@@ -1,6 +1,8 @@
 <script setup>
-import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { colorTypes } from '../../../utils/computeds';
+import Axios from '@/service/Axios';
+import { ref, onMounted } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import { colorTypes, loadingOpen, loadingClose } from '../../../utils/computeds';
 import { useConfirm } from 'primevue/useconfirm';
 import { useForm } from 'vee-validate';
 
@@ -34,7 +36,7 @@ const deleteStatusPayment = async (id) => {
     try {
         await Axios.delete('/status_payment/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de pagamento deletado com sucesso', life: 5000 });
-         
+
         await getStatusPayment();
         loadingClose();
     } catch (error) {
@@ -66,7 +68,7 @@ const postStatusPayment = async () => {
             color: dataPostStatusPayment.value.color
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de pagamento adicionado com sucesso', life: 5000 });
-         
+
         clearFields();
         await getStatusPayment();
         loadingClose();
@@ -147,4 +149,3 @@ onMounted(() => {
         </DataTable>
     </div>
 </template>
-

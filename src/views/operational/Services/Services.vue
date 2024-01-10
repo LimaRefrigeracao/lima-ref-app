@@ -1,9 +1,11 @@
 <script setup>
-import { ref, onBeforeMount, provide, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { useConfirm } from 'primevue/useconfirm';
+import Axios from '@/service/Axios';
 import pdfGenerator from '@/service/PdfGenerator.js';
+import { ref, onBeforeMount, provide } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 import { messageAddService, messageAddEstimateOSSimple, messageAddEstimateOSComplete, messageEditInfoClient, messageUpdateStatusService, messageUpdateStatusPayment, addMessage } from '../../utils/messages.js';
-import { optionsTypesTables, socket, formatData, sendWhatsAppMessage, sendInfoClientsWhats } from '../../utils/computeds.js';
+import { optionsTypesTables, socket, formatData, sendWhatsAppMessage, sendInfoClientsWhats, loadingOpen, loadingClose } from '../../utils/computeds.js';
 
 import DialogServiceAdd from './components/DialogServiceAdd.vue';
 
@@ -116,7 +118,7 @@ const getServices = async () => {
     try {
         const response = await Axios.get('/services');
         dataGetService.value = response.data;
-         
+
         initFilters();
         loadingClose();
     } catch (error) {
@@ -131,7 +133,7 @@ const getServicesWarehouse = async () => {
     try {
         const response = await Axios.get('/services/warehouse');
         dataGetService.value = response.data;
-         
+
         initFilters();
         loadingClose();
     } catch (error) {
@@ -147,7 +149,6 @@ const updateWarehouseForService = async (id) => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Enviado', detail: '', life: 5000 });
-         
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: '', life: 5000 });
         console.error(error);
@@ -183,7 +184,7 @@ const deleteService = async (idService, cod_order) => {
     try {
         await Axios.delete('/services/' + idService + '/' + cod_order + '/' + typeTable.value.value);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
-         
+
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
@@ -210,7 +211,7 @@ const updateWarehouse = async (id) => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado ao depósito', life: 5000 });
-         
+
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
@@ -237,7 +238,7 @@ const updateInfoClient = async () => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Editado', detail: 'As informações do cliente foram editadas', life: 5000 });
-         
+
         closeModal();
         loadingClose();
     } catch (error) {
@@ -260,7 +261,7 @@ const updateStatus = async () => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
-         
+
         closeModal();
         loadingClose();
     } catch (error) {
@@ -284,7 +285,7 @@ const updatePaymentStatus = async () => {
             typeTable: typeTable.value.value
         });
         toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
-         
+
         closeModal();
         loadingClose();
     } catch (error) {
@@ -328,7 +329,7 @@ const updateEstimateOS = async (data) => {
             description: dataPutOrderOfService.value.description,
             price: dataPutOrderOfService.value.price
         });
-         
+
         closeModal();
         openModalOS('top', data);
         loadingClose();
@@ -344,7 +345,7 @@ const deleteEstimateOS = async (cod, data) => {
     try {
         await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
-         
+
         const dataOpen = { order_of_service: cod };
         closeModal();
         openModalOS('top', dataOpen);
@@ -694,7 +695,13 @@ onBeforeMount(() => {
                                                     <span class="p-inputgroup-addon"> R$ {{ dataGetOS.value }}.00 </span>
                                                     <span class="p-inputgroup-addon">
                                                         <Button icon="pi pi-share-alt" class="p-button-outlined p-button-success mr-2" @click="sendWhatsAppMessage(data, dataGetOS)" v-tooltip.top="'Enviar Orçamento'" />
-                                                        <Button icon="pi pi-download" class="p-button-outlined p-button-warning mr-2" @click="pdfGenerator.generateReceipt(data, dataGetOS)" v-tooltip.top="'Gerar Recibo'" :disabled="dataGetOS.estimate == '[]'" />
+                                                        <Button
+                                                            icon="pi pi-download"
+                                                            class="p-button-outlined p-button-warning mr-2"
+                                                            @click="pdfGenerator.generateReceipt(data, dataGetOS)"
+                                                            v-tooltip.top="'Gerar Recibo'"
+                                                            :disabled="dataGetOS.estimate == '[]'"
+                                                        />
                                                     </span>
                                                 </div>
                                             </div>

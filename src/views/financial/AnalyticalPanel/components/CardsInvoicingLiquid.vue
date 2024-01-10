@@ -1,5 +1,8 @@
 <script setup>
-import { ref, onBeforeMount, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
+import Axios from '@/service/Axios';
+import { ref, onBeforeMount } from 'vue';
+import { loadingOpen, loadingClose } from '../../../utils/computeds';
+import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 
 const dataInvoicing = ref({

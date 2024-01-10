@@ -1,5 +1,8 @@
 <script setup>
-import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
+import Axios from '@/service/Axios';
+import { ref, onMounted } from 'vue';
+import { loadingOpen, loadingClose } from '../../../utils/computeds';
+import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useForm } from 'vee-validate';
 
@@ -28,7 +31,7 @@ const deleteTypesProduct = async (id) => {
     try {
         await Axios.delete('/types_product/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Tipo de produto deletado com sucesso', life: 5000 });
-         
+
         await getTypesProduct();
         loadingClose();
     } catch (error) {
@@ -55,10 +58,10 @@ const postTypesProduct = async () => {
     loadingOpen();
     try {
         await Axios.post('/types_product', {
-            name: dataPostTypesProduct.value.name,
+            name: dataPostTypesProduct.value.name
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo tipo de produto adicionado com sucesso', life: 5000 });
-         
+
         clearFields();
         await getTypesProduct();
         loadingClose();
@@ -79,7 +82,7 @@ const onSubmit = handleSubmit(async () => {
 
 const clearFields = () => {
     dataPostTypesProduct.value = [];
-}
+};
 
 onMounted(() => {
     getTypesProduct();
@@ -94,7 +97,7 @@ onMounted(() => {
                 <form @submit="onSubmit" class="flex flex-column align-items-center gap-2">
                     <div class="grid p-fluid" style="margin: auto">
                         <span class="p-float-label">
-                            <InputText type="text" id="addName" v-model="dataPostTypesProduct.name" style="width: auto;" />
+                            <InputText type="text" id="addName" v-model="dataPostTypesProduct.name" style="width: auto" />
                             <label for="addName"><span style="color: red">*</span> Nome </label>
                         </span>
 
@@ -117,4 +120,3 @@ onMounted(() => {
         </DataTable>
     </div>
 </template>
-

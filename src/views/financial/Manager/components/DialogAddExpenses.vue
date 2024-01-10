@@ -1,7 +1,8 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue';
 import Axios from '@/service/Axios';
-import { loadingOpen, loadingClose, useToast } from '@/views/common';
+import { ref, inject, onMounted } from 'vue';
+import { loadingOpen, loadingClose } from '../../../utils/computeds';
+import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
 const visibleDialogAdd = inject('visibleDialogAdd');

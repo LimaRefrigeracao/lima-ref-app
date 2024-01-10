@@ -1,14 +1,17 @@
 <script setup>
-import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
-const toast = useToast();
+import Axios from '@/service/Axios';
+import { ref, onMounted } from 'vue';
+import { loadingOpen, loadingClose } from '../../../utils/computeds';
+import { useToast } from 'primevue/usetoast';
 
+const toast = useToast();
 const data = ref([]);
 const getCountProductByService = async () => {
     loadingOpen();
     try {
         const response = await Axios.get('/panel_control/product_by_service');
         data.value = response.data;
-         
+
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar dados', life: 5000 });
@@ -34,7 +37,7 @@ onMounted(() => {
                 </div>
                 <div class="mt-2 md:mt-0 flex align-items-center">
                     <div class="surface-100 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
-                        <div class="h-full" :style="'background-color: #757575; width:' + Math.floor(product.count / data.length * 100) + '%'"></div>
+                        <div class="h-full" :style="'background-color: #757575; width:' + Math.floor((product.count / data.length) * 100) + '%'"></div>
                     </div>
                     <span class="ml-3 font-medium" :style="'color: #757575'">{{ product.count }}</span>
                 </div>

@@ -1,8 +1,10 @@
 <script setup>
-import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
-import { colorTypes } from '../../../utils/computeds';
+import Axios from '@/service/Axios';
+import { ref, onMounted } from 'vue';
+import { colorTypes, loadingOpen, loadingClose } from '../../../utils/computeds';
 import { useConfirm } from 'primevue/useconfirm';
 import { useForm } from 'vee-validate';
+import { useToast } from 'primevue/usetoast';
 
 const popup = ref(null);
 const confirmPopup = useConfirm();
@@ -34,7 +36,7 @@ const deleteStatusServices = async (id) => {
     try {
         await Axios.delete('/status_service/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de serviço deletado com sucesso', life: 5000 });
-         
+
         await getStatusServices();
         loadingClose();
     } catch (error) {
@@ -66,7 +68,7 @@ const postStatusServices = async () => {
             color: dataPostStatusServices.value.color
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de serviço adicionado com sucesso', life: 5000 });
-         
+
         clearFields();
         await getStatusServices();
         loadingClose();
@@ -147,4 +149,3 @@ onMounted(() => {
         </DataTable>
     </div>
 </template>
-

@@ -1,5 +1,9 @@
 <script setup>
-import { ref, onMounted, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
+import Axios from '@/service/Axios';
+import { ref, onMounted } from 'vue';
+import { loadingOpen, loadingClose } from '../../../utils/computeds';
+import { useToast } from 'primevue/usetoast';
+
 const toast = useToast();
 
 const data = ref({
@@ -43,7 +47,7 @@ const getValueChat = async () => {
         data.value.datasets[2].data = response.data.paid;
 
         dataLoaded.value = true;
-         
+
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar dados', life: 5000 });

@@ -1,5 +1,7 @@
 <script setup>
-import { ref, loadingOpen, loadingClose, useToast, computed } from '@/views/common';
+import { ref, computed } from 'vue';
+import { loadingOpen, loadingClose } from '../utils/computeds';
+import { useToast } from 'primevue/usetoast';
 import axios from 'axios';
 import { useLayout } from '@/layout/composables/layout';
 import { messageLogin, addMessage } from '../utils/messages.js';

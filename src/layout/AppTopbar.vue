@@ -67,15 +67,13 @@ const onChangeTheme = (theme, mode) => {
     });
     linkElement.parentNode.insertBefore(cloneLinkElement, linkElement.nextSibling);
 };
-
 </script>
 
 <template>
     <div class="layout-topbar">
-        <center>
+        <div class="img-container">
             <img :src="logoUrl" alt="logo" style="width: 200px; height: 75px" />
-        </center>
-
+        </div>
         <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
             <i class="pi pi-bars"></i>
         </button>
@@ -88,10 +86,12 @@ const onChangeTheme = (theme, mode) => {
                 <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
                 <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
             </div>
-
-            
         </div>
     </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.img-container {
+    align-items: center;
+}
+</style>

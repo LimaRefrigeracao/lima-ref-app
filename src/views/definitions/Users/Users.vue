@@ -1,6 +1,9 @@
 <script setup>
-import { ref, onBeforeMount, Axios, loadingOpen, loadingClose, useToast } from '@/views/common';
+import Axios from '@/service/Axios';
+import { ref, onBeforeMount } from 'vue';
+import { loadingOpen, loadingClose } from '../../utils/computeds';
 import { messageAddUser, addMessage } from '../../utils/messages.js';
+import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 
 const popup = ref(null);
@@ -14,7 +17,7 @@ const getUsers = async () => {
     try {
         const response = await Axios.get('/users');
         dataGetUsers.value = response.data;
-         
+
         loadingClose();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços do depósito', life: 5000 });
@@ -28,7 +31,7 @@ const deleteUser = async (id) => {
     try {
         await Axios.delete('/users/' + id);
         toast.add({ severity: 'success', summary: 'Deletado', detail: 'Usuário deletado com sucesso', life: 5000 });
-         
+
         await getUsers();
         loadingClose();
     } catch (error) {
@@ -82,7 +85,7 @@ const postUser = async () => {
             admin: dataPostUser.value.admin
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Usuário adicionado com sucesso', life: 5000 });
-         
+
         await getUsers();
         closeModal();
         loadingClose();
@@ -104,11 +107,9 @@ const validatePostUser = async () => {
 };
 
 const displayModalAdd = ref(false);
-const positionModalAdd = ref(false);
-const openModalAdd = (position) => {
+const openModalAdd = () => {
     messageAddUser.value.length = 0;
     displayModalAdd.value = true;
-    positionModalAdd.value = position;
 };
 
 const closeModal = () => {
@@ -131,7 +132,7 @@ onBeforeMount(() => {
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">
-                    <Dialog header="Adicionar Usuário" v-model:visible="displayModalAdd" :position="positionModalAdd" :breakpoints="{ '960px': '75vw' }" :style="{ width: '28vw' }" :modal="true">
+                    <Dialog header="Adicionar Usuário" v-model:visible="displayModalAdd" position="top" :breakpoints="{ '960px': '75vw' }" :style="{ width: '28vw' }" :modal="true">
                         <transition-group tag="div">
                             <Message v-for="msg of messageAddUser" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
                         </transition-group>
@@ -177,7 +178,7 @@ onBeforeMount(() => {
                             <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="validatePostUser()" />
                         </template>
                     </Dialog>
-                    <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd('top')" />
+                    <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd()" />
                 </div>
             </template>
         </Toolbar>

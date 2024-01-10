@@ -1,5 +1,8 @@
 <script setup>
-import { ref, onMounted, Axios, inject, loadingOpen, loadingClose, useToast } from '@/views/common';
+import Axios from '@/service/Axios';
+import { ref, onMounted, inject } from 'vue';
+import { loadingOpen, loadingClose } from '../../../utils/computeds';
+import { useToast } from 'primevue/usetoast';
 import { messageAddService, addMessage } from '../../../utils/messages.js';
 
 const toast = useToast();
@@ -54,7 +57,7 @@ const postService = async () => {
             typeTable: 1
         });
         toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Serviço adicionado com sucesso', life: 5000 });
-         
+
         closeModal();
         loadingClose();
     } catch (error) {
