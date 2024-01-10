@@ -70,13 +70,9 @@ const login = async () => {
                         <label for="password" class="block text-900 font-medium text-x mb-2"> SENHA </label>
                         <InputText id="password" type="password" v-model="password" class="w-full md:w-30rem mb-5" style="padding: 1rem" />
 
-                        <div class="flex align-items-center justify-content-between mb-5 gap-5">
-                            <div class="flex align-items-center">
-                                <Checkbox v-model="remember" id="remember" binary class="mr-2" />
-                                <label for="remember">Lembre de mim</label>
-                            </div>
+                        <div class="flex align-items-center n mt-5 gap-5">
+                            <Button label="Entrar" class="w-full p-3 text-xl" @click="validate()" />
                         </div>
-                        <Button label="Entrar" class="w-full p-3 text-xl" @click="validate()" />
                     </div>
                 </div>
             </div>
