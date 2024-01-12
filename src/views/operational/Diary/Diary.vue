@@ -34,7 +34,7 @@ const calendarOptions = {
     locale: ptLocale,
     editable: true,
     droppable: true,
-    businessHours: true, // display business hours
+    businessHours: false,
     events: [
         {
             title: 'Conference',
