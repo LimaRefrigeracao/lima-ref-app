@@ -27,7 +27,8 @@ const modelAdmin = ref([
                         icon: 'pi pi-fw pi-chart-bar',
                         to: '/operacional/painel-de-controle'
                     },
-                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
+                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' },
+                    { label: 'AGENDA', icon: 'pi pi-fw pi-calendar', to: '/operacional/agenda' }
                 ]
             }
         ]
@@ -61,7 +62,8 @@ const modelAdmin = ref([
                 label: 'DEFINIÇÕES',
                 icon: 'pi pi-fw pi-cog',
                 items: [
-                    { label: 'USUÁRIOS', icon: 'pi pi-fw pi-user', to: '/definicoes/usuarios' },
+                    { label: 'USUÁRIOS', icon: 'pi pi-fw pi-verified', to: '/definicoes/usuarios' },
+                    { label: 'FUNCIONÁRIOS', icon: 'pi pi-fw pi-users', to: '/definicoes/funcionarios' },
                     { label: 'STATUS E PRODUTOS', icon: 'pi pi-fw pi-sitemap', to: '/definicoes/status-e-produtos' }
                 ]
             }
