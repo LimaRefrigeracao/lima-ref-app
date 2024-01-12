@@ -59,7 +59,7 @@ const login = async () => {
         <div class="flex flex-column align-items-center justify-content-center">
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                 <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius: 53px">
-                    <div class="text-center mb-6">
+                    <div class="text-center mb-5">
                         <img :src="logoUrl" height="100" class="mb-3" />
                     </div>
                     <transition-group tag="div">
@@ -72,9 +72,13 @@ const login = async () => {
                         <label for="password" class="block text-900 font-medium text-x mb-2"> SENHA </label>
                         <InputText id="password" type="password" v-model="password" class="w-full md:w-30rem mb-5" style="padding: 1rem" />
 
-                        <div class="flex align-items-center n mt-5 gap-5">
-                            <Button label="Entrar" class="w-full p-3 text-xl" @click="validate()" />
+                        <div class="flex align-items-center mb-6 gap-5">
+                            <div class="flex align-items-center">
+                                <Checkbox v-model="remember" id="remember" binary class="mr-2" />
+                                <label for="remember">Lembre de mim</label>
+                            </div>
                         </div>
+                        <Button label="Entrar" class="w-full p-3 text-xl" @click="validate()" />
                     </div>
                 </div>
             </div>
