@@ -71,9 +71,6 @@ const onChangeTheme = (theme, mode) => {
 
 <template>
     <div class="layout-topbar">
-        <div class="img-container">
-            <img :src="logoUrl" alt="logo" style="width: 200px; height: 75px" />
-        </div>
         <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
             <i class="pi pi-bars"></i>
         </button>
