@@ -7,7 +7,7 @@ https://primevue.org/
 
 ## Environment variables
 ```
-BASE_URL_API
+BASE_URL_API=
 ```
 
 ## Start project
