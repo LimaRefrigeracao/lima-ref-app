@@ -10,9 +10,22 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
+        const dataUser = JSON.parse(localStorage.getItem('user') || '{}');
+
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        if (!config.data) {
+            config.data = {};
+        }
+
+        config.data = {
+            tenant_id: dataUser.tenant_id,
+            ...config.data
+        };
+
+        console.log('Request Config:', config.data)
         return config;
     },
     (error) => {
