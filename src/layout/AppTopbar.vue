@@ -2,6 +2,16 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
 import TopbarNotification from './components/TopbarNotification.vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const logout = async () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    const loginPath = '/';
+    globalThis.history.replaceState({}, 'Login', loginPath);
+    router.push(loginPath);
+};
 
 const { changeThemeSettings, layoutConfig, onMenuToggle } = useLayout();
 
@@ -80,8 +90,11 @@ const onChangeTheme = (theme, mode) => {
                 <TopbarNotification />
             </div>
             <div class="col-3 ml-2" style="margin: auto">
-                <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
-                <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 25px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
+                <i v-if="modeSelected == 'dark'" class="pi pi-sun" style="cursor: pointer; font-size: 20px" @click="onChangeTheme('lara-light-blue', 'light')"> </i>
+                <i v-else class="pi pi-moon" style="cursor: pointer; font-size: 20px" @click="onChangeTheme('lara-dark-blue', 'dark')"> </i>
+            </div>
+            <div class="col-3 ml-2" style="margin: auto">
+                <i class="pi pi-sign-out" v-tooltip.top="'Sair'" style="cursor: pointer; font-size: 20px; color: red" @click="logout()"> </i>
             </div>
         </div>
     </div>

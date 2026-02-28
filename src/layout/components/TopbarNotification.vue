@@ -52,7 +52,7 @@ onMounted(() => {
 <template>
     <i v-if="notifications.length != 0" v-badge="notifications.length" class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 25px" label="Toggle" @click="toggle" aria-haspopup="true" />
 
-    <i v-else class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 25px" label="Toggle" @click="toggle" aria-haspopup="true" />
+    <i v-else class="pi pi-bell p-overlay-badge" style="cursor: pointer; font-size: 20px" label="Toggle" @click="toggle" aria-haspopup="true" />
 
     <OverlayPanel ref="overlayNotification" appendTo="body" style="width: auto; max-width: 30%">
         <DataTable scrollable scrollHeight="800px" :value="notifications" selectionMode="single" :paginator="false">

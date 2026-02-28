@@ -1,5 +1,4 @@
 <script setup>
-import TableTypesProducts from './components/TableTypesProducts.vue';
 import TableStatusPayment from './components/TableStatusPayment.vue';
 import TableStatusServices from './components/TableStatusServices.vue';
 </script>
@@ -8,14 +7,11 @@ import TableStatusServices from './components/TableStatusServices.vue';
     <ConfirmPopup />
     <Toast />
     <div class="grid p-fluid">
-        <div class="field col-12 md:col-4">
+        <div class="field col-12 md:col-6">
             <TableStatusServices />
         </div>
-        <div class="field col-12 md:col-4">
+        <div class="field col-12 md:col-6">
             <TableStatusPayment />
-        </div>
-        <div class="field col-12 md:col-4">
-            <TableTypesProducts />
         </div>
     </div>
 </template>

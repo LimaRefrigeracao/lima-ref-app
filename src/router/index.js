@@ -41,22 +41,6 @@ const router = createRouter({
                     component: () => import('@/views/operational/Services/Services.vue')
                 },
                 {
-                    path: '/operacional/painel-de-controle',
-                    name: 'operational-control-panel',
-                    beforeEnter(to, from, next) {
-                        const token = localStorage.getItem('token');
-                        const user = localStorage.getItem('user');
-                        const response = validateToken();
-                        if (!token || !user || !response) {
-                            next('/login');
-                        } else {
-                            next();
-                        }
-                    },
-                    component: () => import('@/views/operational/ControlPanel/ControlPanel.vue')
-                },
-
-                {
                     path: '/financeiro/painel-analitico',
                     name: 'financial-analytical-panel',
                     beforeEnter(to, from, next) {
@@ -103,8 +87,8 @@ const router = createRouter({
                     component: () => import('@/views/definitions/Users/Users.vue')
                 },
                 {
-                    path: '/definicoes/status-e-produtos',
-                    name: 'definitions-status-and-products',
+                    path: '/definicoes/status',
+                    name: 'definitions-status',
                     beforeEnter(to, from, next) {
                         const token = localStorage.getItem('token');
                         const user = localStorage.getItem('user');
@@ -115,7 +99,22 @@ const router = createRouter({
                             next();
                         }
                     },
-                    component: () => import('@/views/definitions/StatusAndProducts/StatusAndProducts.vue')
+                    component: () => import('@/views/definitions/Status/Status.vue')
+                },
+                {
+                    path: '/definicoes/tipos-de-produto',
+                    name: 'definitions-types-products',
+                    beforeEnter(to, from, next) {
+                        const token = localStorage.getItem('token');
+                        const user = localStorage.getItem('user');
+                        const response = validateToken();
+                        if (!token || !user || !response) {
+                            next('/login');
+                        } else {
+                            next();
+                        }
+                    },
+                    component: () => import('@/views/definitions/TypesProducts/TypesProducts.vue')
                 }
             ]
         }

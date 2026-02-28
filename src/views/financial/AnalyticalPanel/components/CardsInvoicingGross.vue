@@ -1,41 +1,8 @@
 <script setup>
-import Axios from '@/service/Axios';
-import { ref, onBeforeMount } from 'vue';
-import { loadingOpen, loadingClose } from '../../../utils/computeds';
-import { useToast } from 'primevue/usetoast';
-const toast = useToast();
+import { onBeforeMount } from 'vue';
+import { useInvoicingGross } from '../composables/useInvoicingGross';
 
-const dataEarnings = ref({
-    daily: {
-        value: 0,
-        day: ''
-    },
-    weekly: {
-        value: 0,
-        week: ''
-    },
-    monthly: {
-        value: 0,
-        month: ''
-    },
-    yearly: {
-        value: 0,
-        year: ''
-    }
-});
-const getInfoEarnings = async () => {
-    loadingOpen();
-    try {
-        const response = await Axios.get('/panel_analytical/info_values_os_paid');
-        dataEarnings.value = response.data;
-
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar informações das entrada!', life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
+const { dataEarnings, getInfoEarnings } = useInvoicingGross();
 
 onBeforeMount(() => {
     getInfoEarnings();

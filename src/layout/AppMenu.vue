@@ -1,17 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import AppMenuItem from './AppMenuItem.vue';
 
-const router = useRouter();
-
-const logout = async () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    const loginPath = '/';
-    window.history.replaceState({}, 'Login', loginPath);
-    router.push(loginPath);
-};
 
 const data = JSON.parse(localStorage.getItem('user'));
 
@@ -19,15 +9,10 @@ const modelAdmin = ref([
     {
         items: [
             {
-                label: 'OPERACIONAL',
+                label: 'Operacional',
                 icon: 'pi pi-fw pi-wrench',
                 items: [
-                    {
-                        label: 'PAINEL DE CONTROLE',
-                        icon: 'pi pi-fw pi-chart-bar',
-                        to: '/operacional/painel-de-controle'
-                    },
-                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
+                    { label: 'Serviços', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
                 ]
             }
         ]
@@ -36,20 +21,20 @@ const modelAdmin = ref([
     {
         items: [
             {
-                label: 'FINANCEIRO',
+                label: 'Financeiro',
                 icon: 'pi pi-fw pi-dollar',
                 items: [
                     {
-                        label: 'PAINEL ANALÍTICO',
+                        label: 'Painel Analítico',
                         icon: 'pi pi-fw pi-chart-line',
                         to: '/financeiro/painel-analitico'
                     },
                     {
-                        label: 'GERENCIADOR',
+                        label: 'Gerenciador',
                         icon: 'pi pi-fw pi-calculator',
                         to: '/financeiro/gerenciador'
                     },
-                    { label: 'NOTAS FISCAIS', icon: 'pi pi-fw pi-file-excel', url: 'https://www.nfse.gov.br/EmissorNacional', target: '_blank' }
+                    { label: 'Nota Fiscal', icon: 'pi pi-fw pi-file-excel', url: 'https://www.nfse.gov.br/EmissorNacional', target: '_blank' }
                 ]
             }
         ]
@@ -58,11 +43,12 @@ const modelAdmin = ref([
     {
         items: [
             {
-                label: 'DEFINIÇÕES',
+                label: 'Definições',
                 icon: 'pi pi-fw pi-cog',
                 items: [
-                    { label: 'USUÁRIOS', icon: 'pi pi-fw pi-user', to: '/definicoes/usuarios' },
-                    { label: 'STATUS E PRODUTOS', icon: 'pi pi-fw pi-sitemap', to: '/definicoes/status-e-produtos' }
+                    { label: 'Usuários', icon: 'pi pi-fw pi-user', to: '/definicoes/usuarios' },
+                    { label: 'Status', icon: 'pi pi-fw pi-sitemap', to: '/definicoes/status' },
+                    { label: 'Tipos de Produto', icon: 'pi pi-fw pi-box', to: '/definicoes/tipos-de-produto' }
                 ]
             }
         ]
@@ -73,15 +59,10 @@ const model = ref([
     {
         items: [
             {
-                label: 'OPERACIONAL',
+                label: 'Operacional',
                 icon: 'pi pi-fw pi-wrench',
                 items: [
-                    {
-                        label: 'PAINEL DE CONTROLE',
-                        icon: 'pi pi-fw pi-chart-bar',
-                        to: '/operacional/painel-de-controle'
-                    },
-                    { label: 'SERVIÇOS', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
+                    { label: 'Serviços', icon: 'pi pi-fw pi-ticket', to: '/operacional/servicos' }
                 ]
             }
         ]
@@ -103,9 +84,6 @@ const model = ref([
                 <li v-if="item.separator" class="menu-separator"></li>
             </template>
         </ul>
-    </div>
-    <div style="text-align: center">
-        <i class="pi pi-power-off" v-tooltip.top="'Sair'" style="cursor: pointer; font-size: 30px; color: red" @click="logout()"> </i>
     </div>
 </template>
 

@@ -1,95 +1,10 @@
 <script setup>
-import Axios from '@/service/Axios';
-import { ref, onMounted } from 'vue';
-import { colorTypes, loadingOpen, loadingClose } from '../../../utils/computeds';
-import { useConfirm } from 'primevue/useconfirm';
-import { useForm } from 'vee-validate';
-import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
+import { useStatusServices } from '../composables/useStatusServices';
 
 const popup = ref(null);
-const confirmPopup = useConfirm();
-const toast = useToast();
-const dataGetStatusServices = ref([]);
-const dataPostStatusServices = ref([]);
-const { handleSubmit } = useForm();
 
-const getStatusServices = async () => {
-    loadingOpen();
-    try {
-        const response = await Axios.get('/status_service');
-        dataGetStatusServices.value = response.data;
-        dataGetStatusServices.value.forEach((value) => {
-            if (value.color) {
-                value.color = JSON.parse(value.color);
-            }
-        });
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-        loadingClose();
-        console.error(error);
-    }
-};
-
-const deleteStatusServices = async (id) => {
-    loadingOpen();
-    try {
-        await Axios.delete('/status_service/' + id);
-        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de serviço deletado com sucesso', life: 5000 });
-
-        await getStatusServices();
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
-
-const confirmDeleteStatusServices = (event, id) => {
-    confirmPopup.require({
-        target: event.target,
-        message: 'Deseja realmente excluir este status?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        accept: () => {
-            deleteStatusServices(id);
-        }
-    });
-};
-
-const postStatusServices = async () => {
-    loadingOpen();
-    try {
-        await Axios.post('/status_service', {
-            description: dataPostStatusServices.value.description,
-            cod: dataPostStatusServices.value.cod,
-            color: dataPostStatusServices.value.color
-        });
-        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de serviço adicionado com sucesso', life: 5000 });
-
-        clearFields();
-        await getStatusServices();
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
-
-const onSubmit = handleSubmit(async () => {
-    if (dataPostStatusServices.value.description && dataPostStatusServices.value.cod && dataPostStatusServices.value.color) {
-        await postStatusServices();
-    } else {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Preencha todos os campos!', life: 5000 });
-    }
-});
-
-const clearFields = () => {
-    dataPostStatusServices.value = [];
-};
+const { colorTypes, dataGetStatusServices, dataPostStatusServices, getStatusServices, confirmDeleteStatusServices, onSubmit } = useStatusServices();
 
 onMounted(() => {
     getStatusServices();

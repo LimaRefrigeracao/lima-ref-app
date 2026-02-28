@@ -1,123 +1,12 @@
 <script setup>
-import Axios from '@/service/Axios';
 import { ref, onBeforeMount } from 'vue';
-import { loadingOpen, loadingClose } from '../../utils/computeds';
-import { messageAddUser, addMessage } from '../../utils/messages.js';
-import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
+import { useUsers } from './composables/useUsers';
+import DialogAddUser from './components/DialogAddUser.vue';
 
 const popup = ref(null);
-const confirmPopup = useConfirm();
-const toast = useToast();
+const dialogAddUser = ref(null);
 
-const dataPostUser = ref([]);
-const dataGetUsers = ref([]);
-const getUsers = async () => {
-    loadingOpen();
-    try {
-        const response = await Axios.get('/users');
-        dataGetUsers.value = response.data;
-
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços do depósito', life: 5000 });
-        loadingClose();
-        console.error(error);
-    }
-};
-
-const deleteUser = async (id) => {
-    loadingOpen();
-    try {
-        await Axios.delete('/users/' + id);
-        toast.add({ severity: 'success', summary: 'Deletado', detail: 'Usuário deletado com sucesso', life: 5000 });
-
-        await getUsers();
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
-
-const confirmDeleteUser = (event, id) => {
-    confirmPopup.require({
-        target: event.target,
-        message: 'Deseja realmente excluir este usuário?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        accept: () => {
-            deleteUser(id);
-        }
-    });
-};
-
-const customBase64Uploader = async (event) => {
-    const file = event.files[0];
-    const reader = new FileReader();
-    let blob = await fetch(file.objectURL).then((r) => r.blob());
-
-    const targetSizeBytes = 40 * 1024;
-
-    if (blob.size > targetSizeBytes) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Imagem muito grande. Max: 30KB. Para redimencionar sua imagem acesse: https://www.shutterstock.com/pt/image-resizer ', life: 8000 });
-    } else {
-        reader.readAsDataURL(blob);
-
-        reader.onloadend = function () {
-            const base64data = reader.result;
-            dataPostUser.value.signature = base64data;
-        };
-    }
-};
-
-const postUser = async () => {
-    loadingOpen();
-    try {
-        await Axios.post('/users', {
-            username: dataPostUser.value.username,
-            email: dataPostUser.value.email,
-            password: dataPostUser.value.password,
-            confirmPassword: dataPostUser.value.confirmPassword,
-            signature: dataPostUser.value.signature,
-            admin: dataPostUser.value.admin
-        });
-        toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Usuário adicionado com sucesso', life: 5000 });
-
-        await getUsers();
-        closeModal();
-        loadingClose();
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar usuário', life: 5000 });
-        console.error(error);
-        loadingClose();
-    }
-};
-
-const validatePostUser = async () => {
-    if (!dataPostUser.value.username || !dataPostUser.value.email || !dataPostUser.value.password || !dataPostUser.value.confirmPassword) {
-        addMessage('addUser', 'error', 'Preencha todos os campos obrigatórios.');
-    } else if (dataPostUser.value.password !== dataPostUser.value.confirmPassword) {
-        addMessage('addUser', 'error', 'Senhas incoerentes.');
-    } else {
-        await postUser();
-    }
-};
-
-const displayModalAdd = ref(false);
-const openModalAdd = () => {
-    messageAddUser.value.length = 0;
-    displayModalAdd.value = true;
-};
-
-const closeModal = () => {
-    if (displayModalAdd.value == true) {
-        displayModalAdd.value = false;
-        dataPostUser.value = [];
-    }
-};
+const { dataGetUsers, getUsers, confirmDeleteUser } = useUsers();
 
 onBeforeMount(() => {
     getUsers();
@@ -132,53 +21,8 @@ onBeforeMount(() => {
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">
-                    <Dialog header="Adicionar Usuário" v-model:visible="displayModalAdd" position="top" :breakpoints="{ '960px': '75vw' }" :style="{ width: '28vw' }" :modal="true">
-                        <transition-group tag="div">
-                            <Message v-for="msg of messageAddUser" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
-                        </transition-group>
-                        <div class="grid p-fluid mt-1">
-                            <div class="field col-12 md:col-6">
-                                <span class="p-float-label">
-                                    <InputText type="text" id="addUsername" v-model="dataPostUser.username" />
-                                    <label for="addUsername"><span style="color: red">*</span> Nome de Usuário </label>
-                                </span>
-                            </div>
-                            <div class="field col-12 md:col-6">
-                                <span class="p-float-label">
-                                    <InputText type="text" id="addEmail" v-model="dataPostUser.email" />
-                                    <label for="addEmail"> <span style="color: red">*</span> Email </label>
-                                </span>
-                            </div>
-                            <div class="field col-12 md:col-6">
-                                <span class="p-float-label">
-                                    <Password id="addPassword" v-model="dataPostUser.password" toggleMask :feedback="false" />
-                                    <label for="addPassword"> <span style="color: red">*</span> Senha </label>
-                                </span>
-                            </div>
-                            <div class="field col-12 md:col-6">
-                                <span class="p-float-label">
-                                    <Password id="addConfirmPassword" v-model="dataPostUser.confirmPassword" toggleMask :feedback="false" />
-                                    <label for="addConfirmPassword"> <span style="color: red">*</span> Confirmar Senha </label>
-                                </span>
-                            </div>
-                            <div class="field col-12 md:col-6">
-                                <span class="p-float-label">
-                                    <FileUpload id="addSignature" mode="basic" url="/api/upload" accept="image/*" customUpload @uploader="customBase64Uploader" chooseLabel="Assinatura" />
-                                </span>
-                            </div>
-                            <div class="field col-12 md:col-6">
-                                <span class="p-float-label">
-                                    <Checkbox id="addAdmin" v-model="dataPostUser.admin" :binary="true" />
-                                    <label for="addAdmin" style="margin-left: 20px"> Administrador</label>
-                                </span>
-                            </div>
-                        </div>
-                        <template #footer>
-                            <Button label="Cancelar" icon="pi pi-times" class="p-button-danger" @click="closeModal()" />
-                            <Button label="Adicionar" icon="pi pi-check" class="p-button-success" @click="validatePostUser()" />
-                        </template>
-                    </Dialog>
-                    <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="openModalAdd()" />
+                    <DialogAddUser ref="dialogAddUser" :get-users="getUsers" />
+                    <Button label="Adicionar" icon="pi pi-plus" class="p-button-primary mr-2" @click="dialogAddUser.open()" />
                 </div>
             </template>
         </Toolbar>
@@ -205,3 +49,4 @@ onBeforeMount(() => {
         </DataTable>
     </div>
 </template>
+

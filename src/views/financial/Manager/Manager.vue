@@ -1,65 +1,13 @@
 <script setup>
-import Axios from '@/service/Axios';
-import { io } from 'socket.io-client';
-import { ref, onBeforeMount, provide } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
-
-import { formatData, loadingOpen, loadingClose } from '../../utils/computeds';
-
+import { onBeforeMount } from 'vue';
+import { useExpenses } from './composables/useExpenses';
 import DialogAddExpenses from './components/DialogAddExpenses.vue';
 
-const socket = io(import.meta.env.VITE_BASE_URL_API);
-const confirm = useConfirm();
-const toast = useToast();
-
-const visibleDialogAdd = ref(false);
-provide('visibleDialogAdd', visibleDialogAdd);
-
-const dataGetExpenses = ref([]);
-socket.on('reloadDataExpenses', (data) => {
-    dataGetExpenses.value = data;
-});
-const getExpenses = async () => {
-    loadingOpen();
-    try {
-        const response = await Axios.get('/expenses');
-        dataGetExpenses.value = response.data;
-        loadingClose();
-    } catch (error) {
-        loadingClose();
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível buscar despesas.', life: 8000 });
-    }
-};
+const { visibleDialogAdd, dataGetExpenses, getExpenses, confirmDeleteExpense, formatData } = useExpenses();
 
 onBeforeMount(() => {
     getExpenses();
 });
-
-const deleteExpense = async (id) => {
-    loadingOpen();
-    try {
-        await Axios.delete('/expenses/' + id);
-        loadingClose();
-        toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Despesa deletada com sucesso!', life: 8000 });
-    } catch (error) {
-        loadingClose();
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível deletar despesa.', life: 8000 });
-    }
-};
-
-const confirmDeleteExpense = (event, data) => {
-    confirm.require({
-        target: event.currentTarget,
-        message: 'Deseja realmente excluir esta despesa?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        accept: () => {
-            deleteExpense(data.id);
-        }
-    });
-};
 </script>
 <template>
     <Toast />
