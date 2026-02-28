@@ -25,7 +25,6 @@ axiosInstance.interceptors.request.use(
             ...config.data
         };
 
-        console.log('Request Config:', config.data)
         return config;
     },
     (error) => {

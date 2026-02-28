@@ -24,8 +24,7 @@ export function useStatusServices() {
                 }
             });
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-            console.error(error);
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao buscar status de serviço', life: 5000 });
         } finally {
             loadingClose();
         }
@@ -34,12 +33,11 @@ export function useStatusServices() {
     const deleteStatusServices = async (id) => {
         loadingOpen();
         try {
-            await Axios.delete('/status_service/' + id);
-            toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de serviço deletado com sucesso', life: 5000 });
+            const response = await Axios.delete('/status_service/' + id);
+            toast.add({ severity: 'success', summary: 'Deletado', detail: response.msg, life: 5000 });
             await getStatusServices();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-            console.error(error);
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao deletar status de serviço', life: 5000 });
         } finally {
             loadingClose();
         }
@@ -65,17 +63,16 @@ export function useStatusServices() {
     const postStatusServices = async () => {
         loadingOpen();
         try {
-            await Axios.post('/status_service', {
+            const response = await Axios.post('/status_service', {
                 description: dataPostStatusServices.value.description,
                 cod: dataPostStatusServices.value.cod,
-                color: dataPostStatusServices.value.color
+                color: JSON.stringify(dataPostStatusServices.value.color)
             });
-            toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de serviço adicionado com sucesso', life: 5000 });
+            toast.add({ severity: 'success', summary: 'Adicionado', detail: response.msg, life: 5000 });
             clearFields();
             await getStatusServices();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-            console.error(error);
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao adicionar status de serviço', life: 5000 });
         } finally {
             loadingClose();
         }

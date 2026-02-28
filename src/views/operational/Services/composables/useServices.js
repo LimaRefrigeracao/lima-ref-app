@@ -91,7 +91,7 @@ export function useServices() {
             dataGetOS.value = response.data[0];
             return dataGetOS.value;
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar OS específica', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao buscar OS específica', life: 5000 });
             console.error(error);
         }
     };
@@ -106,7 +106,7 @@ export function useServices() {
             dataGetService.value = response.data;
             initFilters();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao buscar serviços', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -120,7 +120,7 @@ export function useServices() {
             dataGetService.value = response.data;
             initFilters();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar serviços do depósito', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao buscar serviços do depósito', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -129,10 +129,10 @@ export function useServices() {
 
     const updateWarehouseForService = async (id) => {
         try {
-            await Axios.put('/services/warehouse/' + id + '/true', { typeTable: typeTable.value.value });
-            toast.add({ severity: 'success', summary: 'Enviado', detail: '', life: 5000 });
+            const response = await Axios.put('/services/warehouse/' + id + '/true', { typeTable: typeTable.value.value });
+            toast.add({ severity: 'success', summary: 'Enviado', detail: response.msg, life: 5000 });
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: '', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao enviar serviço de volta', life: 5000 });
             console.error(error);
         }
     };
@@ -150,10 +150,10 @@ export function useServices() {
     const deleteService = async (idService, cod_order) => {
         loadingOpen();
         try {
-            await Axios.delete('/services/' + idService + '/' + cod_order + '/' + typeTable.value.value);
-            toast.add({ severity: 'success', summary: 'Deletado', detail: 'Serviço deletado com sucesso', life: 5000 });
+            const response = await Axios.delete('/services/' + idService + '/' + cod_order + '/' + typeTable.value.value);
+            toast.add({ severity: 'success', summary: 'Deletado', detail: response.msg, life: 5000 });
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar serviço', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao deletar serviço', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -173,10 +173,10 @@ export function useServices() {
     const updateWarehouse = async (id) => {
         loadingOpen();
         try {
-            await Axios.put('/services/warehouse/' + id + '/false', { typeTable: typeTable.value.value });
-            toast.add({ severity: 'success', summary: 'Enviado', detail: 'Serviço enviado ao depósito', life: 5000 });
+            const response = await Axios.put('/services/warehouse/' + id + '/false', { typeTable: typeTable.value.value });
+            toast.add({ severity: 'success', summary: 'Enviado', detail: response.msg, life: 5000 });
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao enviar serviço ao depósito', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao enviar serviço ao depósito', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -213,7 +213,7 @@ export function useServices() {
     const updateInfoClient = async () => {
         loadingOpen();
         try {
-            await Axios.put('/services/info/client/' + dataEditInfoClient.value.id, {
+            const response = await Axios.put('/services/info/client/' + dataEditInfoClient.value.id, {
                 product: dataEditInfoClient.value.product,
                 client: dataEditInfoClient.value.client,
                 telephone: dataEditInfoClient.value.telephone,
@@ -221,10 +221,10 @@ export function useServices() {
                 observation: dataEditInfoClient.value.observation,
                 typeTable: typeTable.value.value
             });
-            toast.add({ severity: 'success', summary: 'Editado', detail: 'As informações do cliente foram editadas', life: 5000 });
+            toast.add({ severity: 'success', summary: 'Editado', detail: response.msg, life: 5000 });
             closeModal();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao editar as informações do cliente', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao editar as informações do cliente', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -253,11 +253,11 @@ export function useServices() {
     const updateStatus = async () => {
         loadingOpen();
         try {
-            await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status, { typeTable: typeTable.value.value });
-            toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status atualizado com sucesso', life: 5000 });
+            const response = await Axios.put('/services/status/' + dataEditStatus.value.id + '/' + dataEditStatus.value.status, { typeTable: typeTable.value.value });
+            toast.add({ severity: 'success', summary: 'Atualizado', detail: response.msg, life: 5000 });
             closeModal();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao atualizar o status', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -286,11 +286,11 @@ export function useServices() {
     const updatePaymentStatus = async () => {
         loadingOpen();
         try {
-            await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status, { typeTable: typeTable.value.value });
-            toast.add({ severity: 'success', summary: 'Atualizado', detail: 'Status de pagamento atualizado com sucesso', life: 5000 });
+            const response = await Axios.put('/services/status/payment/' + dataEditPaymentStatus.value.id + '/' + dataEditPaymentStatus.value.payment_status, { typeTable: typeTable.value.value });
+            toast.add({ severity: 'success', summary: 'Atualizado', detail: response.msg, life: 5000 });
             closeModal();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao atualizar o status de pagamento ', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao atualizar o status de pagamento ', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();
@@ -359,7 +359,7 @@ export function useServices() {
             } else {
                 dataPutOrderOfService.value = dataPutOrderOfServiceComplete.value;
             }
-            await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
+            const response = await Axios.put('/order_of_service/estimate/' + data.order_of_service, {
                 type: typeOS.value.value,
                 id: !dataPutOrderOfService.value.id ? null : dataPutOrderOfService.value.id,
                 amount: dataPutOrderOfService.value.amount,
@@ -368,10 +368,10 @@ export function useServices() {
             });
             closeModal();
             await openModalOS('top', data);
-            toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Registro de OS adicionado com sucesso', life: 5000 });
+            toast.add({ severity: 'success', summary: 'Adicionado', detail: response.msg, life: 5000 });
         } catch (error) {
             console.error(error);
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar registro de OS', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao adicionar registro de OS', life: 5000 });
         } finally {
             loadingClose();
         }
@@ -380,13 +380,13 @@ export function useServices() {
     const deleteEstimateOS = async (cod, data) => {
         loadingOpen();
         try {
-            await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
-            toast.add({ severity: 'success', summary: 'Deletado', detail: 'Registro de OS deletado com sucesso', life: 5000 });
+            const response = await Axios.delete('/order_of_service/estimate/' + cod + '/' + data.id);
+            toast.add({ severity: 'success', summary: 'Deletado', detail: response.msg, life: 5000 });
             const dataOpen = { order_of_service: cod };
             closeModal();
             await openModalOS('top', dataOpen);
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao deletar registro de OS', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao deletar registro de OS', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();

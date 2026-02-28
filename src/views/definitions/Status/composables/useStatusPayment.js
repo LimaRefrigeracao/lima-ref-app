@@ -24,8 +24,7 @@ export function useStatusPayment() {
                 }
             });
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-            console.error(error);
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao buscar status de pagamento', life: 5000 });
         } finally {
             loadingClose();
         }
@@ -34,12 +33,11 @@ export function useStatusPayment() {
     const deleteStatusPayment = async (id) => {
         loadingOpen();
         try {
-            await Axios.delete('/status_payment/' + id);
-            toast.add({ severity: 'success', summary: 'Deletado', detail: 'Status de pagamento deletado com sucesso', life: 5000 });
+            const response = await Axios.delete('/status_payment/' + id);
+            toast.add({ severity: 'success', summary: 'Deletado', detail: response.msg, life: 5000 });
             await getStatusPayment();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-            console.error(error);
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao deletar status de pagamento', life: 5000 });
         } finally {
             loadingClose();
         }
@@ -65,17 +63,16 @@ export function useStatusPayment() {
     const postStatusPayment = async () => {
         loadingOpen();
         try {
-            await Axios.post('/status_payment', {
+            const response = await Axios.post('/status_payment', {
                 description: dataPostStatusPayment.value.description,
                 cod: dataPostStatusPayment.value.cod,
-                color: dataPostStatusPayment.value.color
+                color: JSON.stringify(dataPostStatusPayment.value.color)
             });
-            toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Novo Status de pagamento adicionado com sucesso', life: 5000 });
+            toast.add({ severity: 'success', summary: 'Adicionado', detail: response.msg, life: 5000 });
             clearFields();
             await getStatusPayment();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: error.response.data.msg, life: 5000 });
-            console.error(error);
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao adicionar status de pagamento', life: 5000 });
         } finally {
             loadingClose();
         }

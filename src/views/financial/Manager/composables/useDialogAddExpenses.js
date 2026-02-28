@@ -28,17 +28,17 @@ export function useDialogAddExpenses() {
     const postAddExpense = async () => {
         loadingOpen();
         try {
-            await Axios.post('/expenses', {
+            const response = await Axios.post('/expenses', {
                 date: dataDialogAddExpenses.value.date,
                 type: dataDialogAddExpenses.value.type.name,
                 description: dataDialogAddExpenses.value.description,
                 value: dataDialogAddExpenses.value.value
             });
-            toast.add({ severity: 'success', summary: 'Adicionado', detail: 'Despesa cadastrada com sucesso!', life: 8000 });
+            toast.add({ severity: 'success', summary: 'Adicionado', detail: response.msg, life: 8000 });
             dataDialogAddExpenses.value = {};
             initDate();
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao tentar cadastrar despesa.', life: 8000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao tentar cadastrar despesa.', life: 8000 });
         } finally {
             loadingClose();
         }

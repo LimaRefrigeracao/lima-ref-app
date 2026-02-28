@@ -19,7 +19,7 @@ export function useInvoicingGross() {
             const response = await Axios.get('/panel_analytical/info_values_os_paid');
             dataEarnings.value = response.data;
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao buscar informações das entrada!', life: 5000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Erro ao buscar informações das entradas!', life: 5000 });
             console.error(error);
         } finally {
             loadingClose();

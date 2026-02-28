@@ -26,7 +26,7 @@ export function useExpenses() {
             const response = await Axios.get('/expenses');
             dataGetExpenses.value = response.data;
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível buscar despesas.', life: 8000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Não foi possível buscar despesas.', life: 8000 });
         } finally {
             loadingClose();
         }
@@ -35,10 +35,10 @@ export function useExpenses() {
     const deleteExpense = async (id) => {
         loadingOpen();
         try {
-            await Axios.delete('/expenses/' + id);
-            toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Despesa deletada com sucesso!', life: 8000 });
+            const response = await Axios.delete('/expenses/' + id);
+            toast.add({ severity: 'success', summary: 'Sucesso', detail: response.msg, life: 8000 });
         } catch (error) {
-            toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível deletar despesa.', life: 8000 });
+            toast.add({ severity: 'error', summary: 'Erro', detail: error.response?.data?.msg || 'Não foi possível deletar despesa.', life: 8000 });
         } finally {
             loadingClose();
         }
