@@ -21,6 +21,9 @@ const optionsTypesTables = ref([
 
 /* Formated Data D/M/A */
 const formatData = (dataString) => {
+    if (!dataString) {
+        return '---';
+    }
     const partes = dataString.split('-');
     if (partes.length !== 3) {
         return 'Data inválida';
