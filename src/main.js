@@ -104,8 +104,35 @@ import '@/assets/styles.scss';
 
 const app = createApp(App);
 
+app.use(PrimeVue, {
+  ripple: true,
+  locale: {
+    startsWith: 'Começa com',
+    contains: 'Contém',
+    notContains: 'Não contém',
+    endsWith: 'Termina com',
+    equals: 'Igual a',
+    notEquals: 'Diferente de',
+    lt: 'Menor que',
+    lte: 'Menor ou igual a',
+    gt: 'Maior que',
+    gte: 'Maior ou igual a',
+    dateIs: 'Data é',
+    dateIsNot: 'Data não é',
+    dateBefore: 'Data antes de',
+    dateAfter: 'Data depois de',
+    clear: 'Limpar',
+    apply: 'Aplicar',
+    matchAll: 'Corresponde a todos',
+    matchAny: 'Corresponde a qualquer',
+    addRule: 'Adicionar regra',
+    removeRule: 'Remover regra'
+  },
+  filterLocale: 'pt-BR'
+});
+
+
 app.use(router);
-app.use(PrimeVue, { ripple: true });
 app.use(ToastService);
 app.use(DialogService);
 app.use(ConfirmationService);

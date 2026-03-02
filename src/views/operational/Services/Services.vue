@@ -30,7 +30,7 @@ const {
     openModalEditStatus, validateUpdateStatusService,
     openModalEditInfo, validateEditInfoClient, isInfoClientChanged, resetInfoClient,
     confirmDeleteService, confirmUpdateWarehouse, confirmUpdateForServices,
-    toggle, openOverlay, idop, op
+    toggle, openOverlay, idop, op, copyText
 } = useServices();
 
 onBeforeMount(() => {
@@ -39,6 +39,30 @@ onBeforeMount(() => {
     getStatusService();
     getServices();
 });
+
+const props = defineProps({
+  rowData: {
+    type: Array,
+    required: false,
+    default: () => []
+  },
+  dataGetOs: {
+    type: Array,
+    required: false,
+    default: () => []
+  },
+  typeOs: {
+    type: Array,
+    required: false,
+    default: () => []
+  },
+  dataViewEstimateOs: {
+    type: Array,
+    required: false,
+    default: () => []
+  }
+});
+
 </script>
 
 <template>
@@ -50,7 +74,10 @@ onBeforeMount(() => {
 
     <DialogViewOS
         v-model="displayModalOS"
-        :position="positionModalOS"
+        :position="String(positionModalOS)"
+        :dataGetOS="dataGetOS"
+        :dataViewEstimateOS="dataViewEstimateOS"
+        :typeOS="typeOS"
         :row-data="dataGetOS"
         :data-get-os="dataGetOS"
         :data-view-estimate-os="dataViewEstimateOS"
@@ -70,7 +97,7 @@ onBeforeMount(() => {
 
     <DialogEditStatus
         v-model="displayModalEditStatus"
-        :position="positionModalEditStatus"
+        :position="String(positionModalEditStatus)"
         :data="dataEditStatus"
         :data-edit-status="dataEditStatus"
         :status-options="statusServiceOptions"
@@ -83,7 +110,7 @@ onBeforeMount(() => {
 
     <DialogEditPaymentStatus
         v-model="displayModalEditPaymentStatus"
-        :position="positionModalEditPaymentStatus"
+        :position="String(positionModalEditPaymentStatus)"
         :data="dataEditPaymentStatus"
         :data-edit-payment-status="dataEditPaymentStatus"
         :status-options="statusPaymentOptions"
@@ -96,7 +123,7 @@ onBeforeMount(() => {
 
     <DialogEditInfoClient
         v-model="displayModalEditInfo"
-        :position="positionModalEditInfo"
+        :position="String(positionModalEditInfo)"
         :data-edit-info-client="dataEditInfoClient"
         :types-product-options="typesProductOptions"
         :messages="messageEditInfoClient"
@@ -141,16 +168,34 @@ onBeforeMount(() => {
                     :filters="filters"
                     responsiveLayout="scroll"
                     :globalFilterFields="['order_of_service', 'product', 'client', 'telephone', 'created_at', 'adress', 'observation']"
-                    :filterLocale="filterLocale"
                 >
                     <template #empty> Nenhum registro encontrado. </template>
                     <template #loading> Carregando registros. Por favor aguarde. </template>
 
                     <!-- OS -->
-                    <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric" style="width: 3vw">
+                    <Column bodyClass="text-center" filterField="order_of_service" header="OS" :showFilterMatchModes="false" dataType="numeric" style="width: auto">
                         <template #body="{ data }">
-                            <Chip v-if="typeTable.value == 1" :label="data.order_of_service" @click="openModalOS('top', data)" v-tooltip.top="'Visualizar/Atualizar Orçamento'" style="cursor: pointer" />
-                            <span v-if="typeTable.value == 2"> {{ data.order_of_service }} </span>
+                            <Dialog v-if="data.id == dataViewObservation.id" header="Observação" v-model:visible="displayModalViewObservation" :position="String(positionModalViewObservation)" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
+                                <h6 class="line-height-3 m-0">{{ dataViewObservation.observation }}</h6>
+                            </Dialog>
+                            <div style="position: relative; display: inline-block;">
+                                <Chip v-if="typeTable.value == 1"
+                                        :label="String(data.order_of_service)"
+                                        @click="openModalOS('top', data)"
+                                        v-tooltip.top="'Visualizar/Atualizar Orçamento'"
+                                        style="cursor: pointer" />
+
+                                <span v-if="typeTable.value == 2">
+                                    {{ data.order_of_service }}
+                                </span>
+
+                                <i v-if="data.observation"
+                                    @click="openModalViewObservation('top', data)"
+                                    class="pi pi-exclamation-triangle"
+                                    v-tooltip.top="'Visualizar Observação'"
+                                    style="position: absolute; top: -2px; right: -15px; cursor: pointer; color: #f59e0b; font-size: 12px;">
+                                </i>
+                            </div>
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Código da OS" />
@@ -188,9 +233,13 @@ onBeforeMount(() => {
                     </Column>
 
                     <!-- Cliente -->
-                    <Column bodyClass="text-center" field="client" header="Cliente" :showFilterMatchModes="false" dataType="text">
+                    <Column bodyClass="text-center" field="client" header="Informações do Cliente" :showFilterMatchModes="false" dataType="text" style="width: auto">
                         <template #body="{ data }">
                             {{ data.client }}
+                            <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="String(positionModalViewAdress)" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
+                                <h6 class="line-height-3 m-0">{{ data.adress }}</h6>
+                            </Dialog>
+                            <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar Endereço'" style="cursor: pointer"></i>
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="Nome" />
@@ -198,36 +247,19 @@ onBeforeMount(() => {
                     </Column>
 
                     <!-- Telefone -->
-                    <Column bodyClass="text-center" field="telephone" header="Telefone" :showFilterMatchModes="false" dataType="text" style="width: 5vw">
+                    <Column bodyClass="text-center" field="telephone" header="Contato" :showFilterMatchModes="false" dataType="text" style="width: auto">
                         <template #body="{ data }">
+                            {{ data.telephone }}
                             <a :href="`https://wa.me/${data.telephone}`" target="_blank">
-                                <Tag severity="success" v-tooltip.top="'Abrir no Whatsapp'"> {{ data.telephone }} <i class="pi pi-whatsapp ml-1"></i> </Tag>
+                                <Tag severity="success" v-tooltip.top="'Abrir no Whatsapp'"><i class="pi pi-whatsapp"></i></Tag>
                             </a>
+                            <a @click="copyText(data.telephone)" style="cursor: pointer">
+                                <Tag class="ml-1 surface-500" v-tooltip.top="'Copiar Telefone'"><i class="pi pi-copy"></i></Tag>
+                            </a>
+
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText type="text" v-model="filterModel.value" class="p-column-filter" placeholder="" />
-                        </template>
-                    </Column>
-
-                    <!-- Endereço -->
-                    <Column field="adress" header="Endereço" dataType="boolean" bodyClass="text-center" style="width: 4vw">
-                        <template #body="{ data }">
-                            <Dialog v-if="data.id == dataViewAdress.id" header="Endereço" v-model:visible="displayModalViewAdress" :position="positionModalViewAdress" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
-                                <h6 class="line-height-3 m-0">{{ data.adress }}</h6>
-                            </Dialog>
-                            <i v-if="data.adress" @click="openModalViewAdress('top', data)" class="text-green-500 pi pi-map-marker" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
-                            <i v-if="!data.adress" class="pi pi-minus"></i>
-                        </template>
-                    </Column>
-
-                    <!-- Observação -->
-                    <Column field="observation" header="Observação" dataType="boolean" bodyClass="text-center" style="width: 5vw">
-                        <template #body="{ data }">
-                            <Dialog v-if="data.id == dataViewObservation.id" header="Observação" v-model:visible="displayModalViewObservation" :position="positionModalViewObservation" :breakpoints="{ '960px': '75vw' }" :style="{ width: '25vw' }" :modal="true">
-                                <h6 class="line-height-3 m-0">{{ dataViewObservation.observation }}</h6>
-                            </Dialog>
-                            <i v-if="data.observation" @click="openModalViewObservation('top', data)" class="text-green-500 pi pi-tag" v-tooltip.top="'Visualizar'" style="cursor: pointer"></i>
-                            <i v-if="!data.observation" class="pi pi-minus"></i>
                         </template>
                     </Column>
 
@@ -236,9 +268,9 @@ onBeforeMount(() => {
                         <template #body="{ data }">
                             <Tag
                                 @click="openModalEditStatus('top', data)"
-                                :value="getStyleStatusService(data.status).description"
-                                :style="{ background: getStyleStatusService(data.status).color.hex }"
-                                v-tooltip.top="'Atualizar Status'"
+                                :value="getStyleStatusService(data.status)?.description"
+                                :style="{ background: getStyleStatusService(data.status)?.color.hex }"
+                                v-tooltip.top="'Atualizar Situação do Serviço'"
                                 style="cursor: pointer"
                             />
                         </template>
@@ -264,7 +296,7 @@ onBeforeMount(() => {
                                 @click="openModalEditPaymentStatus('top', data)"
                                 :value="getStyleStatusPayment(data.payment_status).description"
                                 :style="{ background: getStyleStatusPayment(data.payment_status).color.hex }"
-                                v-tooltip.top="'Atualizar Status de Pagamento'"
+                                v-tooltip.top="'Atualizar Situação do Pagamento'"
                                 style="cursor: pointer"
                             />
                         </template>
@@ -286,7 +318,7 @@ onBeforeMount(() => {
                     <!-- Ações -->
                     <Column bodyClass="text-center" style="width: 4vw">
                         <template #body="{ data }">
-                            <Button v-tooltip.top="'Ações'" icon="pi pi-ellipsis-v" @click="toggle($event, data.id)" class="p-button-rounded surface-400 surface-border" />
+                            <Button v-tooltip.top="'Ações'" icon="pi pi-ellipsis-v" @click="toggle($event, data.id)" class="p-button-rounded surface-500 surface-border" />
                             <OverlayPanel v-if="openOverlay(data.id)" ref="op">
                                 <Button icon="pi pi-user-edit" @click="openModalEditInfo('top', data)" class="p-button-rounded p-button-warning" v-tooltip.top="'Ver informações'" />
                                 <Button icon="pi pi-share-alt" @click="sendInfoClientsWhats(data)" class="ml-1 p-button-rounded p-button-success" v-tooltip.top="'Enviar informações'" />

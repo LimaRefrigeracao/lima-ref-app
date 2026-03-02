@@ -463,6 +463,16 @@ export function useServices() {
     };
     const openOverlay = (id) => id === idop.value;
 
+    const copyText = async (numTelefone) => {
+        try {
+            await navigator.clipboard.writeText(numTelefone);
+            toast.add({ severity: 'success', summary: 'Contato copiado', detail: 'Telefone copiado com sucesso!', life: 5000 });
+        } catch (err) {
+            console.error("Erro ao copiar: ", err);
+        }
+    };
+
+
     return {
         // utils
         optionsTypesTables, formatData, sendWhatsAppMessage, sendInfoClientsWhats, pdfGenerator,
@@ -496,6 +506,6 @@ export function useServices() {
         openModalEditStatus, validateUpdateStatusService,
         openModalEditInfo, validateEditInfoClient, isInfoClientChanged, resetInfoClient,
         confirmDeleteService, confirmUpdateWarehouse, confirmUpdateForServices,
-        toggle, openOverlay, idop, op
+        toggle, openOverlay, idop, op, copyText
     };
 }
