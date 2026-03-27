@@ -21,18 +21,13 @@ const modelAdmin = ref([
     {
         items: [
             {
-                label: 'Financeiro',
-                icon: 'pi pi-fw pi-dollar',
+                label: 'Organizacional',
+                icon: 'pi pi-fw pi-box',
                 items: [
                     {
-                        label: 'Painel Analítico',
-                        icon: 'pi pi-fw pi-chart-line',
-                        to: '/financeiro/painel-analitico'
-                    },
-                    {
-                        label: 'Gerenciador',
-                        icon: 'pi pi-fw pi-calculator',
-                        to: '/financeiro/gerenciador'
+                        label: 'Estoque',
+                        icon: 'pi pi-fw pi-sitemap',
+                        to: '/organizacional/estoque'
                     },
                     { label: 'Nota Fiscal', icon: 'pi pi-fw pi-file-excel', url: 'https://www.nfse.gov.br/EmissorNacional', target: '_blank' }
                 ]

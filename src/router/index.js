@@ -41,37 +41,6 @@ const router = createRouter({
                     component: () => import('@/views/operational/Services/Services.vue')
                 },
                 {
-                    path: '/financeiro/painel-analitico',
-                    name: 'financial-analytical-panel',
-                    beforeEnter(to, from, next) {
-                        const token = localStorage.getItem('token');
-                        const user = localStorage.getItem('user');
-                        const response = validateToken();
-                        if (!token || !user || !response) {
-                            next('/login');
-                        } else {
-                            next();
-                        }
-                    },
-                    component: () => import('@/views/financial/AnalyticalPanel/AnalyticalPanel.vue')
-                },
-                {
-                    path: '/financeiro/gerenciador',
-                    name: 'financial-manager',
-                    beforeEnter(to, from, next) {
-                        const token = localStorage.getItem('token');
-                        const user = localStorage.getItem('user');
-                        const response = validateToken();
-                        if (!token || !user || !response) {
-                            next('/login');
-                        } else {
-                            next();
-                        }
-                    },
-                    component: () => import('@/views/financial/Manager/Manager.vue')
-                },
-
-                {
                     path: '/definicoes/usuarios',
                     name: 'definitions-users',
                     beforeEnter(to, from, next) {

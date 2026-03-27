@@ -11,6 +11,7 @@ lerna-debug.log*
 /node_modules
 package-lock.json
 yarn.lock
+bun.lock
 
 .DS_Store
 dist
